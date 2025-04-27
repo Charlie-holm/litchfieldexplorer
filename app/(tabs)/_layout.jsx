@@ -11,10 +11,7 @@ import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { app } from '@/firebaseConfig';
 
 export default function TabLayout() {
-  // Move all hooks to the top, before any conditional logic
-  const [fontsLoaded] = useFonts({
-    'Lobster-Regular': require('@/assets/fonts/Lobster-Regular.ttf'),
-  }); const { theme: colorScheme } = useThemeContext();
+  const { theme: colorScheme } = useThemeContext();
   const pathname = usePathname();
   const [showSearch, setShowSearch] = useState(false);
   const router = useRouter();
