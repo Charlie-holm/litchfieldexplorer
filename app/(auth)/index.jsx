@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, Alert } from 'react-native';
+import { View, TextInput, Pressable, Alert } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -14,6 +14,7 @@ export default function LoginScreen() {
     const { theme: colorScheme } = useThemeContext();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const router = useRouter();
     const globalStyles = useGlobalStyles();
 
@@ -36,7 +37,7 @@ export default function LoginScreen() {
             console.log('Logged in!');
             router.replace('/(tabs)');
         } catch (error) {
-            Alert.alert('Login Failed', error.message);
+            setErrorMessage('Login failed. Please try again.');
         }
     };
 
@@ -80,6 +81,11 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={setPassword}
             />
+            {errorMessage !== '' && (
+                <ThemedText type="default" style={{ color: 'red', marginTop: -10 }}>
+                    {errorMessage}
+                </ThemedText>
+            )}
 
             <View style={{ alignItems: 'flex-end', width: '100%', marginBottom: 20 }}>
                 <Pressable onPress={() => Alert.alert('Forgot Password')}>
