@@ -24,7 +24,7 @@ export default function LoginScreen() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
-                router.replace('/(tabs)/home');
+                router.replace('/(tabs)');
             }
         });
         return unsubscribe;
@@ -34,7 +34,7 @@ export default function LoginScreen() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             console.log('Logged in!');
-            router.replace('/');
+            router.replace('/(tabs)');
         } catch (error) {
             Alert.alert('Login Failed', error.message);
         }

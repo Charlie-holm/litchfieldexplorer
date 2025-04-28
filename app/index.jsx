@@ -1,32 +1,26 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useRef, useEffect, useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TouchableOpacity, View, AppState } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useState, useRef, useEffect } from 'react';
+import { Button, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { Overlay } from "./Overlay";
+import { auth } from '@/firebaseConfig';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Scanner() {
-    const [permission, requestPermission] = useCameraPermissions();
+export default function App() {
     const qrLock = useRef(false);
-    const appState = useRef(AppState.currentState);
     const [facing, setFacing] = useState('back');
-    const router = useRouter();
-
-    // Placeholder for login status - replace with real auth check
-    const isLoggedIn = false;
+    const [permission, requestPermission] = useCameraPermissions();
+    const [firstScan, setFirstScan] = useState(true);
+    const isLoggedIn = auth.currentUser !== null;
 
     useEffect(() => {
-        const subscription = AppState.addEventListener("change", (nextAppState) => {
-            if (
-                appState.current.match(/inactive|background/) &&
-                nextAppState === "active"
-            ) {
-                qrLock.current = false;
+        const checkFirstScan = async () => {
+            const value = await AsyncStorage.getItem('firstScanDone');
+            if (value === 'true') {
+                setFirstScan(false);
             }
-            appState.current = nextAppState;
-        });
-
-        return () => {
-            subscription.remove();
         };
+        checkFirstScan();
     }, []);
 
     if (!permission) {
@@ -37,47 +31,58 @@ export default function Scanner() {
         return (
             <View style={styles.container}>
                 <Text style={styles.message}>We need your permission to show the camera</Text>
-                <Button onPress={requestPermission} title="Grant Permission" />
+                <Button onPress={requestPermission} title="grant permission" />
             </View>
         );
-    }
-
-    const handleBarCodeScanned = ({ type, data }) => {
-        if (data && !qrLock.current) {
-            qrLock.current = true;
-            if (data === 'Litchfield') {
-                if (isLoggedIn) {
-                    router.replace('/(tabs)');
-                } else {
-                    router.replace('/login');
-                }
-            } else {
-                Alert.alert('Unrecognized QR Code', `Scanned Data: ${data}`);
-                qrLock.current = false;
-            }
-        }
-    };
-
-    function toggleCameraFacing() {
-        setFacing(current => (current === 'back' ? 'front' : 'back'));
     }
 
     return (
         <View style={styles.container}>
             <CameraView
-                style={styles.camera}
-                facing={facing}
-                onBarCodeScanned={handleBarCodeScanned}
-                barcodeScannerSettings={{
-                    barCodeTypes: ['qr'],
+                style={StyleSheet.absoluteFillObject}
+                facing="back"
+                onBarcodeScanned={({ data }) => {
+                    if (!data || qrLock.current) return;
+
+                    qrLock.current = true;
+
+                    if (data === 'Litchfield') {
+                        if (firstScan) {
+                            Alert.alert(
+                                "Download Litchfield Explorer?",
+                                "",
+                                [
+                                    {
+                                        text: "No",
+                                        onPress: () => { qrLock.current = false; },
+                                        style: "cancel"
+                                    },
+                                    {
+                                        text: "Yes",
+                                        onPress: async () => {
+                                            Alert.alert("Downloaded");
+                                            await AsyncStorage.setItem('firstScanDone', 'true');
+                                            setFirstScan(false);
+                                            router.replace('/(auth)');
+                                        }
+                                    }
+                                ]
+                            );
+                        } else {
+                            if (isLoggedIn) {
+                                router.replace('/(tabs)');
+                            } else {
+                                router.replace('/(auth)');
+                            }
+                        }
+                    } else {
+                        Alert.alert("Invalid QR Code", "Please try again.", [
+                            { text: "OK", onPress: () => { qrLock.current = false; } }
+                        ]);
+                    }
                 }}
-            >
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-                        <Text style={styles.text}>Flip Camera</Text>
-                    </TouchableOpacity>
-                </View>
-            </CameraView>
+            />
+            <Overlay />
         </View>
     );
 }

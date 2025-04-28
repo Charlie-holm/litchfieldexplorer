@@ -9,17 +9,14 @@
     }
   },
   "include": [
+    "app",
+    "constants",
+    "firebaseConfig.js",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "app/+not-found.jsx",
-    "app/index.jsx",
-    "app/login.jsx",
-    "firebaseConfig.js",
-    "app/(tabs)/index.jsx",
-    "app/(tabs)/explore.jsx",
-    "app/(tabs)/_layout.jsx",
-    "constants/Colors.js"
+    "expo-env.d.ts"
   ]
 }
