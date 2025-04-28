@@ -88,7 +88,7 @@ export default function LoginScreen() {
             )}
 
             <View style={{ alignItems: 'flex-end', width: '100%', marginBottom: 20 }}>
-                <Pressable onPress={() => Alert.alert('Forgot Password')}>
+                <Pressable onPress={() => router.push('/forgetpassword')}>
                     <ThemedText type="default" style={{ textAlign: 'right' }}>
                         Forgot Password?
                     </ThemedText>
