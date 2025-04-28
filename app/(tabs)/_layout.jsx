@@ -126,14 +126,6 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tabs.Screen
-          name="scanner"
-          options={{
-            tabBarIcon: ({ color, focused }) => (
-              <IconSymbol size={40} name={focused ? 'bag.fill' : 'bag'} color={color} style={{ marginTop: 20 }} />
-            ),
-          }}
-        />
       </Tabs>
       <SearchModal visible={showSearch} onClose={() => setShowSearch(false)} />
     </View>
