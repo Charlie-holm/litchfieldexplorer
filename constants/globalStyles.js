@@ -127,6 +127,65 @@ const createGlobalStyles = (colorScheme) =>
             paddingVertical: 20,
             alignItems: 'center',
         },
+        categoryContainer: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            marginBottom: 10,
+            gap: 8,
+        },
+        categoryButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: 6,
+            paddingHorizontal: 12,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: Colors[colorScheme].border,
+            backgroundColor: 'transparent',
+        },
+        categoryButtonSelected: {
+            backgroundColor: Colors[colorScheme].text,
+            borderColor: Colors[colorScheme].text,
+        },
+        categoryButtonText: {
+            marginLeft: 6,
+            fontSize: 14,
+            color: Colors[colorScheme].text,
+        },
+        row: {
+            justifyContent: 'space-between',
+            marginBottom: 16,
+        },
+        itemCard: {
+            flex: 1,
+            marginHorizontal: 4,
+            alignItems: 'center',
+        },
+        itemImage: {
+            width: '100%',
+            height: 150,
+            resizeMode: 'contain',
+            borderRadius: 8,
+            marginBottom: 8,
+        },
+        itemTitle: {
+            fontWeight: 'bold',
+            fontSize: 16,
+            textAlign: 'center',
+            color: Colors[colorScheme].text,
+        },
+        itemCategory: {
+            fontSize: 12,
+            color: Colors[colorScheme].textSecondary ?? 'gray',
+            textAlign: 'center',
+        },
+        itemPrice: {
+            fontWeight: 'bold',
+            fontSize: 14,
+            textAlign: 'center',
+            marginTop: 4,
+            color: Colors[colorScheme].text,
+        },
     });
 
 export const useGlobalStyles = () => {
