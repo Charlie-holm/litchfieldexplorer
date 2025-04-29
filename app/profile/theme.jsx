@@ -1,4 +1,4 @@
-import { View, Pressable } from 'react-native';
+import { View, Pressable, useColorScheme } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -6,6 +6,8 @@ import { Colors } from '@/constants/Colors';
 
 export default function ThemeScreen() {
     const { theme, setTheme } = useThemeContext();
+    const systemTheme = useColorScheme();
+    const activeTheme = theme === 'auto'? systemTheme: theme;
 
     return (
         <ThemedView style={{ flex: 1, padding: 20 }}>
@@ -16,7 +18,7 @@ export default function ThemeScreen() {
                     marginTop: 20,
                     padding: 16,
                     borderRadius: 12,
-                    backgroundColor: theme === 'light' ? Colors.light.tint : Colors[theme].background,
+                    backgroundColor: theme === 'light' ? Colors.light.tint : Colors[activeTheme].background,
                 }}
                 onPress={() => setTheme('light')}
             >
@@ -34,7 +36,7 @@ export default function ThemeScreen() {
                     marginTop: 12,
                     padding: 16,
                     borderRadius: 12,
-                    backgroundColor: theme === 'dark' ? Colors.dark.tint : Colors[theme].background,
+                    backgroundColor: theme === 'dark' ? Colors.dark.tint : Colors[activeTheme].background,
                 }}
                 onPress={() => setTheme('dark')}
             >
@@ -52,7 +54,7 @@ export default function ThemeScreen() {
                     marginTop: 12,
                     padding: 16,
                     borderRadius: 12,
-                    backgroundColor: theme === 'auto' ? Colors.light.tint : Colors[theme].background,
+                    backgroundColor: theme === 'auto' ? Colors.light.tint : Colors[activeTheme].background,
                 }}
                 onPress={() => setTheme('auto')}
             >
