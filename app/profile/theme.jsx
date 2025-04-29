@@ -24,8 +24,8 @@ export default function ThemeScreen() {
             >
                 <ThemedText
                     type="subtitle"
-                    lightColor={theme === 'light' ? Colors.dark.text : Colors.light.text}
-                    darkColor={theme === 'light' ? Colors.dark.text : Colors.dark.text}
+                    lightColor={activeTheme === 'light' ? Colors.dark.text : Colors.light.text}
+                    darkColor={activeTheme === 'light' ? Colors.dark.text : Colors.dark.text}
                 >
                     Light Mode
                 </ThemedText>
@@ -42,8 +42,8 @@ export default function ThemeScreen() {
             >
                 <ThemedText
                     type="subtitle"
-                    lightColor={theme === 'dark' ? Colors.light.text : Colors.light.text}
-                    darkColor={theme === 'dark' ? Colors.light.text : Colors.dark.text}
+                    lightColor={activeTheme === 'dark' ? Colors.light.text : Colors.light.text}
+                    darkColor={activeTheme === 'dark' ? Colors.light.text : Colors.dark.text}
                 >
                     Dark Mode
                 </ThemedText>
@@ -60,8 +60,8 @@ export default function ThemeScreen() {
             >
                 <ThemedText
                     type="subtitle"
-                    lightColor={theme === 'auto' ? Colors.dark.text : Colors.light.text}
-                    darkColor={theme === 'auto' ? Colors.dark.text : Colors.dark.text}
+                    lightColor={activeTheme === 'auto' ? Colors.dark.text : Colors.light.text}
+                    darkColor={activeTheme === 'auto' ? Colors.dark.text : Colors.dark.text}
                 >
                     Auto Mode
                 </ThemedText>
