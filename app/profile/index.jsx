@@ -62,78 +62,80 @@ export default function ProfileScreen() {
     return (
         <ThemedView style={{ flex: 1, justifyContent: 'space-between' }}>
             <ThemedView style={globalStyles.subPageContainer}>
-                <Pressable onPress={() => router.push('/profile/profile_detail')}>
-                    <View style={globalStyles.buttonCard}>
-                        <View style={globalStyles.buttonCardIcon}>
-                            {profileImage ? (
-                                <Image source={{ uri: profileImage }} style={{ width: '100%', height: '100%' }} />
-                            ) : (
-                                <IconSymbol name="person.circle" size={70} color={Colors[colorScheme].icon} />
-                            )}
+                <ThemedView style={globalStyles.itemContainer}>
+                    <Pressable onPress={() => router.push('/profile/profile_detail')}>
+                        <View style={globalStyles.buttonCard}>
+                            <View style={globalStyles.buttonCardIcon}>
+                                {profileImage ? (
+                                    <Image source={{ uri: profileImage }} style={{ width: '100%', height: '100%' }} />
+                                ) : (
+                                    <IconSymbol name="person.circle" size={70} color={Colors[colorScheme].icon} />
+                                )}
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <ThemedText type="subtitle" style={{ fontWeight: 'bold' }}>
+                                    {user?.displayName || 'User Name'}
+                                </ThemedText>
+                                <ThemedText type="small">
+                                    {user?.email}
+                                </ThemedText>
+                                <ThemedText type="small">
+                                    {phoneNumber}
+                                </ThemedText>
+                            </View>
+                            <IconSymbol name="chevron.right" size={24} color={Colors[colorScheme].text} />
                         </View>
-                        <View style={{ flex: 1 }}>
-                            <ThemedText type="subtitle" style={{ fontWeight: 'bold' }}>
-                                {user?.displayName || 'User Name'}
-                            </ThemedText>
-                            <ThemedText type="small">
-                                {user?.email}
-                            </ThemedText>
-                            <ThemedText type="small">
-                                {phoneNumber}
-                            </ThemedText>
-                        </View>
-                        <IconSymbol name="chevron.right" size={24} color={Colors[colorScheme].text} />
-                    </View>
-                </Pressable>
-                <Pressable onPress={() => router.push('/profile/points')}>
-                    <View style={globalStyles.buttonCard}>
-                        <View style={globalStyles.buttonCardIcon}>
-                            <AnimatedCircularProgress
-                                size={80}
-                                width={8}
-                                fill={(pointsToNext + currentPoints > 0) ? (currentPoints / (pointsToNext + currentPoints)) * 100 : 100}
-                                tintColor={progressColor}
-                                backgroundColor={Colors[colorScheme].border}
-                                rotation={0}
-                                lineCap="round"
-                            >
-                                {
-                                    (fill) => (
-                                        <>
-                                            <ThemedText type="defaultSemiBold">
-                                                {currentPoints}
-                                            </ThemedText>
-                                            <ThemedText type="small">
-                                                pts
-                                            </ThemedText>
-                                        </>
-                                    )
-                                }
-                            </AnimatedCircularProgress>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <ThemedText type="subtitle" style={{ fontWeight: 'bold' }}>Litchfield Club</ThemedText>
-                            <ThemedText type="defaultSemiBold" style={{ marginBottom: 2 }}>{tier} Tier</ThemedText>
-                            {nextTier !== 'Max Tier' && (
-                                <ThemedText type="small">Next Tier: {nextTier} ({pointsToNext} pts needed)</ThemedText>
-                            )}
-                            <ThemedText type="small">Tier Expiry: {formattedExpiryDate}</ThemedText>
-                        </View>
-                        <IconSymbol name="chevron.right" size={24} color={Colors[colorScheme].text} />
-                    </View>
-                </Pressable>
-
-                {sections.map(({ label, icon, path }) => (
-                    <Pressable key={path} onPress={() => router.push({ pathname: path, params: { title: label } })}>
-                        <ThemedView style={globalStyles.buttonCard}>
-                            <ThemedView style={globalStyles.buttonLeft}>
-                                <IconSymbol name={icon} color={Colors[colorScheme].text} />
-                                <ThemedText type="subtitle">{label}</ThemedText>
-                            </ThemedView>
-                            <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
-                        </ThemedView>
                     </Pressable>
-                ))}
+                    <Pressable onPress={() => router.push('/profile/points')}>
+                        <View style={globalStyles.buttonCard}>
+                            <View style={globalStyles.buttonCardIcon}>
+                                <AnimatedCircularProgress
+                                    size={80}
+                                    width={8}
+                                    fill={(pointsToNext + currentPoints > 0) ? (currentPoints / (pointsToNext + currentPoints)) * 100 : 100}
+                                    tintColor={progressColor}
+                                    backgroundColor={Colors[colorScheme].border}
+                                    rotation={0}
+                                    lineCap="round"
+                                >
+                                    {
+                                        (fill) => (
+                                            <>
+                                                <ThemedText type="defaultSemiBold">
+                                                    {currentPoints}
+                                                </ThemedText>
+                                                <ThemedText type="small">
+                                                    pts
+                                                </ThemedText>
+                                            </>
+                                        )
+                                    }
+                                </AnimatedCircularProgress>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <ThemedText type="subtitle" style={{ fontWeight: 'bold' }}>Litchfield Club</ThemedText>
+                                <ThemedText type="defaultSemiBold" style={{ marginBottom: 2 }}>{tier} Tier</ThemedText>
+                                {nextTier !== 'Max Tier' && (
+                                    <ThemedText type="small">Next Tier: {nextTier} ({pointsToNext} pts needed)</ThemedText>
+                                )}
+                                <ThemedText type="small">Tier Expiry: {formattedExpiryDate}</ThemedText>
+                            </View>
+                            <IconSymbol name="chevron.right" size={24} color={Colors[colorScheme].text} />
+                        </View>
+                    </Pressable>
+
+                    {sections.map(({ label, icon, path }) => (
+                        <Pressable key={path} onPress={() => router.push({ pathname: path, params: { title: label } })}>
+                            <ThemedView style={globalStyles.buttonCard}>
+                                <ThemedView style={globalStyles.buttonLeft}>
+                                    <IconSymbol name={icon} color={Colors[colorScheme].text} />
+                                    <ThemedText type="subtitle">{label}</ThemedText>
+                                </ThemedView>
+                                <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
+                            </ThemedView>
+                        </Pressable>
+                    ))}
+                </ThemedView>
             </ThemedView>
             <Pressable
                 onPress={() => {

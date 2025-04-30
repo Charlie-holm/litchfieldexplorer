@@ -20,7 +20,6 @@ const createGlobalStyles = (colorScheme) =>
             width: '90%',
             alignSelf: 'center',
             justifyContent: 'center',
-            gap: 16,
             marginTop: 20,
         },
         thinInputTextBox: {
@@ -45,11 +44,22 @@ const createGlobalStyles = (colorScheme) =>
         },
         heroImage: {
             height: 250,
-            width: '90%',
             borderRadius: 16,
             marginBottom: 20,
             alignSelf: 'center',
             overflow: 'hidden',
+        },
+        imageShawdow: {
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            paddingVertical: 15,
+            paddingHorizontal: 15,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
         },
         titleBlock: {
             alignItems: 'center',
@@ -60,7 +70,7 @@ const createGlobalStyles = (colorScheme) =>
             backgroundColor: Colors[colorScheme].card,
             borderRadius: 12,
             padding: 16,
-            marginHorizontal: 20,
+
             marginBottom: 12,
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -160,22 +170,22 @@ const createGlobalStyles = (colorScheme) =>
             marginHorizontal: 4,
             alignItems: 'center',
             borderRadius: 20,
-            borderWidth: 1,
-            borderColor: Colors[colorScheme].border,
-            backgroundColor: Colors[colorScheme].card,
+            height: 250,
             flex: 1,
+            overflow: 'hidden'
         },
         itemImage: {
             width: '100%',
             height: 150,
             resizeMode: 'contain',
             borderRadius: 8,
-            marginBottom: 8,
+            marginBottom: 15,
         },
         itemTitle: {
             fontWeight: 'bold',
             textAlign: 'center',
             color: Colors[colorScheme].text,
+            marginBottom: 8,
         },
         itemCategory: {
             color: Colors[colorScheme].text,
@@ -184,7 +194,7 @@ const createGlobalStyles = (colorScheme) =>
         itemPrice: {
             fontWeight: 'bold',
             textAlign: 'center',
-            marginTop: 4,
+            marginBottom: 4,
             color: Colors[colorScheme].text,
         },
     });

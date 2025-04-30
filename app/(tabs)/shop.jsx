@@ -77,7 +77,14 @@ export default function ShopScreen() {
                 columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <ThemedView style={globalStyles.itemCard}>
+                    <ThemedView style={[
+                        globalStyles.itemCard,
+                        {
+                            borderWidth: 1,
+                            borderColor: Colors[colorScheme].border,
+                            backgroundColor: Colors[colorScheme].card,
+                        },
+                    ]}>
                         <Image source={item.image} style={globalStyles.itemImage} resizeMode="contain" />
                         <ThemedText style={globalStyles.itemTitle}>{item.title}</ThemedText>
                         <ThemedText style={globalStyles.itemCategory}>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</ThemedText>
