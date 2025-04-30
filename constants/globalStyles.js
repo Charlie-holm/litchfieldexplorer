@@ -1,12 +1,13 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
 
+const screenHeight = Dimensions.get('window').height;
 const createGlobalStyles = (colorScheme) =>
     StyleSheet.create({
         container: {
-            paddingTop: 130,
-            flex: 1,
+            paddingTop: 120,
+            height: screenHeight,
             backgroundColor: Colors[colorScheme].background,
             justifyContent: 'flex-start',
         },
@@ -129,12 +130,15 @@ const createGlobalStyles = (colorScheme) =>
         },
         categoryContainer: {
             flexDirection: 'row',
-            flexWrap: 'wrap',
-            marginBottom: 10,
-            gap: 8,
+            paddingHorizontal: 22,
+            gap: 12,
+            alignItems: 'center',
+            height: 40,
+            marginBottom: 20
         },
         categoryButton: {
             flexDirection: 'row',
+            gap: 5,
             alignItems: 'center',
             paddingVertical: 6,
             paddingHorizontal: 12,
@@ -147,19 +151,19 @@ const createGlobalStyles = (colorScheme) =>
             backgroundColor: Colors[colorScheme].text,
             borderColor: Colors[colorScheme].text,
         },
-        categoryButtonText: {
-            marginLeft: 6,
-            fontSize: 14,
-            color: Colors[colorScheme].text,
-        },
-        row: {
-            justifyContent: 'space-between',
-            marginBottom: 16,
+        shopItemContainer: {
+            marginBottom: 60,
+            height: screenHeight - 240,
+            marginHorizontal: 26
         },
         itemCard: {
-            flex: 1,
             marginHorizontal: 4,
             alignItems: 'center',
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: Colors[colorScheme].border,
+            backgroundColor: Colors[colorScheme].card,
+            flex: 1,
         },
         itemImage: {
             width: '100%',
@@ -170,18 +174,15 @@ const createGlobalStyles = (colorScheme) =>
         },
         itemTitle: {
             fontWeight: 'bold',
-            fontSize: 16,
             textAlign: 'center',
             color: Colors[colorScheme].text,
         },
         itemCategory: {
-            fontSize: 12,
-            color: Colors[colorScheme].textSecondary ?? 'gray',
+            color: Colors[colorScheme].text,
             textAlign: 'center',
         },
         itemPrice: {
             fontWeight: 'bold',
-            fontSize: 14,
             textAlign: 'center',
             marginTop: 4,
             color: Colors[colorScheme].text,
