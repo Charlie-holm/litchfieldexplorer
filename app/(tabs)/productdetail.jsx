@@ -1,6 +1,6 @@
 import {View, Image, StyleSheet, ScrollView} from 'react-native';
-import {ThemedView} from '@components/ThemedView';
-import {ThemedText} from '@components/ThemedText';
+import {ThemedView} from '@/components/ThemedView';
+import {ThemedText} from '@/components/ThemedText';
 import {useRoute} from '@react-navigation/native';
 import {useThemeContext } from '@/context/ThemeProvider';
 import {Colors} from '@/constants/Colors';
