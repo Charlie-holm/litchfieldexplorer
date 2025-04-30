@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
-import { useNavigation } from '@react-navigation/native'; 
+import { useNavigation } from '@react-navigation/native';
 
 
 const categories = [
@@ -79,29 +79,23 @@ export default function ShopScreen() {
                 columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-<<<<<<< HEAD
-                    <ThemedView style={[
-                        globalStyles.itemCard,
-                        {
-                            borderWidth: 1,
-                            borderColor: Colors[colorScheme].border,
-                            backgroundColor: Colors[colorScheme].card,
-                        },
-                    ]}>
-=======
-                <TouchableOpacity
+                    <TouchableOpacity
                         onPress={() => navigation.navigate('ProductDetail', { item })}
-                        style={{ width: '48%' }}
-                >
-
-                    <ThemedView style={globalStyles.itemCard}>
->>>>>>> refs/remotes/origin/main
+                        style={[
+                            globalStyles.itemCard,
+                            {
+                                borderWidth: 1,
+                                borderColor: Colors[colorScheme].border,
+                                backgroundColor: Colors[colorScheme].card,
+                                width: '48%',
+                            },
+                        ]}
+                    >
                         <Image source={item.image} style={globalStyles.itemImage} resizeMode="contain" />
                         <ThemedText style={globalStyles.itemTitle}>{item.title}</ThemedText>
                         <ThemedText style={globalStyles.itemCategory}>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</ThemedText>
                         <ThemedText style={globalStyles.itemPrice}>{item.price}</ThemedText>
-                    </ThemedView>
-                </TouchableOpacity>
+                    </TouchableOpacity>
                 )}
             />
         </ThemedView>
