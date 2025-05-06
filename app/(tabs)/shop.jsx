@@ -80,7 +80,7 @@ export default function ShopScreen() {
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('ProductDetail', { item })}
+                        onPress={() => navigation.navigate('productdetail', { item })}
                         style={[
                             globalStyles.itemCard,
                             {

@@ -1,20 +1,40 @@
-import {View, Image, StyleSheet, ScrollView} from 'react-native';
-import {ThemedView} from '@/components/ThemedView';
-import {ThemedText} from '@/components/ThemedText';
-import {useRoute} from '@react-navigation/native';
-import {useThemeContext } from '@/context/ThemeProvider';
-import {Colors} from '@/constants/Colors';
+import { View, Image, StyleSheet, ScrollView } from 'react-native';
+import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from '@/components/ThemedText';
+import { useRoute } from '@react-navigation/native';
+import { useThemeContext } from '@/context/ThemeProvider';
+import { Colors } from '@/constants/Colors';
 
 export default function ProductDetailScreen() {
     const route = useRoute();
-    const {item} = route.params;
-    const {theme} = useThemeContext();
-    const activeTheme = theme === 'auto' ? 'light' : theme;
+    const item = route.params?.item;
+    const { theme } = useThemeContext();
+    const activeTheme = theme === 'auto' ? 'light' : (theme || 'light');
 
-    return(
+    // If no item is passed, show fallback message
+    if (!item) {
+        return (
+            <ThemedView style={styles.container}>
+                <ThemedText type="title" style={styles.title}>
+                    No product data available.
+                </ThemedText>
+            </ThemedView>
+        );
+    }
+
+    // Determine image source (remote URL or local require)
+    const imageSource = typeof item.image === 'string'
+        ? { uri: item.image }
+        : item.image;
+
+    return (
         <ThemedView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
-                <Image source={item.image} style={styles.image} resizeMode="contain" />
+                <Image
+                    source={imageSource}
+                    style={styles.image}
+                    resizeMode="contain"
+                />
 
                 <ThemedText type="title" style={styles.title}>
                     {item.title}
@@ -24,7 +44,7 @@ export default function ProductDetailScreen() {
                     Category: {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
                 </ThemedText>
 
-                <ThemedText style={[styles.price, { color: Colors[activeTheme].tint }]}>
+                <ThemedText style={[styles.price, { color: Colors[activeTheme]?.tint || '#000' }]}>
                     {item.price}
                 </ThemedText>
 
