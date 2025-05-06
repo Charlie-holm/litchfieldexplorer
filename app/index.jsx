@@ -83,6 +83,26 @@ export default function App() {
                 }}
             />
             <Overlay />
+            <TouchableOpacity
+                style={{
+                    position: 'absolute',
+                    bottom: 40,
+                    alignSelf: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderRadius: 10,
+                }}
+                onPress={() => {
+                    if (isLoggedIn) {
+                        router.replace('/(tabs)');
+                    } else {
+                        router.replace('/(auth)');
+                    }
+                }}
+            >
+                <Text style={{ color: 'white', fontWeight: 'bold' }}>Skip</Text>
+            </TouchableOpacity>
         </View>
     );
 }
