@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Image,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Text,
-} from 'react-native';
+import { View, Image, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+
 import { Ionicons } from '@expo/vector-icons';
 
 const tshirtImage = require('@/assets/images/t-shirt1.webp');
@@ -20,6 +15,7 @@ const sizes = ['S', 'M', 'L', 'XL'];
 const colors = ['#222', '#666', '#aaa'];
 
 export default function ProductDetailScreen() {
+  const { theme: colorScheme } = useThemeContext();
   const route = useRoute();
   const navigation = useNavigation();
   const item = route.params?.item;
@@ -52,7 +48,9 @@ export default function ProductDetailScreen() {
       {/* Back Button */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={28} color={themeColors.text} />
+          <IconSymbol
+            name="chevron.left" size={24} color={Colors[colorScheme].text}
+          />
         </TouchableOpacity>
       </View>
 
@@ -90,19 +88,19 @@ export default function ProductDetailScreen() {
                     styles.sizeButton,
                     {
                       borderColor: themeColors.border,
-                      backgroundColor: selectedSize === size 
-                      ? themeColors.tint 
-                      : themeColors.background === 'fff' ? '#f0f0f0' : '#222',
+                      backgroundColor: selectedSize === size
+                        ? themeColors.tint
+                        : themeColors.background === 'fff' ? '#f0f0f0' : '#222',
                     },
                   ]}
                   onPress={() => setSelectedSize(size)}
                 >
                   <Text
                     style={{
-                        color: selectedSize === size
-                          ? themeColors.tintText || '#fff'
-                          : themeColors.text,
-                      }}
+                      color: selectedSize === size
+                        ? themeColors.tintText || '#fff'
+                        : themeColors.text,
+                    }}
                   >
                     {size}
                   </Text>
@@ -132,9 +130,9 @@ export default function ProductDetailScreen() {
           </View>
 
           <TouchableOpacity style={[styles.cartButton, { backgroundColor: themeColors.tint }]}>
-          <Text style={[styles.cartText, { color: themeColors.background }]}>
-            Add to Cart | {item.price}
-          </Text>
+            <Text style={[styles.cartText, { color: themeColors.background }]}>
+              Add to Cart | {item.price}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

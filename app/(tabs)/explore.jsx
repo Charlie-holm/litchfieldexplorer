@@ -1,5 +1,4 @@
-import { StyleSheet, Image, Platform, Dimensions } from 'react-native';
-
+import { StyleSheet, Image, Platform, Dimensions, TouchableOpacity } from 'react-native';
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -8,6 +7,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { useThemeContext } from '@/context/ThemeProvider';
+import { router } from 'expo-router';
 
 export default function TabTwoScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -15,20 +15,19 @@ export default function TabTwoScreen() {
   return (
     <ThemedView style={globalStyles.container}>
       <ThemedView style={globalStyles.itemContainer}>
-        <ThemedText type="title" style={{ marginBottom: 10 }}>Most Visited Place</ThemedText>
-        <ThemedView style={globalStyles.heroImage}>
-          <Image
-            source={require('@/assets/images/home1.jpg')}
-            style={{ width: Dimensions.get('window').width * 0.9, height: '100%' }}
-            resizeMode="cover"
-          />
-          <ThemedView
-            style={globalStyles.imageShawdow}
-          >
-            <ThemedText type="defaultSemiBold" style={{ color: 'white', fontSize: 16 }}>Wangi Falls</ThemedText>
-            <ThemedText type="defaultSemiBold" style={{ color: 'white', fontSize: 14 }}>Explore ↗</ThemedText>
+        <TouchableOpacity onPress={() => router.push('/attractiondetail')}>
+          <ThemedView style={globalStyles.heroImage}>
+            <Image
+              source={require('@/assets/images/home1.jpg')}
+              style={{ width: Dimensions.get('window').width * 0.9, height: '100%' }}
+              resizeMode="cover"
+            />
+            <ThemedView style={globalStyles.imageShawdow}>
+              <ThemedText type="defaultSemiBold" style={{ color: 'white', fontSize: 16 }}>Wangi Falls</ThemedText>
+              <ThemedText type="defaultSemiBold" style={{ color: 'white', fontSize: 14 }}>Explore ↗</ThemedText>
+            </ThemedView>
           </ThemedView>
-        </ThemedView>
+        </TouchableOpacity>
 
         <ThemedText type="title" style={{ marginBottom: 10 }}>More Places</ThemedText>
         <ThemedView style={{ flexDirection: 'row', gap: 10 }}>
