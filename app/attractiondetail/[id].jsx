@@ -3,11 +3,28 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
 
 
 export default function AttractionDetail() {
     const { theme: colorScheme } = useThemeContext();
+    const [attraction, setAttraction] = useState(null);
+    const { id } = useLocalSearchParams();
+
+    useEffect(() => {
+        const fetchAttraction = async () => {
+            const ref = doc(db, 'attractions', id);
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                setAttraction(snap.data());
+            }
+        };
+        if (id) fetchAttraction();
+    }, [id]);
+
     return (
         <View style={{ flex: 1, position: 'relative' }}>
             <TouchableOpacity onPress={() => router.replace('/(tabs)/explore')} style={styles.backIcon}>
@@ -16,59 +33,56 @@ export default function AttractionDetail() {
                 />
             </TouchableOpacity>
             <ScrollView style={styles.container}>
-                <Image
-                    source={require('@/assets/images/home1.jpg')}
-                    style={styles.headerImage}
-                />
+                {attraction && (
+                    <>
+                        <Image
+                            source={{ uri: attraction.imageUrl }}
+                            style={styles.headerImage}
+                        />
+                        <View style={styles.infoCard}>
+                            <View style={styles.headerRow}>
+                                <Text style={styles.title}>{attraction.name}</Text>
+                                <View style={styles.rating}>
+                                    <Text style={styles.ratingText}>{attraction.review || 0}</Text>
+                                    <Ionicons name="star" size={20} color="#FACC15" />
+                                </View>
+                            </View>
+                            <Text style={styles.description}>{attraction.description}</Text>
 
+                            <Text style={styles.sectionTitle}>Status</Text>
+                            {attraction.status?.map((s, idx) => {
+                                const [label, value] = s.split(' - ');
+                                return renderStatusRow(label, value, idx);
+                            })}
 
-                <View style={styles.infoCard}>
-                    <View style={styles.headerRow}>
-                        <Text style={styles.title}>Wangi Falls</Text>
-                        <View style={styles.rating}>
-                            <Text style={styles.ratingText}>4.9</Text>
-                            <Ionicons name="star" size={20} color="#FACC15" />
+                            <Text style={styles.sectionTitle}>Facilities</Text>
+                            <View style={styles.facilityGrid}>
+                                {attraction.facilities?.map((f, idx) => renderFacility(f, 'checkbox-marked', idx))}
+                            </View>
+                            <View style={styles.facilityGrid}>
+                                {attraction.ac?.map((f, idx) => renderFacility(f, 'checkbox-marked', idx))}
+                            </View>
+                            <Text style={styles.sectionTitle}>Activities</Text>
+                            <View style={styles.facilityGrid}>
+                                {attraction.activities?.map((a, idx) => renderFacility(a, 'checkbox-marked', idx))}
+                            </View>
                         </View>
-                    </View>
-                    <Text style={styles.description}>
-                        A large plunge pool with shady grassed areas
-                    </Text>
-
-                    <Text style={styles.sectionTitle}>Status</Text>
-                    {renderStatusRow('Campground', 'Open')}
-                    {renderStatusRow('Loop walk', 'Open')}
-                    {renderStatusRow('Picnic area', 'Open')}
-                    {renderStatusRow('Cafe', 'Closed')}
-                    {renderStatusRow('Swimming', 'Closed')}
-
-                    <Text style={styles.sectionTitle}>Facilities</Text>
-                    <View style={styles.facilityGrid}>
-                        {renderFacility('BBQ - Gas', 'grill')}
-                        {renderFacility('Coffee', 'coffee')}
-                        {renderFacility('ECD', 'battery')}
-                        {renderFacility('Free wi-fi', 'wifi')}
-                        {renderFacility('Information signs', 'information')}
-                        {renderFacility('Public Toilet', 'toilet')}
-                        {renderFacility('Water', 'water')}
-                        {renderFacility('Caravan', 'bus')}
-                        {renderFacility('Disabled access', 'wheelchair-accessibility')}
-                        {renderFacility('Food', 'silverware')}
-                    </View>
-                </View>
+                    </>
+                )}
             </ScrollView>
         </View>
     );
 }
 
-const renderStatusRow = (label, status) => (
-    <View style={styles.statusRow}>
+const renderStatusRow = (label, status, key) => (
+    <View key={key} style={styles.statusRow}>
         <Text style={styles.statusLabel}>{label}</Text>
         <Text style={styles.statusValue}>{status}</Text>
     </View>
 );
 
-const renderFacility = (label, iconName) => (
-    <View style={styles.facilityItem} key={label}>
+const renderFacility = (label, iconName = 'checkbox-marked', key) => (
+    <View style={styles.facilityItem} key={key}>
         <MaterialCommunityIcons name={iconName} size={20} color="#444" />
         <Text style={styles.facilityText}>{label}</Text>
     </View>

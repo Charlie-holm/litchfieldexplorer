@@ -21,9 +21,9 @@ export default function AttractionList() {
         name: '',
         description: '',
         review: '',
-        status: '',
-        facilities: '',
-        activities: '',
+        statusEntries: [],
+        facilities: [],
+        activities: [],
         location: '',
         imageUrl: ''
     });
@@ -40,6 +40,17 @@ export default function AttractionList() {
     useEffect(() => {
         const subscription = DeviceEventEmitter.addListener('triggerAddOverlay', (detail) => {
             if (detail === 'attractions') {
+                setNewAttraction({
+                    name: '',
+                    description: '',
+                    review: '',
+                    statusEntries: [],
+                    facilities: [],
+                    activities: [],
+                    location: '',
+                    imageUrl: ''
+                });
+                setEditingAttraction(null);
                 setModalVisible(true);
             }
         });
@@ -51,13 +62,15 @@ export default function AttractionList() {
             setNewAttraction({
                 name: editingAttraction.name || '',
                 description: editingAttraction.description || '',
-                review: editingAttraction.review || '',
+                review: editingAttraction.review?.toString() ?? '',
                 facilities: editingAttraction.facilities || [],
                 activities: editingAttraction.activities || [],
                 location: editingAttraction.location || '',
                 imageUrl: editingAttraction.imageUrl || '',
-                statusLabel: editingAttraction.status?.[0]?.split(' - ')[0] || '',
-                statusOpen: editingAttraction.status?.[0]?.includes('Open') || false,
+                statusEntries: editingAttraction.status?.map(statusItem => {
+                    const [label, open] = statusItem.split(' - ');
+                    return { label, open: open === 'Open' };
+                }) || [],
             });
         }
     }, [editingAttraction]);
@@ -81,24 +94,66 @@ export default function AttractionList() {
     return (
         <View style={{ flex: 1 }}>
             <Modal visible={modalVisible} transparent animationType="slide">
-                <Pressable
-                    onPress={() => {
-                        setModalVisible(false);
-                        setEditingAttraction(null);
-                    }}
-                    style={{ flex: 1, backgroundColor: '#000000aa', justifyContent: 'center' }}
-                >
+                <View style={{ flex: 1, backgroundColor: '#000000aa', justifyContent: 'center' }}>
+                    <Pressable
+                        onPress={() => {
+                            setModalVisible(false);
+                            setEditingAttraction(null);
+                        }}
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                    />
                     <View style={{ backgroundColor: 'white', margin: 20, padding: 20, borderRadius: 10, maxHeight: '60%' }}>
                         <ScrollView>
-                            {['name', 'description', 'review', 'status', 'facilities', 'activities', 'location', 'imageUrl'].map((field) => (
+                            {['name', 'description', 'review', 'location', 'imageUrl'].map((field) => (
                                 <TextInput
                                     key={field}
                                     placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                                     value={newAttraction[field]}
-                                    onChangeText={(text) => setNewAttraction(prev => ({ ...prev, [field]: text }))}
-                                    style={{ borderBottomWidth: 1, marginBottom: 10 }}
+                                    onChangeText={(text) => {
+                                        setNewAttraction(prev => ({ ...prev, [field]: text }));
+                                    }}
+                                    keyboardType={field === 'review' ? 'decimal-pad' : 'default'}
+                                    style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
                                 />
                             ))}
+                            <Text style={{ fontWeight: 'bold', marginTop: 10, marginBottom: 5 }}>Status</Text>
+                            {(newAttraction.statusEntries || []).map((entry, index) => (
+                                <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                                    <TextInput
+                                        placeholder="Status label"
+                                        value={entry.label}
+                                        onChangeText={(text) => {
+                                            const updated = [...newAttraction.statusEntries];
+                                            updated[index].label = text;
+                                            setNewAttraction(prev => ({ ...prev, statusEntries: updated }));
+                                        }}
+                                        style={[globalStyles.thinInputTextBox, { marginRight: 10, flex: 1 }]}
+                                    />
+                                    <Pressable
+                                        onPress={() => {
+                                            const updated = [...newAttraction.statusEntries];
+                                            updated[index].open = !updated[index].open;
+                                            setNewAttraction(prev => ({ ...prev, statusEntries: updated }));
+                                        }}
+                                        style={[globalStyles.smallButton, { backgroundColor: entry.open ? 'green' : 'red', width: 90 }]}
+                                    >
+                                        <Text style={{ color: 'white' }}>{entry.open ? 'Open' : 'Closed'}</Text>
+                                    </Pressable>
+                                </View>
+                            ))}
+
+                            <Pressable
+                                onPress={() => {
+                                    setNewAttraction(prev => ({
+                                        ...prev,
+                                        statusEntries: [...(prev.statusEntries || []), { label: '', open: true }]
+                                    }));
+                                }}
+                                style={[globalStyles.smallButton, { width: '100%', marginBottom: 10 }]}
+                            >
+                                <Text style={{ textAlign: 'center', color: 'white', fontWeight: 'bold' }}>Add Status Label</Text>
+                            </Pressable>
+
                             <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Facilities</Text>
                             {[
                                 'BBQ - Gas',
@@ -126,17 +181,32 @@ export default function AttractionList() {
                                             : [...(newAttraction.facilities || []), option];
                                         setNewAttraction(prev => ({ ...prev, facilities: updated }));
                                     }}
-                                    style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}
+                                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 5 }}
                                 >
-                                    <View style={{
-                                        width: 20,
-                                        height: 20,
-                                        borderWidth: 1,
-                                        borderColor: '#333',
-                                        backgroundColor: newAttraction.facilities?.includes(option) ? '#333' : '#fff',
-                                        marginRight: 10,
-                                    }} />
-                                    <Text>{option}</Text>
+                                    {newAttraction.facilities?.includes(option) ? (
+                                        <IconSymbol
+                                            name="checkmark"
+                                            size={18}
+                                            color={Colors[colorScheme].text}
+                                            style={{
+                                                width: 18,
+                                                height: 18,
+                                                borderWidth: 1,
+                                                borderColor: Colors[colorScheme].text,
+                                                textAlign: 'center',
+                                            }}
+                                        />
+                                    ) : (
+                                        <View
+                                            style={{
+                                                width: 18,
+                                                height: 18,
+                                                borderWidth: 1,
+                                                borderColor: Colors[colorScheme].text,
+                                            }}
+                                        />
+                                    )}
+                                    <ThemedText type="default">{option}</ThemedText>
                                 </Pressable>
                             ))}
                             <Text style={{ fontWeight: 'bold', marginTop: 10, marginBottom: 5 }}>Activities</Text>
@@ -157,17 +227,32 @@ export default function AttractionList() {
                                             : [...(newAttraction.activities || []), option];
                                         setNewAttraction(prev => ({ ...prev, activities: updated }));
                                     }}
-                                    style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}
+                                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 5 }}
                                 >
-                                    <View style={{
-                                        width: 20,
-                                        height: 20,
-                                        borderWidth: 1,
-                                        borderColor: '#333',
-                                        backgroundColor: newAttraction.activities?.includes(option) ? '#333' : '#fff',
-                                        marginRight: 10,
-                                    }} />
-                                    <Text>{option}</Text>
+                                    {newAttraction.activities?.includes(option) ? (
+                                        <IconSymbol
+                                            name="checkmark"
+                                            size={18}
+                                            color={Colors[colorScheme].text}
+                                            style={{
+                                                width: 18,
+                                                height: 18,
+                                                borderWidth: 1,
+                                                borderColor: Colors[colorScheme].text,
+                                                textAlign: 'center',
+                                            }}
+                                        />
+                                    ) : (
+                                        <View
+                                            style={{
+                                                width: 18,
+                                                height: 18,
+                                                borderWidth: 1,
+                                                borderColor: Colors[colorScheme].text,
+                                            }}
+                                        />
+                                    )}
+                                    <ThemedText type="default">{option}</ThemedText>
                                 </Pressable>
                             ))}
                             <Pressable
@@ -175,12 +260,9 @@ export default function AttractionList() {
                                     try {
                                         const dataToSave = {
                                             ...newAttraction,
-                                            status: newAttraction.statusLabel
-                                                ? [`${newAttraction.statusLabel} - ${newAttraction.statusOpen ? 'Open' : 'Closed'}`]
-                                                : [],
+                                            review: parseFloat(newAttraction.review) || 0,
+                                            status: (newAttraction.statusEntries || []).map(entry => `${entry.label} - ${entry.open ? 'Open' : 'Closed'}`),
                                         };
-                                        delete dataToSave.statusLabel;
-                                        delete dataToSave.statusOpen;
 
                                         const snapshot = await getDocs(collection(db, "attractions"));
                                         const existing = snapshot.docs.find(doc =>
@@ -205,9 +287,9 @@ export default function AttractionList() {
                                         console.error("Failed to save attraction:", error);
                                     }
                                 }}
-                                style={{ marginTop: 10, backgroundColor: '#2ecc71', padding: 10, borderRadius: 6 }}
+                                style={[globalStyles.smallButton, { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }]}
                             >
-                                <Text style={{ textAlign: 'center', color: 'white', fontWeight: 'bold' }}>Save</Text>
+                                <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Save</ThemedText>
                             </Pressable>
                             {editingAttraction && (
                                 <Pressable
@@ -222,9 +304,9 @@ export default function AttractionList() {
                                             console.error("Failed to delete attraction:", error);
                                         }
                                     }}
-                                    style={{ marginTop: 10, backgroundColor: '#e74c3c', padding: 10, borderRadius: 6 }}
+                                    style={[globalStyles.smallButton, { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' }]}
                                 >
-                                    <Text style={{ textAlign: 'center', color: 'white', fontWeight: 'bold' }}>Delete</Text>
+                                    <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Delete</ThemedText>
                                 </Pressable>
                             )}
                             <Pressable
@@ -232,21 +314,21 @@ export default function AttractionList() {
                                     setModalVisible(false);
                                     setEditingAttraction(null);
                                 }}
-                                style={{ marginTop: 10, backgroundColor: '#ccc', padding: 10, borderRadius: 6 }}
+                                style={[globalStyles.smallButton, { marginTop: 8, width: '100%' }]}
                             >
-                                <Text style={{ textAlign: 'center' }}>Close</Text>
+                                <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Close</ThemedText>
                             </Pressable>
                         </ScrollView>
                     </View>
-                </Pressable>
-            </Modal>
+                </View>
+            </Modal >
             <FlatList
                 data={attractions}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
                 contentContainerStyle={{ padding: 10 }}
             />
-        </View>
+        </View >
     );
 }
 
