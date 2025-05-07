@@ -5,10 +5,13 @@ import { collection, getDocs, updateDoc, doc, deleteDoc } from "firebase/firesto
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useGlobalStyles } from '@/constants/globalStyles';
-import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/Colors';
+import { useThemeContext } from '@/context/ThemeProvider';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 
 export default function UserList() {
     const globalStyles = useGlobalStyles();
+    const { theme: colorScheme } = useThemeContext();
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [editingPoints, setEditingPoints] = useState({});
@@ -58,10 +61,10 @@ export default function UserList() {
                             <ThemedText type="small">{item.email}</ThemedText>
                             <ThemedText type="small">Points: {item.points || 0}</ThemedText>
                         </View>
-                        <Ionicons
-                            name={isExpanded ? 'chevron-up' : 'chevron-down'}
-                            size={24}
-                            color="gray"
+                        <IconSymbol
+                            name={isExpanded ? 'chevron.up' : 'chevron.down'}
+                            color={Colors[colorScheme].text}
+                            size={28}
                         />
                     </View>
 
@@ -106,11 +109,13 @@ export default function UserList() {
     };
 
     return (
-        <FlatList
-            data={users}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            contentContainerStyle={{ padding: 15 }}
-        />
+        <ThemedView style={globalStyles.subPageContainer}>
+            <FlatList
+                data={users}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                contentContainerStyle={{ padding: 15 }}
+            />
+        </ThemedView>
     );
 }

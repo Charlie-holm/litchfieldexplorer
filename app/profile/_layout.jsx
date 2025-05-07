@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, DeviceEventEmitter } from 'react-native';
 import { Slot } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -11,6 +11,7 @@ export default function Layout() {
   const { theme: colorScheme } = useThemeContext();
   const router = useRouter();
   const { title } = useLocalSearchParams();
+  const currentPage = usePathname().split('/').pop();
   const labelMap = {
     'profile_detail': 'Profile Info',
     'theme': 'Theme',
@@ -28,7 +29,7 @@ export default function Layout() {
 
   const screenTitle = typeof title === 'string'
     ? title
-    : labelMap[usePathname().split('/').pop()] || 'Profile';
+    : labelMap[currentPage] || 'Profile';
 
   return (
     <View style={{ flex: 1 }}>
@@ -49,7 +50,23 @@ export default function Layout() {
           />
         </TouchableOpacity>
         <ThemedText type="title">{screenTitle.charAt(0).toUpperCase() + screenTitle.slice(1)}</ThemedText>
-        <View style={{ width: 24 }} />
+        {['products', 'attractions'].includes(currentPage) ? (
+          <TouchableOpacity
+            onPress={() => {
+              DeviceEventEmitter.emit('triggerAddOverlay', currentPage);
+            }}
+            accessibilityLabel="add"
+            accessibilityRole="button"
+          >
+            <IconSymbol
+              name="plus"
+              size={24}
+              color={Colors[colorScheme].text}
+            />
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 24 }} />
+        )}
       </View>
       <Slot />
     </View>
