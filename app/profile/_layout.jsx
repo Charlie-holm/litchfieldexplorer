@@ -20,6 +20,10 @@ export default function Layout() {
     'help': 'Help',
     'payment': 'Payment',
     'points': 'Points',
+    'admin': 'Admin Panel',
+    'users': 'Users',
+    'products': 'Products',
+    'attractions': 'Attractions',
   };
 
   const screenTitle = typeof title === 'string'

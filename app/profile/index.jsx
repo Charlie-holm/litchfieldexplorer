@@ -1,4 +1,4 @@
-import { View, Pressable, Alert, Image } from 'react-native';
+import { View, Pressable, Alert, Image, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '@/firebaseConfig';
@@ -24,6 +24,7 @@ export default function ProfileScreen() {
     const [currentPoints, setPoints] = useState(0);
     const [tier, setTier] = useState('Basic');
     const [tierAchievedDate, setTierAchievedDate] = useState('');
+    const [isAdmin, setIsAdmin] = useState(false);
     const progressColor = Colors.tier[tier] || Colors.tier.Basic;
 
     useEffect(() => {
@@ -38,6 +39,7 @@ export default function ProfileScreen() {
                     setPoints(data.points || 0);
                     setTier(data.tier || 'Basic');
                     setTierAchievedDate(data.tierAchievedDate || '');
+                    setIsAdmin(data.admin === true);
 
                     const tierUpdate = checkTierUpdate(data.points, data.tier, data.tierAchievedDate);
                     if (tierUpdate) {
@@ -61,7 +63,7 @@ export default function ProfileScreen() {
 
     return (
         <ThemedView style={{ flex: 1, justifyContent: 'space-between' }}>
-            <ThemedView style={globalStyles.subPageContainer}>
+            <ScrollView contentContainerStyle={[globalStyles.profileContainer]}>
                 <ThemedView style={globalStyles.itemContainer}>
                     <Pressable onPress={() => router.push('/profile/profile_detail')}>
                         <View style={globalStyles.buttonCard}>
@@ -135,8 +137,20 @@ export default function ProfileScreen() {
                             </ThemedView>
                         </Pressable>
                     ))}
+
+                    {isAdmin && (
+                        <Pressable onPress={() => router.push('/profile/admin')}>
+                            <ThemedView style={globalStyles.buttonCard}>
+                                <ThemedView style={globalStyles.buttonLeft}>
+                                    <IconSymbol name="gear" color={Colors[colorScheme].text} />
+                                    <ThemedText type="subtitle">Admin Panel</ThemedText>
+                                </ThemedView>
+                                <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
+                            </ThemedView>
+                        </Pressable>
+                    )}
                 </ThemedView>
-            </ThemedView>
+            </ScrollView>
             <Pressable
                 onPress={() => {
                     Alert.alert(

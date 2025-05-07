@@ -16,6 +16,10 @@ const createGlobalStyles = (colorScheme) =>
             backgroundColor: Colors[colorScheme].background,
             justifyContent: 'flex-start',
         },
+        profileContainer: {
+            justifyContent: 'flex-start',
+            height: screenHeight,
+        },
         itemContainer: {
             width: '90%',
             alignSelf: 'center',
@@ -115,6 +119,15 @@ const createGlobalStyles = (colorScheme) =>
             borderRadius: 40,
             height: 40,
             width: '30%',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        smallButton: {
+            position: 'relative',
+            backgroundColor: Colors[colorScheme].nav,
+            borderRadius: 40,
+            height: 40,
+            width: 200,
             alignItems: 'center',
             justifyContent: 'center',
         },

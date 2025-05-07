@@ -75,6 +75,7 @@ export default function ShopScreen() {
             <FlatList
                 data={filteredItems}
                 style={globalStyles.shopItemContainer}
+                contentContainerStyle={{ paddingBottom: 30 }}
                 numColumns={2}
                 columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
                 keyExtractor={item => item.id}
