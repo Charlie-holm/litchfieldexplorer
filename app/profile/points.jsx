@@ -76,7 +76,7 @@ export default function PointsDetailScreen() {
       fetchData();
     }, [user]);
   
-    const handleRedeem = (reward: string) => {
+    const handleRedeem = (reward) => {
       const rewardName = reward || 'Unknown Reward';
       alert(`Redeemed: ${reward}`);
     };
