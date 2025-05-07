@@ -25,9 +25,6 @@ export default function TabTwoScreen() {
       const wangiFall = attractionsData.find(item => item.name?.toLowerCase().includes('wangi'));
       const others = attractionsData.filter(item => !item.name?.toLowerCase().includes('wangi'));
       setAttractions(wangiFall ? [wangiFall, ...others] : attractionsData);
-      console.log('All attractions:', attractionsData);
-      console.log('Wangi Fall:', wangiFall);
-      console.log('Other places:', others);
     };
     fetchData();
   }, []);
