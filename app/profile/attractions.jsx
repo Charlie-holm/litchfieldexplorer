@@ -318,10 +318,10 @@ export default function AttractionList() {
                             ) : null}
                             <Pressable
                                 onPress={handlePickImage}
-                                style={[globalStyles.smallPillButton, { width: 120, alignSelf: 'center', marginBottom: 10 }]}
+                                style={[globalStyles.smallPillButton, { width: '100%', marginBottom: 15 }]}
                             >
                                 <ThemedText type="default" style={{ color: '#fff' }}>
-                                    {uploading ? "Uploading..." : "Edit"}
+                                    {uploading ? "Uploading..." : "Edit Image"}
                                 </ThemedText>
                             </Pressable>
                             <Pressable
