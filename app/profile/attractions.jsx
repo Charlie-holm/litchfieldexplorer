@@ -1,6 +1,8 @@
-import { View, Text, FlatList, Image, Pressable, Modal, TextInput, ScrollView } from "react-native";
+import { View, Text, FlatList, Image, Pressable, Modal, TextInput, ScrollView, Alert } from "react-native";
 import { useEffect, useState } from "react";
 import { DeviceEventEmitter } from "react-native";
+import * as ImagePicker from 'expo-image-picker';
+import { auth } from '@/firebaseConfig';
 import { db } from '@/firebaseConfig';
 import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { useNavigation } from "expo-router";
@@ -28,6 +30,55 @@ export default function AttractionList() {
         imageUrl: ''
     });
     const [editingAttraction, setEditingAttraction] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const handlePickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (!permissionResult.granted) {
+            Alert.alert("Permission Denied", "You need to allow access to your photos to upload an image.");
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.7,
+        });
+
+        if (!result.canceled) {
+            const imageUri = result.assets[0].uri;
+            const formData = new FormData();
+
+            formData.append('file', {
+                uri: imageUri,
+                type: 'image/jpeg',
+                name: `${auth.currentUser.uid}-${Date.now()}.jpg`,
+            });
+            formData.append('upload_preset', 'attractions');
+            formData.append('folder', 'attractions');
+
+            try {
+                setUploading(true);
+                const response = await fetch("https://api.cloudinary.com/v1_1/djrzkaal4/image/upload", {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+                if (data.secure_url) {
+                    setNewAttraction(prev => ({ ...prev, imageUrl: data.secure_url }));
+                    Alert.alert("Image Uploaded!", "Attraction image updated.");
+                } else {
+                    Alert.alert('Upload Failed', JSON.stringify(data));
+                }
+            } catch (err) {
+                Alert.alert('Error', 'Failed to upload image');
+            } finally {
+                setUploading(false);
+            }
+        }
+    };
 
     useEffect(() => {
         const load = async () => {
@@ -104,7 +155,7 @@ export default function AttractionList() {
                     />
                     <View style={{ backgroundColor: 'white', margin: 20, padding: 20, borderRadius: 10, maxHeight: '60%' }}>
                         <ScrollView>
-                            {['name', 'description', 'review', 'location', 'imageUrl'].map((field) => (
+                            {['name', 'description', 'review', 'location'].map((field) => (
                                 <TextInput
                                     key={field}
                                     placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
@@ -116,6 +167,7 @@ export default function AttractionList() {
                                     style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
                                 />
                             ))}
+
                             <Text style={{ fontWeight: 'bold', marginTop: 10, marginBottom: 5 }}>Status</Text>
                             {(newAttraction.statusEntries || []).map((entry, index) => (
                                 <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
@@ -255,6 +307,23 @@ export default function AttractionList() {
                                     <ThemedText type="default">{option}</ThemedText>
                                 </Pressable>
                             ))}
+                            {newAttraction.imageUrl ? (
+                                <View style={{ borderWidth: 1, borderColor: '#aaa', borderRadius: 8, marginBottom: 10, padding: 2, backgroundColor: '#f5f5f5' }}>
+                                    <Image
+                                        source={{ uri: newAttraction.imageUrl }}
+                                        style={{ width: '100%', height: 180, borderRadius: 8 }}
+                                        resizeMode="cover"
+                                    />
+                                </View>
+                            ) : null}
+                            <Pressable
+                                onPress={handlePickImage}
+                                style={[globalStyles.smallPillButton, { width: 120, alignSelf: 'center', marginBottom: 10 }]}
+                            >
+                                <ThemedText type="default" style={{ color: '#fff' }}>
+                                    {uploading ? "Uploading..." : "Edit"}
+                                </ThemedText>
+                            </Pressable>
                             <Pressable
                                 onPress={async () => {
                                     try {

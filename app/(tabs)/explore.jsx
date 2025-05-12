@@ -1,4 +1,3 @@
-import home1 from '@/assets/images/home1.jpg';
 import { StyleSheet, Image, Platform, Dimensions, TouchableOpacity, FlatList, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
@@ -37,7 +36,7 @@ export default function TabTwoScreen() {
           <TouchableOpacity onPress={() => router.push(`/attractiondetail/${attractions[0].id}`)}>
             <ThemedView style={globalStyles.heroImage}>
               <Image
-                source={home1}
+                source={{ uri: attractions[0]?.imageUrl }}
                 style={{ width: Dimensions.get('window').width * 0.9, height: '100%' }}
                 resizeMode="cover"
               />
@@ -60,7 +59,7 @@ export default function TabTwoScreen() {
               <TouchableOpacity onPress={() => router.push(`/attractiondetail/${item.id}`)}>
                 <ThemedView style={[globalStyles.itemCard, { width: 180, borderRadius: 8, overflow: 'hidden' }]}>
                   <Image
-                    source={home1}
+                    source={{ uri: item.imageUrl }}
                     style={{ height: '100%', width: 180 }}
                     resizeMode="cover"
                   />
