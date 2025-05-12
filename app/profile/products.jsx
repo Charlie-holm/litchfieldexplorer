@@ -8,6 +8,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 
 export default function ProductList() {
     const [products, setProducts] = useState([]);
@@ -18,8 +19,7 @@ export default function ProductList() {
         category: '',
         price: '',
         description: '',
-        stockEntries: [],
-        color: '',
+        inventory: [],
         imageUrl: '',
     });
     const [editingProduct, setEditingProduct] = useState(null); // product object being edited, or null if adding
@@ -45,7 +45,7 @@ export default function ProductList() {
                     category: '',
                     price: '',
                     description: '',
-                    stockEntries: [],
+                    inventory: [],
                     color: '',
                     imageUrl: '',
                 });
@@ -108,7 +108,7 @@ export default function ProductList() {
             category: product.category || '',
             price: product.price?.toString() || '',
             description: product.description || '',
-            stockEntries: product.stockEntries || [],
+            inventory: product.inventory || [],
             color: product.color || '',
             imageUrl: product.imageUrl || '',
         });
@@ -117,25 +117,15 @@ export default function ProductList() {
     };
 
     const renderItem = ({ item }) => (
-        <View style={styles.card}>
-            <Image source={{ uri: item.imageUrl }} style={styles.img} />
-            <View style={{ flex: 1 }}>
-                <Text>{item.name}</Text>
-                <Text>${item.price}</Text>
-            </View>
-            <Pressable
-                onPress={() => handleEditProduct(item)}
-                style={{
-                    backgroundColor: "#333",
-                    padding: 8,
-                    borderRadius: 6,
-                    marginLeft: 8,
-                    alignSelf: "flex-start"
-                }}
-            >
-                <Text style={{ color: "white" }}>Edit</Text>
-            </Pressable>
-        </View>
+        <Pressable onPress={() => handleEditProduct(item)}>
+            <ThemedView style={[globalStyles.buttonCard, { flexDirection: 'row', alignItems: 'center' }]}>
+                <ThemedView style={[globalStyles.buttonLeft, { flex: 1 }]}>
+                    <Image source={{ uri: item.imageUrl }} style={{ width: 50, height: 50, borderRadius: 6 }} />
+                    <ThemedText type="subtitle">{item.name}</ThemedText>
+                </ThemedView>
+                <IconSymbol name="chevron.right" size={28} color="#000" />
+            </ThemedView>
+        </Pressable>
     );
 
     // Save handler (Add or Update)
@@ -173,6 +163,10 @@ export default function ProductList() {
         // Remove flat size if present
         if ('size' in data) {
             delete data.size;
+        }
+        // Remove stockEntries if present
+        if ('stockEntries' in data) {
+            delete data.stockEntries;
         }
         try {
             if (editingProduct) {
@@ -251,65 +245,67 @@ export default function ProductList() {
                             )}
 
                             <Text style={{ fontWeight: 'bold', marginTop: 10, marginBottom: 5 }}>Size & Color Inventory</Text>
-                            {(newProduct.stockEntries || []).map((sizeBlock, sIdx) => (
-                                <View key={sIdx} style={{ marginBottom: 12 }}>
+
+                            <View style={{ flexDirection: 'row', paddingVertical: 4, borderBottomWidth: 1, borderColor: '#ccc', marginBottom: 6 }}>
+                                <Text style={{ flex: 1, fontWeight: 'bold' }}>Size</Text>
+                                <Text style={{ flex: 1, fontWeight: 'bold' }}>Color</Text>
+                                <Text style={{ flex: 1, fontWeight: 'bold' }}>Qty</Text>
+                                <Text style={{ width: 30 }} />
+                            </View>
+
+                            {(newProduct.inventory || []).map((entry, idx) => (
+                                <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
                                     <TextInput
                                         placeholder="Size"
-                                        value={sizeBlock.size}
+                                        value={entry.size}
                                         onChangeText={(text) => {
-                                            const updated = [...newProduct.stockEntries];
-                                            updated[sIdx].size = text;
-                                            setNewProduct(prev => ({ ...prev, stockEntries: updated }));
+                                            const updated = [...newProduct.inventory];
+                                            updated[idx].size = text;
+                                            setNewProduct(prev => ({ ...prev, inventory: updated }));
                                         }}
-                                        style={[globalStyles.thinInputTextBox, { marginBottom: 6 }]}
+                                        style={{ flex: 1, marginRight: 4 }}
                                     />
-                                    {(sizeBlock.colors || []).map((colorBlock, cIdx) => (
-                                        <View key={cIdx} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                                            <TextInput
-                                                placeholder="Color"
-                                                value={colorBlock.color}
-                                                onChangeText={(text) => {
-                                                    const updated = [...newProduct.stockEntries];
-                                                    updated[sIdx].colors[cIdx].color = text;
-                                                    setNewProduct(prev => ({ ...prev, stockEntries: updated }));
-                                                }}
-                                                style={[globalStyles.thinInputTextBox, { flex: 1 }]}
-                                            />
-                                            <TextInput
-                                                placeholder="Qty"
-                                                value={colorBlock.quantity?.toString() || ''}
-                                                onChangeText={(text) => {
-                                                    const updated = [...newProduct.stockEntries];
-                                                    updated[sIdx].colors[cIdx].quantity = parseInt(text) || 0;
-                                                    setNewProduct(prev => ({ ...prev, stockEntries: updated }));
-                                                }}
-                                                keyboardType="numeric"
-                                                style={[globalStyles.thinInputTextBox, { width: 70 }]}
-                                            />
-                                        </View>
-                                    ))}
-                                    <Pressable
-                                        onPress={() => {
-                                            const updated = [...newProduct.stockEntries];
-                                            updated[sIdx].colors = [...(updated[sIdx].colors || []), { color: '', quantity: 0 }];
-                                            setNewProduct(prev => ({ ...prev, stockEntries: updated }));
+                                    <TextInput
+                                        placeholder="Color"
+                                        value={entry.color}
+                                        onChangeText={(text) => {
+                                            const updated = [...newProduct.inventory];
+                                            updated[idx].color = text;
+                                            setNewProduct(prev => ({ ...prev, inventory: updated }));
                                         }}
-                                        style={[globalStyles.smallButton, { width: '100%', marginBottom: 6 }]}
-                                    >
-                                        <Text style={{ textAlign: 'center', color: 'white' }}>Add Color</Text>
+                                        style={{ flex: 1, marginRight: 4 }}
+                                    />
+                                    <TextInput
+                                        placeholder="Qty"
+                                        value={entry.quantity?.toString() || ''}
+                                        onChangeText={(text) => {
+                                            const updated = [...newProduct.inventory];
+                                            updated[idx].quantity = parseInt(text) || 0;
+                                            setNewProduct(prev => ({ ...prev, inventory: updated }));
+                                        }}
+                                        keyboardType="numeric"
+                                        style={{ flex: 1, marginRight: 4 }}
+                                    />
+                                    <Pressable onPress={() => {
+                                        const updated = [...newProduct.inventory];
+                                        updated.splice(idx, 1);
+                                        setNewProduct(prev => ({ ...prev, inventory: updated }));
+                                    }}>
+                                        <Text style={{ fontSize: 16, color: 'red' }}>❌</Text>
                                     </Pressable>
                                 </View>
                             ))}
+
                             <Pressable
                                 onPress={() => {
                                     setNewProduct(prev => ({
                                         ...prev,
-                                        stockEntries: [...(prev.stockEntries || []), { size: '', colors: [] }]
+                                        inventory: [...(prev.inventory || []), { size: '', color: '', quantity: 0 }]
                                     }));
                                 }}
                                 style={[globalStyles.smallButton, { width: '100%', marginBottom: 10 }]}
                             >
-                                <Text style={{ textAlign: 'center', color: 'white', fontWeight: 'bold' }}>Add Size</Text>
+                                <Text style={{ textAlign: 'center', color: 'white' }}>Add Row</Text>
                             </Pressable>
                             <Text style={{ fontWeight: 'bold', marginTop: 10, marginBottom: 5 }}>Category</Text>
                             <Pressable
@@ -333,13 +329,14 @@ export default function ProductList() {
                                 onRequestClose={() => setShowCategoryPicker(false)}
                             >
                                 <Pressable style={{ flex: 1, justifyContent: 'center', backgroundColor: '#00000099' }} onPress={() => setShowCategoryPicker(false)}>
-                                    <View style={{ borderTopLeftRadius: 10, borderTopRightRadius: 10, backgroundColor: 'white' }}>
+                                    <View style={{ borderRadius: 8, backgroundColor: 'white', padding: 10, height: 200, width: '80%', alignSelf: 'center' }}>
                                         <Picker
                                             selectedValue={newProduct.category}
                                             onValueChange={(value) => {
                                                 setNewProduct(prev => ({ ...prev, category: value }));
                                                 setShowCategoryPicker(false);
                                             }}
+                                            style={{ height: '100%', width: '100%' }}
                                         >
                                             <Picker.Item label="Category..." value="" />
                                             <Picker.Item label="Dress" value="dress" />
@@ -378,7 +375,7 @@ export default function ProductList() {
                                     onPress={handleSaveProduct}
                                     style={[
                                         globalStyles.smallButton,
-                                        { backgroundColor: '#1f8c42', marginTop: 8, width: '100%' }
+                                        { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }
                                     ]}
                                 >
                                     <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Save</ThemedText>
@@ -388,7 +385,7 @@ export default function ProductList() {
                                         onPress={handleDeleteProduct}
                                         style={[
                                             globalStyles.smallButton,
-                                            { backgroundColor: '#bc2c2c', marginTop: 8, width: '100%' }
+                                            { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' }
                                         ]}
                                     >
                                         <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Delete</ThemedText>

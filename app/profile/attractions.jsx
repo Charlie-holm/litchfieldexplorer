@@ -135,6 +135,7 @@ export default function AttractionList() {
         >
             <ThemedView style={globalStyles.buttonCard}>
                 <ThemedView style={globalStyles.buttonLeft}>
+                    <Image source={{ uri: item.imageUrl }} style={{ width: 50, height: 50, borderRadius: 6 }} />
                     <ThemedText type="subtitle">{item.name}</ThemedText>
                 </ThemedView>
                 <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
