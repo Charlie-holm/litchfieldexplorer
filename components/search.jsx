@@ -1,22 +1,55 @@
 import { useState, useEffect, useRef } from 'react';
-import { Animated, Modal, Pressable, TextInput, View } from 'react-native';
+import { Animated, Modal, Pressable, TextInput, View, Text, FlatList, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useGlobalStyles } from '@/constants/globalStyles';
 
-export function SearchModal({ visible, onClose }) {
+export function SearchModal({ visible, onClose, allItems }) {
     const { theme: colorScheme } = useThemeContext();
     const globalStyles = useGlobalStyles();
     const [searchText, setSearchText] = useState('');
-    const animatedMargin = useRef(new Animated.Value(0)).current;
+    const [searchResults, setSearchResults] = useState([]);
+    const screenHeight = Dimensions.get('window').height;
+    const [animatedTop] = useState(new Animated.Value(screenHeight * 0.6));
+    const hasAnimatedUp = useRef(false);
+    const navigation = useNavigation();
+    const router = useRouter();
+
+    const updateResults = (query) => {
+        const lower = query.toLowerCase();
+        const filtered = allItems?.filter(item =>
+            item.name?.toLowerCase().includes(lower) ||
+            item.description?.toLowerCase().includes(lower)
+        );
+        setSearchResults(filtered);
+    };
 
     useEffect(() => {
-        Animated.timing(animatedMargin, {
-            toValue: searchText.length > 0 ? -300 : 0,
-            duration: 300,
-            useNativeDriver: true,
-        }).start();
+        if (searchText.length > 0 && !hasAnimatedUp.current) {
+            Animated.timing(animatedTop, {
+                toValue: screenHeight * 0.2,
+                duration: 300,
+                useNativeDriver: false,
+            }).start(() => {
+                hasAnimatedUp.current = true;
+                updateResults(searchText);
+            });
+        } else {
+            updateResults(searchText);
+        }
+
+        if (searchText.length === 0) {
+            hasAnimatedUp.current = false;
+            Animated.timing(animatedTop, {
+                toValue: screenHeight * 0.4,
+                duration: 300,
+                useNativeDriver: false,
+            }).start();
+            setSearchResults([]);
+        }
     }, [searchText]);
 
     return (
@@ -26,12 +59,20 @@ export function SearchModal({ visible, onClose }) {
             animationType="fade"
             onRequestClose={onClose}
         >
-            <Pressable style={globalStyles.overlay} onPress={onClose}>
-                <IconSymbol name="circle.fill" size={40} color={Colors[colorScheme].text} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }} />
-                <Pressable onPress={onClose} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }}>
+            <View style={{ flex: 1, backgroundColor: '#00000088' }}>
+                <Pressable
+                    style={{ position: 'absolute', width: '100%', height: '100%' }}
+                    onPress={() => {
+                        onClose();
+                        setSearchText('');
+                    }}
+                />
+
+                <Pressable onPress={onClose} style={{ position: 'absolute', top: 40, right: 20, zIndex: 10 }}>
                     <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].card} />
                 </Pressable>
-                <Animated.View style={{ width: '95%', transform: [{ translateY: animatedMargin }] }}>
+
+                <Animated.View style={{ position: 'absolute', width: '95%', left: '2.5%', top: animatedTop }}>
                     <TextInput
                         placeholder="Search Here..."
                         style={globalStyles.inputTextBox}
@@ -40,7 +81,76 @@ export function SearchModal({ visible, onClose }) {
                         onChangeText={setSearchText}
                     />
                 </Animated.View>
-            </Pressable>
+
+                {searchText.length > 0 && (
+                    <FlatList
+                        style={{ marginTop: screenHeight * 0.29, paddingHorizontal: '2.5%' }}
+                        contentContainerStyle={{ paddingBottom: 100 }}
+                        data={searchResults}
+                        keyExtractor={(item) => `${item.type}-${item.id}`}
+                        renderItem={({ item, index }) => {
+                            const translateY = new Animated.Value(-20);
+                            const opacity = new Animated.Value(0);
+
+                            Animated.parallel([
+                                Animated.timing(translateY, {
+                                    toValue: 0,
+                                    duration: 300,
+                                    delay: index * 50,
+                                    useNativeDriver: true,
+                                }),
+                                Animated.timing(opacity, {
+                                    toValue: 1,
+                                    duration: 300,
+                                    delay: index * 50,
+                                    useNativeDriver: true,
+                                }),
+                            ]).start();
+
+                            return (
+                                <Animated.View
+                                    style={{
+                                        transform: [{ translateY }],
+                                        opacity,
+                                        marginBottom: 10,
+                                    }}
+                                >
+                                    <Pressable
+                                        onPress={() => {
+                                            if (item.type === 'attraction') navigation.navigate('AttractionDetail', { id: item.id });
+                                            else if (item.type === 'product') navigation.navigate('ProductDetail', { id: item.id });
+                                            else if (item.type === 'tab') {
+                                                router.push(item.route);
+                                                onClose();
+                                                setSearchText('');
+                                            }
+                                        }}
+                                        style={{
+                                            backgroundColor: Colors[colorScheme].card,
+                                            borderRadius: 10,
+                                            padding: 15,
+                                            shadowColor: '#000',
+                                            shadowOffset: { width: 0, height: 2 },
+                                            shadowOpacity: 0.1,
+                                            shadowRadius: 4,
+                                            elevation: 3,
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <View>
+                                            <Text style={{ fontWeight: 'bold', fontSize: 16, color: Colors[colorScheme].text }}>{item.name}</Text>
+                                            <Text style={{ fontSize: 14, color: Colors[colorScheme].text }}>{item.type}</Text>
+                                        </View>
+                                        <IconSymbol name="chevron.right" size={24} color={Colors[colorScheme].text} />
+                                    </Pressable>
+                                </Animated.View>
+                            );
+                        }}
+                    />
+                )}
+            </View>
         </Modal>
     );
 }
