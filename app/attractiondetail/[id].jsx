@@ -134,17 +134,17 @@ const styles = StyleSheet.create({
     facilityGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 16,
+        gap: 8,
         marginTop: 10,
     },
     facilityItem: {
-        width: '45%',
+        width: '48.5%',
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#F3F4F6',
-        padding: 8,
+        padding: 5,
+        paddingVertical: 15,
         borderRadius: 10,
-        marginBottom: 8,
     },
     facilityText: { marginLeft: 8, fontSize: 13, color: '#333' },
 });

@@ -1,5 +1,7 @@
 import { Modal, Pressable, View, Image, ScrollView, Dimensions } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from '@/firebaseConfig'; // Adjust path if needed
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
@@ -9,8 +11,17 @@ import { ThemedView } from '@/components/ThemedView';
 
 export default function HomeScreen() {
   const [showModal, setShowModal] = useState(false);
+  const [quickInfos, setQuickInfos] = useState([]);
   const { theme: colorScheme } = useThemeContext();
   const globalStyles = useGlobalStyles();
+
+  useEffect(() => {
+    const q = query(collection(db, 'quickInfo'), orderBy('timestamp', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setQuickInfos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <ThemedView style={globalStyles.container}>
@@ -60,24 +71,27 @@ export default function HomeScreen() {
           animationType="fade"
           onRequestClose={() => setShowModal(false)}
         >
-          <Pressable style={globalStyles.overlay} onPress={() => setShowModal(false)}>
+          <View style={globalStyles.overlay}>
+            <Pressable
+              onPress={() => setShowModal(false)}
+              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            />
             <IconSymbol name="circle.fill" size={40} color={Colors[colorScheme].text} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }} />
             <Pressable onPress={() => setShowModal(false)} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }}>
               <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].card} />
             </Pressable>
             <View style={globalStyles.overlayContent}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <IconSymbol name="exclamationmark.triangle" size={28} color={Colors[colorScheme].text} />
-                <ThemedText type="subtitle">Heat warning</ThemedText>
-              </View>
-              <ThemedText style={{ marginTop: 10 }}>
-                Temperatures across the Northern Territory can be very hot between October and April, it can exceed 40 degrees Celsius.
-                Check for active heatwave warnings before you visit, go to the Bureau of Meteorology website.
-                Central Australia has dry heat, and the Top End is humid. Both can cause exhaustion and dehydration.
-                Find out how to prepare and stay safe in the heat.
-              </ThemedText>
+              <ThemedText type="title" style={{ marginBottom: 12, alignSelf: 'center' }}>Quick Information</ThemedText>
+              <ScrollView style={{ width: '100%' }}>
+                {quickInfos.map((info) => (
+                  <View key={info.id} style={{ marginBottom: 15 }}>
+                    <ThemedText type="subtitle" >{info.title}</ThemedText>
+                    <ThemedText type="default">{info.message}</ThemedText>
+                  </View>
+                ))}
+              </ScrollView>
             </View>
-          </Pressable>
+          </View>
         </Modal>
       </ThemedView>
     </ThemedView>

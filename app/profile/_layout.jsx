@@ -25,6 +25,7 @@ export default function Layout() {
     'users': 'Users',
     'products': 'Products',
     'attractions': 'Attractions',
+    'quickinfo': 'Quick Info',
   };
 
   const screenTitle = typeof title === 'string'
@@ -50,7 +51,7 @@ export default function Layout() {
           />
         </TouchableOpacity>
         <ThemedText type="title">{screenTitle.charAt(0).toUpperCase() + screenTitle.slice(1)}</ThemedText>
-        {['products', 'attractions'].includes(currentPage) ? (
+        {['products', 'attractions', 'quickinfo'].includes(currentPage) ? (
           <TouchableOpacity
             onPress={() => {
               DeviceEventEmitter.emit('triggerAddOverlay', currentPage);

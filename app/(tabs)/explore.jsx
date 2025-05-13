@@ -1,13 +1,9 @@
-import { StyleSheet, Image, Platform, Dimensions, TouchableOpacity, FlatList, View } from 'react-native';
+import { StyleSheet, Image, Dimensions, TouchableOpacity, FlatList, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { router } from 'expo-router';
@@ -41,8 +37,8 @@ export default function TabTwoScreen() {
                 resizeMode="cover"
               />
               <ThemedView style={globalStyles.imageShawdow}>
-                <ThemedText type="defaultSemiBold" style={{ color: 'white', fontSize: 16 }}>{attractions[0].name}</ThemedText>
-                <ThemedText type="defaultSemiBold" style={{ color: 'white', fontSize: 14 }}>Explore ↗</ThemedText>
+                <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>{attractions[0].name}</ThemedText>
+                <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Explore ↗</ThemedText>
               </ThemedView>
             </ThemedView>
           </TouchableOpacity>
@@ -54,17 +50,17 @@ export default function TabTwoScreen() {
             keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={true}
-            contentContainerStyle={{ gap: 10 }}
+            contentContainerStyle={{ gap: 15 }}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => router.push(`/attractiondetail/${item.id}`)}>
-                <ThemedView style={[globalStyles.itemCard, { width: 180, borderRadius: 8, overflow: 'hidden' }]}>
+                <ThemedView style={[globalStyles.heroImage, { width: 180 }]}>
                   <Image
                     source={{ uri: item.imageUrl }}
                     style={{ height: '100%', width: 180 }}
                     resizeMode="cover"
                   />
                   <ThemedView style={globalStyles.imageShawdow}>
-                    <ThemedText type="defaultSemiBold" style={{ color: 'white', fontSize: 16 }}>{item.name}</ThemedText>
+                    <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>{item.name}</ThemedText>
                   </ThemedView>
                 </ThemedView>
               </TouchableOpacity>

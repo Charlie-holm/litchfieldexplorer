@@ -3,17 +3,16 @@ import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
 
 const screenHeight = Dimensions.get('window').height;
+const screenWidth = Dimensions.get('window').width;
 const createGlobalStyles = (colorScheme) =>
     StyleSheet.create({
         container: {
-            paddingTop: 120,
+            paddingTop: screenHeight * 0.15,
             height: screenHeight,
-            backgroundColor: Colors[colorScheme].background,
             justifyContent: 'flex-start',
         },
         subPageContainer: {
             flex: 1,
-            backgroundColor: Colors[colorScheme].background,
             justifyContent: 'flex-start',
         },
         profileContainer: {
@@ -21,7 +20,7 @@ const createGlobalStyles = (colorScheme) =>
             height: screenHeight,
         },
         itemContainer: {
-            width: '90%',
+            width: screenWidth * 0.9,
             alignSelf: 'center',
             justifyContent: 'center',
             marginTop: 20,
@@ -74,7 +73,6 @@ const createGlobalStyles = (colorScheme) =>
             backgroundColor: Colors[colorScheme].card,
             borderRadius: 12,
             padding: 16,
-
             marginBottom: 12,
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -102,11 +100,12 @@ const createGlobalStyles = (colorScheme) =>
             backgroundColor: 'rgba(0,0,0,0.5)',
         },
         overlayContent: {
-            width: '80%',
+            maxHeight: screenHeight * 0.6,
+            width: screenWidth * 0.8,
             backgroundColor: Colors[colorScheme].card,
             padding: 20,
             borderRadius: 12,
-            alignItems: 'center',
+            alignSelf: 'center',
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 5 },
             shadowOpacity: 0.3,
@@ -118,7 +117,7 @@ const createGlobalStyles = (colorScheme) =>
             backgroundColor: Colors[colorScheme].nav,
             borderRadius: 40,
             height: 40,
-            width: '30%',
+            width: screenWidth * 0.3,
             alignItems: 'center',
             justifyContent: 'center',
         },

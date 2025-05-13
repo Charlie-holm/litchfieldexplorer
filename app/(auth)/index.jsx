@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, TextInput, Pressable, Alert } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/firebaseConfig';
+console.log('Auth object:', auth);
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { useGlobalStyles } from '@/constants/globalStyles';
@@ -9,6 +10,8 @@ import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { useFonts } from 'expo-font';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+
 
 export default function LoginScreen() {
     const { theme: colorScheme } = useThemeContext();
@@ -42,7 +45,7 @@ export default function LoginScreen() {
     };
 
     return (
-        <View
+        <ThemedView
             style={[
                 globalStyles.container,
                 {
@@ -115,6 +118,6 @@ export default function LoginScreen() {
                     <ThemedText type="subtitle" style={{ color: Colors[colorScheme].text }}>Sign up</ThemedText>
                 </Pressable>
             </View>
-        </View>
+        </ThemedView>
     );
 }

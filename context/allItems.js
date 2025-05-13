@@ -1,7 +1,3 @@
-
-
-// context/allItems.js
-
 export const attractions = [
     {
         id: '1',

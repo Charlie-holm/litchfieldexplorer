@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Animated, Modal, Pressable, TextInput, View, Text, FlatList, Dimensions } from 'react-native';
+import { Animated, Modal, Pressable, TextInput, View, FlatList, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useGlobalStyles } from '@/constants/globalStyles';
+import { ThemedText } from '@/components/ThemedText';
 
 export function SearchModal({ visible, onClose, allItems }) {
     const { theme: colorScheme } = useThemeContext();
@@ -125,23 +126,11 @@ export function SearchModal({ visible, onClose, allItems }) {
                                                 setSearchText('');
                                             }
                                         }}
-                                        style={{
-                                            backgroundColor: Colors[colorScheme].card,
-                                            borderRadius: 10,
-                                            padding: 15,
-                                            shadowColor: '#000',
-                                            shadowOffset: { width: 0, height: 2 },
-                                            shadowOpacity: 0.1,
-                                            shadowRadius: 4,
-                                            elevation: 3,
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                        }}
+                                        style={[globalStyles.buttonCard, { marginBottom: 0 }]}
                                     >
                                         <View>
-                                            <Text style={{ fontWeight: 'bold', fontSize: 16, color: Colors[colorScheme].text }}>{item.name}</Text>
-                                            <Text style={{ fontSize: 14, color: Colors[colorScheme].text }}>{item.type}</Text>
+                                            <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
+                                            <ThemedText type="small">{item.type}</ThemedText>
                                         </View>
                                         <IconSymbol name="chevron.right" size={24} color={Colors[colorScheme].text} />
                                     </Pressable>
