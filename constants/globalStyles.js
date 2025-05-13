@@ -1,6 +1,9 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;

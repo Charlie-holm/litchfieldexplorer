@@ -10,6 +10,7 @@ import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { useFonts } from 'expo-font';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 
 export default function SignupScreen() {
     const { theme: colorScheme } = useThemeContext();
@@ -100,8 +101,8 @@ export default function SignupScreen() {
     };
 
     return (
-        <View style={{ flex: 1 }}>
-            <View
+        <ThemedView style={globalStyles.subPageContainer}>
+            <ThemedView
                 style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
@@ -109,7 +110,6 @@ export default function SignupScreen() {
                     paddingHorizontal: 20,
                     paddingTop: 80,
                     paddingBottom: 20,
-                    backgroundColor: Colors[colorScheme].background,
                 }}
             >
                 <TouchableOpacity onPress={() => router.back()}>
@@ -121,7 +121,7 @@ export default function SignupScreen() {
                 </TouchableOpacity>
                 <ThemedText type="title">Sign up</ThemedText>
                 <View style={{ width: 24 }} />
-            </View>
+            </ThemedView>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
 
@@ -233,7 +233,7 @@ export default function SignupScreen() {
                     </Pressable>
                 </View>
             </ScrollView>
-            <View style={{ alignItems: 'center', padding: 20 }}>
+            <ThemedView style={{ alignItems: 'center', padding: 20 }}>
                 <Pressable
                     style={[
                         globalStyles.pillButton,
@@ -242,9 +242,11 @@ export default function SignupScreen() {
                     onPress={handleSignup}
                     disabled={!agreed}
                 >
-                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pillButtonText }}>Sign up</ThemedText>
+                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pillButtonText }}>
+                        Sign up
+                    </ThemedText>
                 </Pressable>
-            </View>
-        </View>
+            </ThemedView>
+        </ThemedView>
     );
 }

@@ -1,7 +1,7 @@
 import { Modal, Pressable, View, Image, ScrollView, Dimensions } from 'react-native';
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { db } from '@/firebaseConfig'; // Adjust path if needed
+import { db } from '@/firebaseConfig';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
@@ -81,7 +81,7 @@ export default function HomeScreen() {
               <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].card} />
             </Pressable>
             <View style={globalStyles.overlayContent}>
-              <ThemedText type="title" style={{ marginBottom: 12, alignSelf: 'center' }}>Quick Information</ThemedText>
+              <ThemedText type="title" style={{ marginBottom: 20, alignSelf: 'center' }}>Quick Information</ThemedText>
               <ScrollView style={{ width: '100%' }}>
                 {quickInfos.map((info) => (
                   <View key={info.id} style={{ marginBottom: 15 }}>

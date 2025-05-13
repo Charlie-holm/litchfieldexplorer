@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Image, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -8,6 +8,8 @@ import { Colors } from '@/constants/Colors';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
 import { Ionicons } from '@expo/vector-icons';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
 
 const tshirtImage = require('@/assets/images/t-shirt1.webp');
 
@@ -18,9 +20,22 @@ export default function ProductDetailScreen() {
   const { theme: colorScheme } = useThemeContext();
   const route = useRoute();
   const navigation = useNavigation();
-  const item = route.params?.item;
+  const { id } = route.params || {};
+  const [item, setItem] = useState(null);
   const { theme } = useThemeContext();
   const activeTheme = theme === 'auto' ? 'light' : theme;
+
+  useEffect(() => {
+    const fetchItem = async () => {
+      if (!id) return;
+      const docRef = doc(db, 'products', id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setItem({ id: docSnap.id, ...docSnap.data() });
+      }
+    };
+    fetchItem();
+  }, [id]);
 
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('L');

@@ -2,12 +2,13 @@ import { FlatList, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
-
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
 
 const categories = [
     { key: 'all', label: 'All Items', icon: 'square.grid.2x2' },
@@ -16,22 +17,22 @@ const categories = [
     { key: 'pants', label: 'Pants', icon: 'figure.walk' },
 ];
 
-const items = [
-    { id: '1', title: 'NT-styled Dress', category: 'dress', price: '$59.99', image: require('@/assets/images/icon.png') },
-    { id: '2', title: 'Darwin Sunrise Sock', category: 'socks', price: '$9.99', image: require('@/assets/images/icon.png') },
-    { id: '3', title: 'Litchfield T-shirt', category: 'tshirts', price: '$29.99', image: require('@/assets/images/icon.png') },
-    { id: '5', title: 'Darwin-styled Pant', category: 'pants', price: '$49.99', image: require('@/assets/images/icon.png') },
-    { id: '6', title: 'NT-styled Dress', category: 'dress', price: '$59.99', image: require('@/assets/images/icon.png') },
-    { id: '7', title: 'Darwin Sunrise Sock', category: 'socks', price: '$9.99', image: require('@/assets/images/icon.png') },
-    { id: '8', title: 'Litchfield T-shirt', category: 'tshirts', price: '$29.99', image: require('@/assets/images/icon.png') },
-    { id: '9', title: 'Darwin-styled Pant', category: 'pants', price: '$49.99', image: require('@/assets/images/icon.png') },
-];
-
 export default function ShopScreen() {
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [items, setItems] = useState([]);
     const { theme: colorScheme } = useThemeContext();
     const globalStyles = useGlobalStyles();
     const navigation = useNavigation();
+
+    useEffect(() => {
+        const fetchItems = async () => {
+            const snapshot = await getDocs(collection(db, 'products'));
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setItems(data);
+        };
+        fetchItems();
+    }, []);
+
     const filteredItems = selectedCategory === 'all' ? items : items.filter(item => item.category === selectedCategory);
 
     return (
@@ -81,7 +82,7 @@ export default function ShopScreen() {
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('productdetail', { item })}
+                        onPress={() => navigation.navigate('/productdetail/', { id: item.id })}
                         style={[
                             globalStyles.itemCard,
                             {
@@ -92,7 +93,7 @@ export default function ShopScreen() {
                             },
                         ]}
                     >
-                        <Image source={item.image} style={globalStyles.itemImage} resizeMode="contain" />
+                        <Image source={{ uri: item.imageUrl }} style={globalStyles.itemImage} resizeMode="contain" />
                         <ThemedText style={globalStyles.itemTitle}>{item.title}</ThemedText>
                         <ThemedText style={globalStyles.itemCategory}>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</ThemedText>
                         <ThemedText style={globalStyles.itemPrice}>{item.price}</ThemedText>
