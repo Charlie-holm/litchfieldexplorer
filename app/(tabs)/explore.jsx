@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Dimensions, TouchableOpacity, FlatList, View } from 'react-native';
+import { Image, Dimensions, TouchableOpacity, FlatList, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
@@ -27,58 +27,45 @@ export default function TabTwoScreen() {
   return (
     <ThemedView style={globalStyles.container}>
       <ThemedView style={globalStyles.itemContainer}>
-        <ThemedText type="title" style={{ marginBottom: 10 }}>Most Visited Place</ThemedText>
+        <ThemedText type="title" style={{ marginBottom: 10, alignSelf: 'left' }}>Most Visited Place</ThemedText>
         {attractions[0] && (
           <TouchableOpacity onPress={() => router.push(`/attractiondetail/${attractions[0].id}`)}>
-            <ThemedView style={globalStyles.heroImage}>
+            <ThemedView style={[globalStyles.heroImage, { width: Dimensions.get('window').width * 0.9 }]}>
               <Image
                 source={{ uri: attractions[0]?.imageUrl }}
-                style={{ width: Dimensions.get('window').width * 0.9, height: '100%' }}
+                style={globalStyles.image}
                 resizeMode="cover"
               />
               <ThemedView style={globalStyles.imageShawdow}>
-                <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>{attractions[0].name}</ThemedText>
+                <ThemedText type="defaultBold" style={{ color: 'white' }}>{attractions[0].name}</ThemedText>
                 <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Explore ↗</ThemedText>
               </ThemedView>
             </ThemedView>
           </TouchableOpacity>
         )}
-        <ThemedText type="title" style={{ marginBottom: 10 }}>More Places</ThemedText>
-        <View style={{ height: 250 }}>
-          <FlatList
-            data={attractions.length > 0 ? attractions.slice(1) : []}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={true}
-            contentContainerStyle={{ gap: 15 }}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => router.push(`/attractiondetail/${item.id}`)}>
-                <ThemedView style={[globalStyles.heroImage, { width: 180 }]}>
-                  <Image
-                    source={{ uri: item.imageUrl }}
-                    style={{ height: '100%', width: 180 }}
-                    resizeMode="cover"
-                  />
-                  <ThemedView style={globalStyles.imageShawdow}>
-                    <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>{item.name}</ThemedText>
-                  </ThemedView>
-                </ThemedView>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
+        <ThemedText type="title" style={{ marginBottom: 10, alignSelf: 'left' }}>More Places</ThemedText>
       </ThemedView>
+      <FlatList
+        data={attractions.length > 0 ? attractions.slice(1) : []}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={true}
+        contentContainerStyle={globalStyles.attractionsContainer}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => router.push(`/attractiondetail/${item.id}`)}>
+            <ThemedView style={[globalStyles.heroImage, { width: Dimensions.get('window').width * 0.45 }]}>
+              <Image
+                source={{ uri: item.imageUrl }}
+                style={globalStyles.image}
+                resizeMode="cover"
+              />
+              <ThemedView style={globalStyles.imageShawdow}>
+                <ThemedText type="defaultBold" style={{ color: 'white' }}>{item.name}</ThemedText>
+              </ThemedView>
+            </ThemedView>
+          </TouchableOpacity>
+        )}
+      />
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-});

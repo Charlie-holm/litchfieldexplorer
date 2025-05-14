@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { View, TextInput, Pressable, Alert } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/firebaseConfig';
-console.log('Auth object:', auth);
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { useGlobalStyles } from '@/constants/globalStyles';
@@ -11,7 +10,6 @@ import { useThemeContext } from '@/context/ThemeProvider';
 import { useFonts } from 'expo-font';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-
 
 export default function LoginScreen() {
     const { theme: colorScheme } = useThemeContext();

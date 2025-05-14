@@ -8,17 +8,21 @@ const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    nav: '#000',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    iconSelected: '#fff',
-    border: '#687076',
-    card: '#f1f1f1',
-    pillButtonText: '#fff'
+    pri: '#f8f8f8',
+    sec: '#1b263b',
+    tri: '#415a77',
+    for: '#778da9',
+    highlight: '#0d1b2a',
+    background: '#E0E1DD',
+
   },
   dark: {
+    pri: '#B0B7C0',
+    sec: '#595E60',
+    tri: '#707370',
+    highlight: '#171710',
+
+
     text: '#ECEDEE',
     nav: '#8B8B8B',
     background: '#151718',

@@ -5,7 +5,7 @@ import { Colors } from '@/constants/Colors';
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: 'title' | 'subtitle' | 'default' | 'defaultSemiBold' | 'defaultBold' | 'small';
 };
 
 export function ThemedText({
@@ -16,17 +16,18 @@ export function ThemedText({
   ...rest
 }: ThemedTextProps) {
   const { theme } = useThemeContext();
-  const color = theme === 'dark' ? darkColor ?? Colors.dark.text : lightColor ?? Colors.light.text;
+  const color = theme === 'dark' ? darkColor ?? Colors.dark.highlight : lightColor ?? Colors.light.highlight;
 
   return (
     <Text
       style={[
         { color },
-        type === 'default' ? styles.default : undefined,
         type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
         type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
+        type === 'default' ? styles.default : undefined,
+        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
+        type === 'defaultBold' ? styles.defaultBold : undefined,
+        type === 'small' ? styles.small : undefined,
         style,
       ]}
       {...rest}
@@ -35,19 +36,6 @@ export function ThemedText({
 }
 
 const styles = StyleSheet.create({
-  default: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
-  },
-  small: {
-    fontSize: 12,
-    lineHeight: 20,
-  },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
@@ -57,9 +45,22 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  link: {
-    lineHeight: 30,
+  default: {
     fontSize: 16,
-    color: '#0a7ea4',
+    lineHeight: 24,
+  },
+  defaultSemiBold: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '600',
+  },
+  defaultBold: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: 'bold',
+  },
+  small: {
+    fontSize: 12,
+    lineHeight: 20,
   },
 });

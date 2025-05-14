@@ -1,4 +1,4 @@
-import { FlatList, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { FlatList, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -58,16 +58,16 @@ export default function ShopScreen() {
                             size={20}
                             color={
                                 selectedCategory === cat.key
-                                    ? Colors[colorScheme].iconSelected
-                                    : Colors[colorScheme].icon
+                                    ? Colors[colorScheme].pri
+                                    : Colors[colorScheme].highlight
                             }
                         />
                         <ThemedText
                             style={{
                                 color:
                                     selectedCategory === cat.key
-                                        ? Colors[colorScheme].iconSelected
-                                        : Colors[colorScheme].text,
+                                        ? Colors[colorScheme].pri
+                                        : Colors[colorScheme].highlight,
                             }}
                         >
                             {cat.label}
@@ -83,24 +83,24 @@ export default function ShopScreen() {
                 columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => router.push(`/productdetail/${item.id}`)}
-                        style={[
-                            globalStyles.itemCard,
-                            {
-                                borderWidth: 1,
-                                borderColor: Colors[colorScheme].border,
-                                backgroundColor: Colors[colorScheme].card,
-                                width: '49%',
-                            },
-                        ]}
+                    <TouchableOpacity
+                        onPress={() => router.push(`/productdetail/${item.id}`)}
+                        style={globalStyles.productCard}
                     >
-                        <Image source={{ uri: item.imageUrl }} style={globalStyles.itemImage} resizeMode="cover" />
-                        <ThemedText style={globalStyles.itemTitle}>{item.name}</ThemedText>
-                        <ThemedText style={globalStyles.itemCategory}>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</ThemedText>
-                        <ThemedText style={globalStyles.itemPrice}>{item.price}</ThemedText>
+                        <Image
+                            source={{ uri: item.imageUrl }}
+                            style={[globalStyles.image, { height: Dimensions.get('window').width * 0.4, marginBottom: 10 }]}
+                            resizeMode="cover"
+                        />
+                        <ThemedView style={globalStyles.productCardContent}>
+                            <ThemedText type="defaultBold" >{item.name}</ThemedText>
+                            <ThemedText type="small" style={{ color: 'gray' }}>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</ThemedText>
+                            <ThemedText type="defaultSemiBold">${item.price}</ThemedText>
+                        </ThemedView>
                     </TouchableOpacity>
-                )}
+                )
+                }
             />
-        </ThemedView>
+        </ThemedView >
     );
 }

@@ -36,32 +36,28 @@ export default function HomeScreen() {
             <Image
               source={require('@/assets/images/home1.jpg')}
               resizeMode="cover"
-              style={{ width: Dimensions.get('window').width * 0.9, height: '100%' }}
+              style={[globalStyles.image, { width: Dimensions.get('window').width * 0.9 }]}
             />
             <Image
               source={require('@/assets/images/home2.jpg')}
               resizeMode="cover"
-              style={{ width: Dimensions.get('window').width * 0.9, height: '100%' }}
+              style={[globalStyles.image, { width: Dimensions.get('window').width * 0.9 }]}
             />
             <Image
               source={require('@/assets/images/home3.jpg')}
               resizeMode="cover"
-              style={{ width: Dimensions.get('window').width * 0.9, height: '100%' }}
+              style={[globalStyles.image, { width: Dimensions.get('window').width * 0.9 }]}
             />
           </ScrollView>
         </View>
-
-        <ThemedView style={globalStyles.titleBlock}>
-          <ThemedText type="title">Welcome to Litchfield!</ThemedText>
-        </ThemedView>
-
+        <ThemedText type="title" style={{ paddingBottom: 20 }}>Welcome to Litchfield!</ThemedText>
         <Pressable onPress={() => setShowModal(true)}>
           <ThemedView style={globalStyles.buttonCard}>
             <ThemedView style={globalStyles.buttonLeft}>
-              <IconSymbol name="info.circle" color={Colors[colorScheme].text} />
-              <ThemedText type="subtitle">Quick Information</ThemedText>
+              <IconSymbol name="info.circle" />
+              <ThemedText type="subtitle" >Quick Information</ThemedText>
             </ThemedView>
-            <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
+            <IconSymbol name="chevron.right" size={28} />
           </ThemedView>
         </Pressable>
 
@@ -74,11 +70,11 @@ export default function HomeScreen() {
           <View style={globalStyles.overlay}>
             <Pressable
               onPress={() => setShowModal(false)}
-              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+              style={globalStyles.overlaybg}
             />
-            <IconSymbol name="circle.fill" size={40} color={Colors[colorScheme].text} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }} />
-            <Pressable onPress={() => setShowModal(false)} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }}>
-              <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].card} />
+            <IconSymbol name="circle.fill" size={40} color={Colors[colorScheme].highlight} style={globalStyles.overlayCloseButton} />
+            <Pressable onPress={() => setShowModal(false)} style={globalStyles.overlayCloseButton}>
+              <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].pri} />
             </Pressable>
             <View style={globalStyles.overlayContent}>
               <ThemedText type="title" style={{ marginBottom: 20, alignSelf: 'center' }}>Quick Information</ThemedText>
