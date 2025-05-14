@@ -11,8 +11,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 
-const tshirtImage = require('@/assets/images/t-shirt1.webp');
-
 const sizes = ['S', 'M', 'L', 'XL'];
 const colors = ['#222', '#666', '#aaa'];
 
@@ -59,7 +57,7 @@ export default function ProductDetailScreen() {
     <ThemedView style={[styles.container, { backgroundColor: themeColors.background }]}>
       {/* Back Button */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
           <IconSymbol
             name="chevron.left" size={24} color={Colors[colorScheme].text}
           />
@@ -157,7 +155,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    alignItems: 'center',
+    flexGrow: 1,
+    justifyContent: 'flex-start',
   },
   header: {
     paddingTop: 50,
@@ -166,14 +165,14 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 300,
+    height: 450,
     marginBottom: 16,
   },
   infoContainer: {
+    flex: 1,
     width: '100%',
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    padding: 24,
+    borderRadius: 0,
     marginTop: -20,
   },
   headerRow: {
@@ -182,8 +181,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 22,
-    fontWeight: '600',
+    fontSize: 26,
+    fontWeight: '700',
     flex: 1,
     flexWrap: 'wrap',
   },
@@ -208,7 +207,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   selectorGroup: {
-    marginTop: 16,
+    marginTop: 24,
   },
   selectorLabel: {
     fontSize: 14,
@@ -239,7 +238,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   cartButton: {
-    marginTop: 24,
+    marginTop: 32,
     paddingVertical: 12,
     borderRadius: 30,
     alignItems: 'center',
