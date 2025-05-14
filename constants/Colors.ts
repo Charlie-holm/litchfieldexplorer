@@ -14,24 +14,14 @@ export const Colors = {
     for: '#778da9',
     highlight: '#0d1b2a',
     background: '#E0E1DD',
-
   },
   dark: {
-    pri: '#B0B7C0',
-    sec: '#595E60',
-    tri: '#707370',
-    highlight: '#171710',
-
-
-    text: '#ECEDEE',
-    nav: '#8B8B8B',
-    background: '#151718',
-    tint: tintColorDark,
-    iconSelected: '#000',
-    icon: '#ECEDEE',
-    border: '#ECEDEE',
-    card: '#888888',
-    pillButtonText: '#ECEDEE'
+    pri: '#1B263B',
+    sec: '#415A77',
+    tri: '#778DA9',
+    for: '#f8f8f8',
+    highlight: '#E0E1DD',
+    background: '#0D1B2A',
   },
   tier: {
     Basic: '#A9A9A9',

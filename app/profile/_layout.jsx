@@ -5,9 +5,11 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { TouchableOpacity } from 'react-native';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
+import { useGlobalStyles } from '@/constants/globalStyles';
 import { useRouter, usePathname, useLocalSearchParams } from 'expo-router';
 
 export default function Layout() {
+  const globalStyles = useGlobalStyles();
   const { theme: colorScheme } = useThemeContext();
   const router = useRouter();
   const { title } = useLocalSearchParams();
@@ -34,21 +36,9 @@ export default function Layout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingHorizontal: 20,
-          paddingTop: 80,
-          paddingBottom: 20,
-          backgroundColor: Colors[colorScheme].background,
-        }}
-      >
+      <View style={globalStyles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <IconSymbol
-            name="chevron.left" size={24} color={Colors[colorScheme].text}
-          />
+          <IconSymbol name="chevron.left" size={28} />
         </TouchableOpacity>
         <ThemedText type="title">{screenTitle.charAt(0).toUpperCase() + screenTitle.slice(1)}</ThemedText>
         {['products', 'attractions', 'quickinfo'].includes(currentPage) ? (
@@ -59,14 +49,10 @@ export default function Layout() {
             accessibilityLabel="add"
             accessibilityRole="button"
           >
-            <IconSymbol
-              name="plus"
-              size={24}
-              color={Colors[colorScheme].text}
-            />
+            <IconSymbol name="plus" size={28} />
           </TouchableOpacity>
         ) : (
-          <View style={{ width: 24 }} />
+          <View style={{ width: 28 }} />
         )}
       </View>
       <Slot />

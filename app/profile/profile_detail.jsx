@@ -119,48 +119,33 @@ export default function ProfileDetailScreen() {
     };
 
     return (
-        <ThemedView style={{ flex: 1, justifyContent: 'space-between' }}>
-            <View style={globalStyles.itemContainer}>
+        <ThemedView style={globalStyles.container}>
+            <View style={[globalStyles.itemContainer, { flex: 1, justifyContent: 'space-between' }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'column', alignItems: 'left', justifyContent: 'space-between' }}>
-                        <View style={{
-                            width: 120,
-                            height: 120,
-                            borderRadius: 60,
-                            borderWidth: 2,
-                            borderColor: Colors[colorScheme].tint,
-                            overflow: 'hidden',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            backgroundColor: Colors[colorScheme].cardBackground,
-                            marginBottom: 10,
-                            marginRight: 30,
-                        }}>
+                        <View style={globalStyles.profileImage}>
                             {profileImage ? (
-                                <Image source={{ uri: profileImage }} style={{ width: '100%', height: '100%' }} />
+                                <Image source={{ uri: profileImage }} style={globalStyles.image} />
                             ) : (
-                                <IconSymbol name="person.circle" size={120} color={Colors[colorScheme].icon} />
+                                <IconSymbol name="person.circle" size={120} />
                             )}
                         </View>
                         <Pressable
                             onPress={handlePickImage}
-                            style={[
-                                globalStyles.smallPillButton,
-                                { width: 120 }
-                            ]}
+                            style={[globalStyles.smallPillButton, { width: 120 }]}
                         >
                             <ThemedText type="default" style={{ color: '#fff' }}>Edit</ThemedText>
                         </Pressable>
                     </View>
                     <View style={{ flex: 1 }}>
-                        <ThemedText type="defaultSemiBold" style={{ marginVertical: 5 }}>First Name</ThemedText>
+                        <ThemedText type="defaultBold" style={{ marginVertical: 5 }}>First Name</ThemedText>
                         <TextInput
                             style={globalStyles.thinInputTextBox}
                             placeholder="First Name"
                             value={firstName}
                             onChangeText={setFirstName}
                         />
-                        <ThemedText type="defaultSemiBold" style={{ marginVertical: 5 }}>Last Name</ThemedText>
+                        <ThemedText type="defaultBold" style={{ marginVertical: 5 }}>Last Name</ThemedText>
                         <TextInput
                             style={globalStyles.thinInputTextBox}
                             placeholder="Last Name"
@@ -169,31 +154,32 @@ export default function ProfileDetailScreen() {
                         />
                     </View>
                 </View>
-                <ThemedText type="defaultSemiBold" style={{ marginVertical: 5 }}>Email</ThemedText>
-                <TextInput
-                    style={globalStyles.inputTextBox}
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                <ThemedText type="defaultSemiBold" style={{ marginVertical: 5 }}>Phone Number</ThemedText>
-                <TextInput
-                    style={globalStyles.inputTextBox}
-                    placeholder="Phone Number"
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
-                    keyboardType="phone-pad"
-                />
-            </View>
-            <View style={{ alignItems: 'center' }}>
-                <Pressable
-                    style={globalStyles.pillButton}
-                    onPress={handleSave}
-                >
-                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pillButtonText }}>
-                        Save
-                    </ThemedText>
-                </Pressable>
+                <View style={{ width: '100%', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 10 }}>                    <ThemedText type="defaultBold" style={{ marginVertical: 5 }}>Email</ThemedText>
+                    <TextInput
+                        style={[globalStyles.inputTextBox, { width: '100%' }]}
+                        placeholder="Email"
+                        value={email}
+                        onChangeText={setEmail}
+                    />
+                    <ThemedText type="defaultBold" style={{ marginVertical: 5 }}>Phone Number</ThemedText>
+                    <TextInput
+                        style={[globalStyles.inputTextBox, { width: '100%' }]}
+                        placeholder="Phone Number"
+                        value={phoneNumber}
+                        onChangeText={setPhoneNumber}
+                        keyboardType="phone-pad"
+                    />
+                </View>
+                <View style={{ width: '100%', alignItems: 'center', marginTop: 'auto' }}>
+                    <Pressable
+                        style={[globalStyles.pillButton, { width: '100%' }]}
+                        onPress={handleSave}
+                    >
+                        <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>
+                            Save
+                        </ThemedText>
+                    </Pressable>
+                </View>
             </View>
         </ThemedView>
     );

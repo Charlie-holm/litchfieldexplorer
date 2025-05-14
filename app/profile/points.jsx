@@ -14,74 +14,75 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 // ... [imports remain unchanged]
 
 export default function PointsDetailScreen() {
-    const globalStyles = useGlobalStyles();
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const user = auth.currentUser;
-  
-    const [currentPoints, setCurrentPoints] = useState(0);
-    const [tier, setTier] = useState('Basic');
-    const [tierAchievedDate, setTierAchievedDate] = useState('');
-    const [showUpgradeMessage, setShowUpgradeMessage] = useState(false);
-  
-    const { theme: colorScheme } = useThemeContext();
-    const backgroundColor = Colors[colorScheme].background;
-    const textColor = Colors[colorScheme].text;
-    const borderColor = Colors[colorScheme].border;
-  
-    const { nextTier, pointsToNext, formattedExpiryDate, newTier } =
-      getTierDisplayDetails(tier, currentPoints, tierAchievedDate);
-  
-    const progressColor = Colors.tier[tier] || Colors.tier.Basic;
-  
-    const rewards = [
-      { name: 'Free Coffee', cost: 200 },
-      { name: '10% Off Coupon', cost: 500 },
-      { name: 'Exclusive Mug', cost: 800 },
-    ];
-  
-    useEffect(() => {
-      const fetchData = async () => {
-        if (user) {
-          const docRef = doc(db, 'users', user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            const oldTier = data.tier || 'Basic';
-            const points = data.points || 0;
-  
-            setCurrentPoints(points);
-            setTier(oldTier);
-            setTierAchievedDate(data.tierAchievedDate || '');
-  
-            const { newTier } = getTierDisplayDetails(oldTier, points, data.tierAchievedDate || '');
-  
-            // Tier upgrade check
-            if (newTier !== oldTier) {
-              setShowUpgradeMessage(true);
-  
-              // Update tier in Firestore
-              await docRef.update({
-                tier: newTier,
-                tierAchievedDate: new Date().toISOString(),
-              });
-  
-              // Refresh state
-              setTier(newTier);
-              setTierAchievedDate(new Date().toISOString());
-            }
+  const globalStyles = useGlobalStyles();
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const user = auth.currentUser;
+
+  const [currentPoints, setCurrentPoints] = useState(0);
+  const [tier, setTier] = useState('Basic');
+  const [tierAchievedDate, setTierAchievedDate] = useState('');
+  const [showUpgradeMessage, setShowUpgradeMessage] = useState(false);
+
+  const { theme: colorScheme } = useThemeContext();
+  const backgroundColor = Colors[colorScheme].background;
+  const textColor = Colors[colorScheme].text;
+  const borderColor = Colors[colorScheme].border;
+
+  const { nextTier, pointsToNext, formattedExpiryDate, newTier } =
+    getTierDisplayDetails(tier, currentPoints, tierAchievedDate);
+
+  const progressColor = Colors.tier[tier] || Colors.tier.Basic;
+
+  const rewards = [
+    { name: 'Free Coffee', cost: 200 },
+    { name: '10% Off Coupon', cost: 500 },
+    { name: 'Exclusive Mug', cost: 800 },
+  ];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user) {
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const oldTier = data.tier || 'Basic';
+          const points = data.points || 0;
+
+          setCurrentPoints(points);
+          setTier(oldTier);
+          setTierAchievedDate(data.tierAchievedDate || '');
+
+          const { newTier } = getTierDisplayDetails(oldTier, points, data.tierAchievedDate || '');
+
+          // Tier upgrade check
+          if (newTier !== oldTier) {
+            setShowUpgradeMessage(true);
+
+            // Update tier in Firestore
+            await docRef.update({
+              tier: newTier,
+              tierAchievedDate: new Date().toISOString(),
+            });
+
+            // Refresh state
+            setTier(newTier);
+            setTierAchievedDate(new Date().toISOString());
           }
         }
-      };
-      fetchData();
-    }, [user]);
-  
-    const handleRedeem = (reward) => {
-      const rewardName = reward || 'Unknown Reward';
-      alert(`Redeemed: ${reward}`);
+      }
     };
-  
-    return (
+    fetchData();
+  }, [user]);
+
+  const handleRedeem = (reward) => {
+    const rewardName = reward || 'Unknown Reward';
+    alert(`Redeemed: ${reward}`);
+  };
+
+  return (
+    <ThemedView style={globalStyles.container}>
       <ScrollView
         style={{ flex: 1, backgroundColor }}
         contentContainerStyle={{ paddingVertical: 30, paddingHorizontal: 20 }}
@@ -111,7 +112,7 @@ export default function PointsDetailScreen() {
               </View>
             )}
           </AnimatedCircularProgress>
-  
+
           {showUpgradeMessage ? (
             <ThemedText type="title" style={{ marginTop: 20, textAlign: 'center', color: 'green' }}>
               🎉 Congratulations! You've reached the {tier} Tier!
@@ -126,7 +127,7 @@ export default function PointsDetailScreen() {
                 : `You've reached the highest tier! 🎉`}
             </ThemedText>
           )}
-  
+
           {/* Rewards First */}
           <View style={{ marginTop: 30 }}>
             <ThemedText type="title">Rewards</ThemedText>
@@ -176,7 +177,7 @@ export default function PointsDetailScreen() {
                 </View>
               ))}
             </View>
-  
+
             {/* Recent Activity */}
             <ThemedText type="title" style={{ marginTop: 30 }}>
               Recent Activity
@@ -186,7 +187,7 @@ export default function PointsDetailScreen() {
               <ThemedText type="default">+50 pts - Completed Profile</ThemedText>
               <ThemedText type="default">+100 pts - Referral Bonus</ThemedText>
             </View>
-  
+
             {formattedExpiryDate && (
               <ThemedText type="warning" style={{ marginTop: 30 }}>
                 Your {tier} Tier expires on {formattedExpiryDate}
@@ -195,5 +196,6 @@ export default function PointsDetailScreen() {
           </View>
         </ThemedView>
       </ScrollView>
-    );
-  }
+    </ThemedView>
+  );
+}

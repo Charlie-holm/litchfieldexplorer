@@ -63,7 +63,7 @@ export default function ProfileScreen() {
 
     return (
         <ThemedView style={{ flex: 1, justifyContent: 'space-between' }}>
-            <ScrollView contentContainerStyle={[globalStyles.profileContainer]}>
+            <ScrollView contentContainerStyle={[globalStyles.container]}>
                 <ThemedView style={globalStyles.itemContainer}>
                     <Pressable onPress={() => router.push('/profile/profile_detail')}>
                         <View style={globalStyles.buttonCard}>

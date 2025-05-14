@@ -3,69 +3,48 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
+import { useGlobalStyles } from '@/constants/globalStyles';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+
 
 export default function ThemeScreen() {
+    const globalStyles = useGlobalStyles();
     const { theme, setTheme } = useThemeContext();
     const systemTheme = useColorScheme();
-    const activeTheme = theme === 'auto'? systemTheme: theme;
+    const activeTheme = theme === 'auto' ? systemTheme : theme;
 
     return (
-        <ThemedView style={{ flex: 1, padding: 20 }}>
-            <ThemedText type="title">Choose Theme</ThemedText>
-
-            <Pressable
-                style={{
-                    marginTop: 20,
-                    padding: 16,
-                    borderRadius: 12,
-                    backgroundColor: theme === 'light' ? Colors.light.tint : Colors[activeTheme].background,
-                }}
-                onPress={() => setTheme('light')}
-            >
-                <ThemedText
-                    type="subtitle"
-                    lightColor={activeTheme === 'light' ? Colors.dark.text : Colors.light.text}
-                    darkColor={activeTheme === 'light' ? Colors.dark.text : Colors.dark.text}
+        <ThemedView style={globalStyles.container}>
+            <ThemedView style={globalStyles.itemContainer}>
+                <ThemedText type="subtitle" style={{ alignSelf: 'left', marginVertical: 10 }}>Choose Theme</ThemedText>
+                <Pressable
+                    style={globalStyles.buttonCard}
+                    onPress={() => setTheme('light')}
                 >
-                    Light Mode
-                </ThemedText>
-            </Pressable>
-
-            <Pressable
-                style={{
-                    marginTop: 12,
-                    padding: 16,
-                    borderRadius: 12,
-                    backgroundColor: theme === 'dark' ? Colors.dark.tint : Colors[activeTheme].background,
-                }}
-                onPress={() => setTheme('dark')}
-            >
-                <ThemedText
-                    type="subtitle"
-                    lightColor={activeTheme === 'dark' ? Colors.light.text : Colors.light.text}
-                    darkColor={activeTheme === 'dark' ? Colors.light.text : Colors.dark.text}
+                    <ThemedText type="defaultBold">Light Mode</ThemedText>
+                    {activeTheme === 'light' && (
+                        <IconSymbol name="checkmark" size={24} color={Colors[activeTheme].text} />
+                    )}
+                </Pressable>
+                <Pressable
+                    style={globalStyles.buttonCard}
+                    onPress={() => setTheme('dark')}
                 >
-                    Dark Mode
-                </ThemedText>
-            </Pressable>
-
-            <Pressable
-                style={{
-                    marginTop: 12,
-                    padding: 16,
-                    borderRadius: 12,
-                    backgroundColor: theme === 'auto' ? Colors.light.tint : Colors[activeTheme].background,
-                }}
-                onPress={() => setTheme('auto')}
-            >
-                <ThemedText
-                    type="subtitle"
-                    lightColor={activeTheme === 'auto' ? Colors.dark.text : Colors.light.text}
-                    darkColor={activeTheme === 'auto' ? Colors.dark.text : Colors.dark.text}
+                    <ThemedText type="defaultBold">Dark Mode</ThemedText>
+                    {activeTheme === 'dark' && (
+                        <IconSymbol name="checkmark" size={24} color={Colors[activeTheme].text} />
+                    )}
+                </Pressable>
+                <Pressable
+                    style={globalStyles.buttonCard}
+                    onPress={() => setTheme('auto')}
                 >
-                    Auto Mode
-                </ThemedText>
-            </Pressable>
-        </ThemedView>
+                    <ThemedText type="defaultBold">Auto Mode</ThemedText>
+                    {activeTheme === 'auto' && (
+                        <IconSymbol name="checkmark" size={24} color={Colors[activeTheme].text} />
+                    )}
+                </Pressable>
+            </ThemedView>
+        </ThemedView >
     );
 }
