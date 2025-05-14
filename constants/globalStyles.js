@@ -186,21 +186,19 @@ const createGlobalStyles = (colorScheme) =>
             alignItems: 'center',
             borderRadius: 20,
             height: 250,
-            flex: 1,
             overflow: 'hidden'
         },
         itemImage: {
             width: '100%',
-            height: 150,
+            height: 160,
             resizeMode: 'contain',
             borderRadius: 8,
-            marginBottom: 15,
+            marginBottom: 10,
         },
         itemTitle: {
             fontWeight: 'bold',
             textAlign: 'center',
             color: Colors[colorScheme].text,
-            marginBottom: 8,
         },
         itemCategory: {
             color: Colors[colorScheme].text,

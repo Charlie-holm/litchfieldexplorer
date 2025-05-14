@@ -51,10 +51,7 @@ export default function ProductDetailScreen() {
     );
   }
 
-  const imageSource =
-    typeof item.image === 'string'
-      ? { uri: item.image }
-      : item.image || tshirtImage;
+  const imageSource = item.imageUrl ? { uri: item.imageUrl } : tshirtImage;
 
   const themeColors = Colors[activeTheme];
 
@@ -75,7 +72,7 @@ export default function ProductDetailScreen() {
         <View style={[styles.infoContainer, { backgroundColor: themeColors.card }]}>
           <View style={styles.headerRow}>
             <ThemedText type="title" style={[styles.title, { color: themeColors.text }]}>
-              {item.title}
+              {item.name}
             </ThemedText>
 
             <View style={styles.quantitySelector}>
@@ -90,7 +87,7 @@ export default function ProductDetailScreen() {
           </View>
 
           <ThemedText style={[styles.description, { color: themeColors.text }]}>
-            Its simple and elegant shape makes it perfect for those of you who like minimalist clothes. It comes up with different colors and sizes. Made with authentic products from Darwin.
+            {item.description || 'No description available.'}
           </ThemedText>
 
           <View style={styles.selectorGroup}>
@@ -146,7 +143,7 @@ export default function ProductDetailScreen() {
 
           <TouchableOpacity style={[styles.cartButton, { backgroundColor: themeColors.tint }]}>
             <Text style={[styles.cartText, { color: themeColors.background }]}>
-              Add to Cart | {item.price}
+              Add to Cart | {item.price ? `$${item.price}` : 'Price Unavailable'}
             </Text>
           </TouchableOpacity>
         </View>

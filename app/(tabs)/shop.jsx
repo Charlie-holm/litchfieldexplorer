@@ -9,6 +9,8 @@ import { useThemeContext } from '@/context/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { router } from 'expo-router';
+
 
 const categories = [
     { key: 'all', label: 'All Items', icon: 'square.grid.2x2' },
@@ -81,20 +83,19 @@ export default function ShopScreen() {
                 columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('/productdetail/', { id: item.id })}
+                    <TouchableOpacity onPress={() => router.push(`/productdetail/${item.id}`)}
                         style={[
                             globalStyles.itemCard,
                             {
                                 borderWidth: 1,
                                 borderColor: Colors[colorScheme].border,
                                 backgroundColor: Colors[colorScheme].card,
-                                width: '48%',
+                                width: '49%',
                             },
                         ]}
                     >
-                        <Image source={{ uri: item.imageUrl }} style={globalStyles.itemImage} resizeMode="contain" />
-                        <ThemedText style={globalStyles.itemTitle}>{item.title}</ThemedText>
+                        <Image source={{ uri: item.imageUrl }} style={globalStyles.itemImage} resizeMode="cover" />
+                        <ThemedText style={globalStyles.itemTitle}>{item.name}</ThemedText>
                         <ThemedText style={globalStyles.itemCategory}>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</ThemedText>
                         <ThemedText style={globalStyles.itemPrice}>{item.price}</ThemedText>
                     </TouchableOpacity>
