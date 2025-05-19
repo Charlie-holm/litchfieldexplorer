@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -62,11 +62,13 @@ export default function ProductDetailScreen() {
             <ThemedText type="title" style={styles.title}>{item.name}</ThemedText>
             <ThemedView style={styles.quantityInline}>
               <TouchableOpacity onPress={() => setQuantity(prev => Math.max(1, prev - 1))}>
-                <ThemedText style={[styles.qtyButton, { backgroundColor: themeColors.border }]}>−</ThemedText>
+                <ThemedText style={[styles.qtyButton, { backgroundColor: themeColors.border, color: themeColors.text }]}>−</ThemedText>
               </TouchableOpacity>
-              <ThemedText style={styles.qtyValue}>{quantity}</ThemedText>
+
+              <ThemedText style={[styles.qtyValue, { color: themeColors.text }]}>{quantity}</ThemedText>
+
               <TouchableOpacity onPress={() => setQuantity(prev => prev + 1)}>
-                <ThemedText style={[styles.qtyButton, { backgroundColor: themeColors.border }]}>+</ThemedText>
+                <ThemedText style={[styles.qtyButton, { backgroundColor: themeColors.border, color: themeColors.text }]}>+</ThemedText>
               </TouchableOpacity>
             </ThemedView>
           </ThemedView>
@@ -75,58 +77,60 @@ export default function ProductDetailScreen() {
             {item.description || 'No description available.'}
           </ThemedText>
 
-          <ThemedView style={[styles.divider, { backgroundColor: themeColors.border }]} />
+          <ThemedView style={styles.longDivider} />
 
           <ThemedView style={styles.selectorCombinedRow}>
+            {/* SIZE SELECTOR */}
             <ThemedView style={styles.selectorGroup}>
               <ThemedText style={styles.selectorLabel}>Size</ThemedText>
               <ThemedView style={styles.sizeRow}>
-                {sizes.map(size => (
-                  <TouchableOpacity
-                    key={size}
-                    style={[
-                      styles.sizeButton,
-                      {
-                        borderColor: themeColors.border,
-                        backgroundColor: selectedSize === size
-                          ? themeColors.tint
-                          : themeColors.cardBackground,
-                      },
-                    ]}
-                    onPress={() => setSelectedSize(size)}
-                  >
-                    <ThemedText
-                      style={{
-                        fontSize: 12,
-                        color: selectedSize === size
-                          ? themeColors.tintText
-                          : themeColors.text,
-                      }}
-                    >
-                      {size}
-                    </ThemedText>
-                  </TouchableOpacity>
-                ))}
-              </ThemedView>
+  {sizes.map(size => {
+    const isSelected = selectedSize === size;
+
+    return (
+      <TouchableOpacity
+        key={size}
+        onPress={() => setSelectedSize(size)}
+        style={[
+          styles.sizeButton,
+          {
+            backgroundColor: isSelected ? themeColors.tint : themeColors.cardBackground,
+            borderColor: isSelected ? themeColors.tint : themeColors.border,
+          },
+        ]}
+      >
+        <ThemedText
+          style={{
+            fontSize: 14,
+            fontWeight: '500',
+            color: isSelected ? themeColors.tintText : themeColors.text,
+          }}
+        >
+          {size}
+        </ThemedText>
+      </TouchableOpacity>
+    );
+  })}
+</ThemedView>
+
             </ThemedView>
 
+            {/* COLOR SELECTOR */}
             <ThemedView style={styles.selectorGroup}>
               <ThemedText style={styles.selectorLabel}>Color</ThemedText>
               <ThemedView style={styles.colorRow}>
                 {colors.map(color => (
                   <TouchableOpacity
                     key={color}
+                    onPress={() => setSelectedColor(color)}
                     style={[
                       styles.colorDot,
                       {
                         backgroundColor: color,
-                        borderColor: selectedColor === color
-                          ? themeColors.tint
-                          : themeColors.border,
-                        borderWidth: selectedColor === color ? 2 : 1,
+                        borderColor: selectedColor === color ? themeColors.tint : themeColors.border,
+                        borderWidth: selectedColor === color ? 3 : 1,
                       },
                     ]}
-                    onPress={() => setSelectedColor(color)}
                   />
                 ))}
               </ThemedView>
@@ -135,9 +139,13 @@ export default function ProductDetailScreen() {
 
           <TouchableOpacity
             style={[styles.cartButton, { backgroundColor: themeColors.tint }]}
-            onPress={() => alert(`Added ${item.name} to cart.`)}
+            onPress={() =>
+              alert(
+                `Added ${quantity} × ${item.name} (${selectedSize}, ${selectedColor}) to cart.`
+              )
+            }
           >
-            <ThemedText style={[styles.cartText, { color: themeColors.tintText }]}>
+            <ThemedText style={[styles.cartText, { color: themeColors.tintText, textAlign: 'center' }]}>
               Add to Cart | {item.price ? `$${item.price}` : 'Price Unavailable'}
             </ThemedText>
           </TouchableOpacity>
@@ -182,10 +190,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 16,
   },
-  divider: {
-    height: 1,
+  longDivider: {
+    height: 1.5,
     width: '100%',
-    marginBottom: 16,
+    backgroundColor: '#ccc',
+    marginVertical: 20,
   },
   selectorCombinedRow: {
     flexDirection: 'row',
@@ -203,23 +212,29 @@ const styles = StyleSheet.create({
   },
   sizeRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
   sizeButton: {
     borderWidth: 1,
-    borderRadius: 16,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: 8,
+    paddingVertical: 3,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
   },
   colorRow: {
     flexDirection: 'row',
-    gap: 10,
+    flexWrap: 'wrap',
+    marginRight: 10,
     marginTop: 6,
   },
   colorDot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    marginRight: 10,
   },
   quantityInline: {
     flexDirection: 'row',
@@ -235,13 +250,22 @@ const styles = StyleSheet.create({
   },
   qtyValue: {
     fontSize: 16,
-    marginHorizontal: 6,
+    marginHorizontal: 8,
+    fontWeight: '500',
   },
   cartButton: {
     marginTop: 24,
-    paddingVertical: 12,
-    borderRadius: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 2,
   },
   cartText: {
     fontWeight: '600',
