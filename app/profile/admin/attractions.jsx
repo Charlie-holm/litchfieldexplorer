@@ -226,7 +226,7 @@ export default function AttractionList() {
     };
 
     return (
-        <ThemedView style={globalStyles.subPageContainer}>
+        <ThemedView style={globalStyles.container}>
             <FormModal
                 mode="attraction"
                 visible={modalVisible}
@@ -246,7 +246,7 @@ export default function AttractionList() {
                 data={attractions}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
-                contentContainerStyle={{ padding: 10 }}
+                contentContainerStyle={{ marginVertical: 10, padding: 10 }}
                 initialNumToRender={6}
                 maxToRenderPerBatch={10}
             />

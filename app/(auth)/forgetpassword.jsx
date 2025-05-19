@@ -36,7 +36,7 @@ export default function ForgetPasswordScreen() {
                         value={email}
                         onChangeText={setEmail}
                         placeholder="********@*******.com"
-                        placeholderTextColor={Colors[colorScheme].thi + '99'}
+                        placeholderTextColor={Colors[colorScheme].thi}
                         style={globalStyles.inputTextBox}
                         keyboardType="email-address"
                         autoCapitalize="none"

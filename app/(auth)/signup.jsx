@@ -118,6 +118,7 @@ export default function SignupScreen() {
                     <TextInput
                         style={globalStyles.inputTextBox}
                         placeholder="First Name"
+                        placeholderTextColor={Colors[colorScheme].tri}
                         autoCapitalize="words"
                         value={firstname}
                         onChangeText={(text) => {
@@ -128,6 +129,7 @@ export default function SignupScreen() {
                     <TextInput
                         style={globalStyles.inputTextBox}
                         placeholder="Last Name"
+                        placeholderTextColor={Colors[colorScheme].tri}
                         autoCapitalize="words"
                         value={lastname}
                         onChangeText={(text) => {
@@ -138,6 +140,7 @@ export default function SignupScreen() {
                     <TextInput
                         style={globalStyles.inputTextBox}
                         placeholder="Email"
+                        placeholderTextColor={Colors[colorScheme].tri}
                         autoCapitalize="none"
                         keyboardType="email-address"
                         value={email}
@@ -149,6 +152,7 @@ export default function SignupScreen() {
                     <TextInput
                         style={globalStyles.inputTextBox}
                         placeholder="Phone Number"
+                        placeholderTextColor={Colors[colorScheme].tri}
                         keyboardType="phone-pad"
                         value={phoneNumber}
                         onChangeText={(text) => {
@@ -159,6 +163,7 @@ export default function SignupScreen() {
                     <TextInput
                         style={globalStyles.inputTextBox}
                         placeholder="Password"
+                        placeholderTextColor={Colors[colorScheme].tri}
                         secureTextEntry
                         value={password}
                         onChangeText={(text) => {
@@ -169,6 +174,7 @@ export default function SignupScreen() {
                     <TextInput
                         style={globalStyles.inputTextBox}
                         placeholder="Confirm Password"
+                        placeholderTextColor={Colors[colorScheme].tri}
                         secureTextEntry
                         value={confirmPassword}
                         onChangeText={setConfirmPassword}

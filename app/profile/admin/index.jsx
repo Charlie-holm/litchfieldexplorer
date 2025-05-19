@@ -20,7 +20,7 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <ThemedView style={globalStyles.subPageContainer}>
+        <ThemedView style={globalStyles.container}>
             <ThemedView style={globalStyles.itemContainer}>
                 <FlatList
                     data={panels}

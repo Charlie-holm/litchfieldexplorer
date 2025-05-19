@@ -109,12 +109,12 @@ export default function UserList() {
     };
 
     return (
-        <ThemedView style={globalStyles.subPageContainer}>
+        <ThemedView style={globalStyles.container}>
             <FlatList
                 data={users}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
-                contentContainerStyle={{ padding: 15 }}
+                contentContainerStyle={{ marginVertical: 10, padding: 15 }}
             />
         </ThemedView>
     );

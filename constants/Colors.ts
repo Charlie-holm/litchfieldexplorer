@@ -16,8 +16,8 @@ export const Colors = {
     background: '#E0E1DD',
   },
   dark: {
-    pri: '#1B263B',
-    sec: '#415A77',
+    pri: '#415A77',
+    sec: '#1B263B',
     tri: '#778DA9',
     for: '#f8f8f8',
     highlight: '#E0E1DD',

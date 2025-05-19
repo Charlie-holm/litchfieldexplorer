@@ -232,11 +232,11 @@ const createGlobalStyles = (colorScheme) =>
         },
         categoryContainer: {
             flexDirection: 'row',
-            paddingHorizontal: 22,
+            paddingHorizontal: 24,
             gap: 12,
             alignItems: 'center',
             height: 40,
-            marginBottom: 20
+            marginVertical: 20
         },
         categoryButton: {
             flexDirection: 'row',
@@ -255,15 +255,14 @@ const createGlobalStyles = (colorScheme) =>
         shopItemContainer: {
             marginBottom: 60,
             height: screenHeight - 240,
-            marginHorizontal: 26
+            marginHorizontal: 30
         },
         productCard: {
-            height: screenHeight * 0.29,
             borderRadius: 20,
             marginBottom: 20,
             alignSelf: 'center',
             overflow: 'hidden',
-            width: Dimensions.get('window').width * 0.42,
+            width: Dimensions.get('window').width * 0.4,
             backgroundColor: Colors[colorScheme].pri,
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
@@ -272,17 +271,42 @@ const createGlobalStyles = (colorScheme) =>
             elevation: 3,
         },
         productCardContent: {
+            flex: 1,
             marginHorizontal: 10,
             paddingBottom: 10,
             backgroundColor: Colors[colorScheme].pri
         },
+        attractionImageContainer: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 300,
+        },
         infoCard: {
             marginTop: -40,
-            backgroundColor: '#fff',
+            backgroundColor: Colors[colorScheme].pri,
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
             padding: 20,
+            gap: 15,
+            zIndex: 20,
 
+        },
+        rating: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: '#FEF3C7',
+            paddingHorizontal: 8,
+            borderRadius: 16,
+            gap: 4,
+            padding: 3,
+        },
+        facilityGrid: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 8,
+            marginTop: 10,
         },
     });
 

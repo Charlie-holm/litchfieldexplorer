@@ -85,7 +85,7 @@ export default function QuickInfoPanel() {
     );
 
     return (
-        <ThemedView style={globalStyles.subPageContainer}>
+        <ThemedView style={globalStyles.container}>
             <FormModal
                 mode="quickinfo"
                 visible={modalVisible}
@@ -103,7 +103,7 @@ export default function QuickInfoPanel() {
                 data={infos}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
-                contentContainerStyle={{ padding: 10 }}
+                contentContainerStyle={{ marginVertical: 10, padding: 10 }}
             />
         </ThemedView>
     );

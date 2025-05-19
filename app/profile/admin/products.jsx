@@ -210,12 +210,12 @@ export default function ProductList() {
     };
 
     return (
-        <ThemedView style={globalStyles.subPageContainer}>
+        <ThemedView style={globalStyles.container}>
             <FlatList
                 data={products}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={{ padding: 10 }}
+                contentContainerStyle={{ marginVertical: 10, padding: 10 }}
             />
             <FormModal
                 mode="product"

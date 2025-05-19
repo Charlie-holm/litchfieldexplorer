@@ -1,12 +1,14 @@
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Colors } from '@/constants/Colors';
-import { useThemeContext } from '@/context/ThemeProvider';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useThemeContext } from '@/context/ThemeProvider';
+import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from '@/components/ThemedText';
 import { useGlobalStyles } from '@/constants/globalStyles';
 
 
@@ -31,111 +33,126 @@ export default function AttractionDetail() {
     }, [id]);
 
     return (
-        <View style={{ flex: 1 }}>
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 300, zIndex: 1 }}>
+        <ThemedView style={{ flex: 1 }}>
+            <View style={globalStyles.attractionImageContainer}>
                 <Image
                     source={{ uri: attraction?.imageUrl }}
-                    style={StyleSheet.absoluteFillObject}
+                    style={globalStyles.image}
                 />
-                <TouchableOpacity onPress={() => navigation.goBack()} style={globalStyles.backIcon}>
-                    <IconSymbol name="chevron.left" size={24} color={Colors[colorScheme].pri} />
+                <TouchableOpacity
+                    onPress={() => {
+                        router.back();
+                    }}
+                    style={globalStyles.backIcon}
+                >
+                    <IconSymbol name="chevron.left" color={'#f8f8f8'} />
                 </TouchableOpacity>
             </View>
 
             <View style={{ flex: 1, zIndex: 2 }}>
-                <ScrollView style={{ flex: 1, paddingTop: 300 }}>
+                <ScrollView
+                    style={{ paddingTop: 300 }}
+                    bounces={false}
+                >
                     {attraction && (
                         <>
                             <View style={globalStyles.infoCard}>
-                                <View style={styles.headerRow}>
-                                    <Text style={styles.title}>{attraction.name}</Text>
-                                    <View style={styles.rating}>
-                                        <Text style={styles.ratingText}>{attraction.review || 0}</Text>
-                                        <Ionicons name="star" size={20} color="#FACC15" />
+                                <View>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+                                        <ThemedText type="title">{attraction.name}</ThemedText>
+                                        <View style={globalStyles.rating}>
+                                            <ThemedText type="defaultSemiBold" style={{ color: '#D97706' }}>
+                                                {attraction.review || 0}
+                                            </ThemedText>
+                                            <Ionicons name="star" size={20} color="#FACC15" />
+                                        </View>
+                                    </View>
+                                    <ThemedText type="small" style={{ color: Colors[colorScheme].for }}>{attraction.description}</ThemedText>
+                                </View>
+                                <View>
+                                    <ThemedText type="subtitle">Status</ThemedText>
+                                    {attraction.status?.map((s, idx) => {
+                                        const [label, value] = s.split(' - ');
+                                        return renderStatusRow(label, value, idx);
+                                    })}
+                                </View>
+                                <View>
+                                    <ThemedText type="subtitle">Facilities</ThemedText>
+                                    <View style={globalStyles.facilityGrid}>
+                                        {attraction.facilities?.map((f, idx) => renderFacility(f, 'checkbox-marked', idx, colorScheme))}
+                                    </View>
+                                    <View style={globalStyles.facilityGrid}>
+                                        {attraction.ac?.map((f, idx) => renderFacility(f, 'checkbox-marked', idx, colorScheme))}
                                     </View>
                                 </View>
-                                <Text style={styles.description}>{attraction.description}</Text>
-
-                                <Text style={styles.sectionTitle}>Status</Text>
-                                {attraction.status?.map((s, idx) => {
-                                    const [label, value] = s.split(' - ');
-                                    return renderStatusRow(label, value, idx);
-                                })}
-
-                                <Text style={styles.sectionTitle}>Facilities</Text>
-                                <View style={styles.facilityGrid}>
-                                    {attraction.facilities?.map((f, idx) => renderFacility(f, 'checkbox-marked', idx))}
-                                </View>
-                                <View style={styles.facilityGrid}>
-                                    {attraction.ac?.map((f, idx) => renderFacility(f, 'checkbox-marked', idx))}
-                                </View>
-                                <Text style={styles.sectionTitle}>Activities</Text>
-                                <View style={styles.facilityGrid}>
-                                    {attraction.activities?.map((a, idx) => renderFacility(a, 'checkbox-marked', idx))}
+                                <View>
+                                    <ThemedText type="subtitle">Activities</ThemedText>
+                                    <View style={globalStyles.facilityGrid}>
+                                        {attraction.activities?.map((a, idx) => renderFacility(a, 'checkbox-marked', idx, colorScheme))}
+                                    </View>
                                 </View>
                             </View>
                         </>
                     )}
                 </ScrollView>
             </View>
-        </View>
+        </ThemedView >
     );
 }
 
 const renderStatusRow = (label, status, key) => (
-    <View key={key} style={styles.statusRow}>
-        <Text style={styles.statusLabel}>{label}</Text>
-        <Text style={styles.statusValue}>{status}</Text>
+    <View key={key} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 2, }}>
+        <ThemedText type="default">{label}</ThemedText>
+        <ThemedText type="defaultSemiBold">{status}</ThemedText>
     </View>
 );
 
-const renderFacility = (label, iconName = 'checkbox-marked', key) => (
-    <View style={styles.facilityItem} key={key}>
-        <MaterialCommunityIcons name={iconName} size={20} color="#444" />
-        <Text style={styles.facilityText}>{label}</Text>
-    </View>
-);
+const renderFacility = (label, iconName = 'checkbox-marked', key, colorScheme) => {
+    const getIconName = (text) => {
+        const lower = text.toLowerCase();
+        if (lower.includes('toilet')) return 'toilet';
+        if (lower.includes('coffee')) return 'cup.and.saucer';
+        if (lower.includes('parking') || lower.includes('caravan')) return 'car';
+        if (lower.includes('bbq')) return 'fork.knife';
+        if (lower.includes('picnic')) return 'basket';
+        if (lower.includes('water')) return 'drop';
+        if (lower.includes('info')) return 'info.circle';
+        if (lower.includes('lookout') || lower.includes('sightseeing') || lower.includes('heritage')) return 'eye';
+        if (lower.includes('wi-fi')) return 'wifi';
+        if (lower.includes('disabled')) return 'figure.roll';
+        if (lower.includes('firepit') || lower.includes('fire')) return 'flame';
+        if (lower.includes('shower')) return 'shower';
+        if (lower.includes('phone')) return 'phone';
+        if (lower.includes('camping') || lower.includes('campground') || lower.includes('camper')) return 'tent';
+        if (lower.includes('food')) return 'fork.knife';
+        if (lower.includes('4wd')) return 'car.2';
+        if (lower.includes('ecd')) return 'bolt';
+        if (lower.includes('hosting')) return 'person.2';
+        if (lower.includes('walking')) return 'figure.walk';
+        if (lower.includes('swimming')) return 'figure.wave';
+        return 'checkmark.circle';
+    };
 
-const styles = StyleSheet.create({
-    container: { flex: 1, },
-    headerImage: { width: '100%', height: 300 },
-    headerRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    title: { fontSize: 24, fontWeight: 'bold' },
-    rating: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FEF3C7',
-        paddingHorizontal: 8,
-        borderRadius: 8,
-    },
-    ratingText: { fontWeight: 'bold', marginRight: 4 },
-    description: { marginTop: 8, fontSize: 14, color: '#555' },
-    sectionTitle: { fontSize: 16, fontWeight: 'bold', marginTop: 20 },
-    statusRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 4,
-    },
-    statusLabel: { fontSize: 14, color: '#333' },
-    statusValue: { fontSize: 14, fontWeight: 'bold' },
-    facilityGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-        marginTop: 10,
-    },
-    facilityItem: {
-        width: '48.5%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#F3F4F6',
-        padding: 5,
-        paddingVertical: 15,
-        borderRadius: 10,
-    },
-    facilityText: { marginLeft: 8, fontSize: 13, color: '#333' },
-});
+    return (
+        <View
+            style={{
+                width: '48.5%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: Colors[colorScheme].sec,
+                padding: 5,
+                paddingVertical: 15,
+                borderRadius: 10,
+            }}
+            key={key}
+        >
+            <IconSymbol name={getIconName(label)} />
+            <ThemedText
+                type="default"
+                style={{ flexShrink: 1, flex: 1, marginLeft: 6 }}
+            >
+                {label}
+            </ThemedText>
+        </View>
+    );
+};

@@ -113,7 +113,7 @@ export function SearchModal({ visible, onClose, allItems }) {
                                     style={{
                                         transform: [{ translateY }],
                                         opacity,
-                                        marginBottom: 10,
+                                        margin: 5,
                                     }}
                                 >
                                     <Pressable
