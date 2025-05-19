@@ -50,7 +50,7 @@ export default function ProductDetailScreen() {
     <ThemedView style={styles.container}>
       <ThemedView style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <IconSymbol name="chevron.left" size={24} color={themeColors.text} />
+          <IconSymbol name="chevron.left" size={24} color={themeColors.pri} />
         </TouchableOpacity>
       </ThemedView>
 

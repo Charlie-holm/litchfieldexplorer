@@ -7,7 +7,7 @@ import { useThemeContext } from '@/context/ThemeProvider';
 import { SearchModal } from '@/components/search';
 import { SearchProvider } from '@/context/SearchContext';
 import { attractions, products, tabs } from '@/context/allItems';
-import { getAuth } from 'firebase/auth';
+import { auth } from '@/firebaseConfig';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { app } from '@/firebaseConfig';
 import { useGlobalStyles } from '@/constants/globalStyles';
@@ -31,7 +31,6 @@ export default function TabLayout() {
   useEffect(() => {
     const fetchProfileImage = async () => {
       try {
-        const auth = getAuth(app);
         const user = auth.currentUser;
         if (user) {
           const db = getFirestore(app);

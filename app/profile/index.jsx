@@ -63,13 +63,13 @@ export default function ProfileScreen() {
 
     return (
         <ThemedView style={{ flex: 1, justifyContent: 'space-between' }}>
-            <ScrollView contentContainerStyle={[globalStyles.container]}>
+            <ScrollView contentContainerStyle={globalStyles.container}>
                 <ThemedView style={globalStyles.itemContainer}>
                     <Pressable onPress={() => router.push('/profile/profile_detail')}>
                         <View style={globalStyles.buttonCard}>
                             <View style={globalStyles.buttonCardIcon}>
                                 {profileImage ? (
-                                    <Image source={{ uri: profileImage }} style={{ width: '100%', height: '100%' }} />
+                                    <Image source={{ uri: profileImage }} style={globalStyles.image} />
                                 ) : (
                                     <IconSymbol name="person.circle" size={70} color={Colors[colorScheme].icon} />
                                 )}
@@ -85,7 +85,7 @@ export default function ProfileScreen() {
                                     {phoneNumber}
                                 </ThemedText>
                             </View>
-                            <IconSymbol name="chevron.right" size={24} color={Colors[colorScheme].text} />
+                            <IconSymbol name="chevron.right" size={28} />
                         </View>
                     </Pressable>
                     <Pressable onPress={() => router.push('/profile/points')}>
@@ -96,7 +96,7 @@ export default function ProfileScreen() {
                                     width={8}
                                     fill={(pointsToNext + currentPoints > 0) ? (currentPoints / (pointsToNext + currentPoints)) * 100 : 100}
                                     tintColor={progressColor}
-                                    backgroundColor={Colors[colorScheme].border}
+                                    backgroundColor={Colors[colorScheme].for}
                                     rotation={0}
                                     lineCap="round"
                                 >
@@ -122,22 +122,20 @@ export default function ProfileScreen() {
                                 )}
                                 <ThemedText type="small">Tier Expiry: {formattedExpiryDate}</ThemedText>
                             </View>
-                            <IconSymbol name="chevron.right" size={24} color={Colors[colorScheme].text} />
+                            <IconSymbol name="chevron.right" size={28} />
                         </View>
                     </Pressable>
-
                     {sections.map(({ label, icon, path }) => (
                         <Pressable key={path} onPress={() => router.push({ pathname: path, params: { title: label } })}>
                             <ThemedView style={globalStyles.buttonCard}>
                                 <ThemedView style={globalStyles.buttonLeft}>
-                                    <IconSymbol name={icon} color={Colors[colorScheme].text} />
+                                    <IconSymbol name={icon} />
                                     <ThemedText type="subtitle">{label}</ThemedText>
                                 </ThemedView>
-                                <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
+                                <IconSymbol name="chevron.right" size={28} />
                             </ThemedView>
                         </Pressable>
                     ))}
-
                     {isAdmin && (
                         <Pressable onPress={() => router.push('/profile/admin')}>
                             <ThemedView style={globalStyles.buttonCard}>
@@ -145,10 +143,11 @@ export default function ProfileScreen() {
                                     <IconSymbol name="gear" color={Colors[colorScheme].text} />
                                     <ThemedText type="subtitle">Admin Panel</ThemedText>
                                 </ThemedView>
-                                <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
+                                <IconSymbol name="chevron.right" size={28} />
                             </ThemedView>
                         </Pressable>
                     )}
+                    <ThemedView style={{ height: 90 }} />
                 </ThemedView>
             </ScrollView>
             <Pressable
@@ -174,7 +173,7 @@ export default function ProfileScreen() {
                 style={{ alignItems: 'center' }}
             >
                 <ThemedView style={[globalStyles.pillButton, { width: '90%' }]}>
-                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pillButtonText }}>
+                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>
                         Sign Out
                     </ThemedText>
                 </ThemedView>

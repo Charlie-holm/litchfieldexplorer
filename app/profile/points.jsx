@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { getAuth } from 'firebase/auth';
+import { auth } from '@/firebaseConfig';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { app } from '@/firebaseConfig';
 import { Colors } from '@/constants/Colors';
@@ -15,7 +15,6 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 export default function PointsDetailScreen() {
   const globalStyles = useGlobalStyles();
-  const auth = getAuth(app);
   const db = getFirestore(app);
   const user = auth.currentUser;
 

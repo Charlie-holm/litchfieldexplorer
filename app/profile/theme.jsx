@@ -23,7 +23,7 @@ export default function ThemeScreen() {
                 >
                     <ThemedText type="defaultBold">Light Mode</ThemedText>
                     {activeTheme === 'light' && (
-                        <IconSymbol name="checkmark" size={24} color={Colors[activeTheme].text} />
+                        <IconSymbol name="checkmark" size={24} />
                     )}
                 </Pressable>
                 <Pressable
@@ -32,7 +32,7 @@ export default function ThemeScreen() {
                 >
                     <ThemedText type="defaultBold">Dark Mode</ThemedText>
                     {activeTheme === 'dark' && (
-                        <IconSymbol name="checkmark" size={24} color={Colors[activeTheme].text} />
+                        <IconSymbol name="checkmark" size={24} />
                     )}
                 </Pressable>
                 <Pressable
@@ -41,7 +41,7 @@ export default function ThemeScreen() {
                 >
                     <ThemedText type="defaultBold">Auto Mode</ThemedText>
                     {activeTheme === 'auto' && (
-                        <IconSymbol name="checkmark" size={24} color={Colors[activeTheme].text} />
+                        <IconSymbol name="checkmark" size={24} />
                     )}
                 </Pressable>
             </ThemedView>

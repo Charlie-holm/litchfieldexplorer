@@ -101,39 +101,20 @@ export default function SignupScreen() {
     };
 
     return (
-        <ThemedView style={globalStyles.subPageContainer}>
-            <ThemedView
-                style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingHorizontal: 20,
-                    paddingTop: 80,
-                    paddingBottom: 20,
-                }}
-            >
+        <ThemedView style={globalStyles.container}>
+            <ThemedView style={globalStyles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <IconSymbol
                         name="chevron.left"
                         size={24}
-                        color={Colors[colorScheme].text}
+                        color={Colors[colorScheme].highlight}
                     />
                 </TouchableOpacity>
                 <ThemedText type="title">Sign up</ThemedText>
                 <View style={{ width: 24 }} />
             </ThemedView>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-
-
-                <View
-                    style={[
-                        globalStyles.subPageContainer,
-                        {
-                            padding: 20,
-                            gap: 20,
-                        },
-                    ]}
-                >
+                <View style={globalStyles.itemContainer}>
                     <TextInput
                         style={globalStyles.inputTextBox}
                         placeholder="First Name"
@@ -193,25 +174,25 @@ export default function SignupScreen() {
                         onChangeText={setConfirmPassword}
                     />
                     {signupErrors.length > 0 && signupErrors.map((err, index) => (
-                        <ThemedText key={index} type="default" style={{ color: 'red', marginTop: -10 }}>
+                        <ThemedText key={index} type="default" style={{ alignSelf: 'flex-start', color: 'red', marginBottom: 10 }}>
                             {err}
                         </ThemedText>
                     ))}
                     <Pressable
                         onPress={() => setAgreed(!agreed)}
-                        style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                        style={{ flexDirection: 'row', alignSelf: 'flex-start', gap: 6 }}
                     >
                         {
                             agreed ? (
                                 <IconSymbol
                                     name="checkmark"
                                     size={18}
-                                    color={Colors[colorScheme].text}
+                                    color={Colors[colorScheme].highlight}
                                     style={{
                                         width: 18,
                                         height: 18,
                                         borderWidth: 1,
-                                        borderColor: Colors[colorScheme].text,
+                                        borderColor: Colors[colorScheme].highlight,
                                         textAlign: 'center',
                                     }}
                                 />
@@ -221,7 +202,7 @@ export default function SignupScreen() {
                                         width: 18,
                                         height: 18,
                                         borderWidth: 1,
-                                        borderColor: Colors[colorScheme].text,
+                                        borderColor: Colors[colorScheme].highlight,
                                     }}
                                 />
                             )
@@ -233,7 +214,7 @@ export default function SignupScreen() {
                     </Pressable>
                 </View>
             </ScrollView>
-            <ThemedView style={{ alignItems: 'center', padding: 20 }}>
+            <ThemedView style={{ padding: 20 }}>
                 <Pressable
                     style={[
                         globalStyles.pillButton,
@@ -242,7 +223,7 @@ export default function SignupScreen() {
                     onPress={handleSignup}
                     disabled={!agreed}
                 >
-                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pillButtonText }}>
+                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>
                         Sign up
                     </ThemedText>
                 </Pressable>

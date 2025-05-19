@@ -1,11 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
-import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
-import AttractionList from '@/app/profile/admin/attractions';
-import { attractions } from '@/context/allItems';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -15,11 +10,19 @@ const createGlobalStyles = (colorScheme) =>
             width: '100%',
             position: 'absolute',
             padding: 30,
-            marginTop: screenHeight * 0.05,
+            paddingTop: screenHeight * 0.08,
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
             zIndex: 100,
+            backgroundColor: Colors[colorScheme].background,
+        },
+        backIcon: {
+            position: 'absolute',
+            top: 50,
+            left: 20,
+            zIndex: 10,
+            padding: 6,
         },
         image: {
             width: '100%',
@@ -183,6 +186,8 @@ const createGlobalStyles = (colorScheme) =>
             color: Colors[colorScheme].highlight,
         },
         inputTextBox: {
+            width: '100%',
+            marginVertical: 10,
             paddingVertical: 20,
             paddingHorizontal: 30,
             borderRadius: 16,
@@ -216,7 +221,7 @@ const createGlobalStyles = (colorScheme) =>
             borderRadius: 40,
             height: 60,
             bottom: 30,
-            width: '90%',
+            width: '100%',
             alignItems: 'center',
             justifyContent: 'center',
             shadowColor: '#000',
@@ -270,6 +275,14 @@ const createGlobalStyles = (colorScheme) =>
             marginHorizontal: 10,
             paddingBottom: 10,
             backgroundColor: Colors[colorScheme].pri
+        },
+        infoCard: {
+            marginTop: -40,
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            padding: 20,
+
         },
     });
 
