@@ -14,7 +14,10 @@ import { checkTierUpdate } from '@/scripts//pointsSystem';
 import { getTierDisplayDetails } from '@/scripts/pointsSystem';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
+import { Dimensions } from 'react-native';
+
 export default function ProfileScreen() {
+    const screenHeight = Dimensions.get('window').height;
     const { theme: colorScheme } = useThemeContext();
     const globalStyles = useGlobalStyles();
     const router = useRouter();
@@ -62,9 +65,12 @@ export default function ProfileScreen() {
     ];
 
     return (
-        <ThemedView style={{ flex: 1, justifyContent: 'space-between' }}>
-            <ScrollView contentContainerStyle={globalStyles.container}>
-                <ThemedView style={globalStyles.itemContainer}>
+        <ThemedView style={{ flex: 1 }}>
+            <View style={{ flex: 1, marginTop: screenHeight * 0.13 }}>
+                <ScrollView
+                    style={{ flex: 1 }}
+                    contentContainerStyle={[globalStyles.itemContainer, { paddingBottom: 100 }]}
+                >
                     <Pressable onPress={() => router.push('/profile/profile_detail')}>
                         <View style={globalStyles.buttonCard}>
                             <View style={globalStyles.buttonCardIcon}>
@@ -147,9 +153,8 @@ export default function ProfileScreen() {
                             </ThemedView>
                         </Pressable>
                     )}
-                    <ThemedView style={{ height: 90 }} />
-                </ThemedView>
-            </ScrollView>
+                </ScrollView>
+            </View>
             <Pressable
                 onPress={() => {
                     Alert.alert(

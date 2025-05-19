@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 const categories = [
     { key: 'all', label: 'All Items', icon: 'square.grid.2x2' },
     { key: 'dress', label: 'Dress', icon: 'figure.dress.line.vertical.figure' },
-    { key: 'tshirts', label: 'T-Shirts', icon: 'tshirt' },
+    { key: 't-shirts', label: 'T-Shirts', icon: 'tshirt' },
     { key: 'pants', label: 'Pants', icon: 'figure.walk' },
 ];
 
@@ -94,7 +94,7 @@ export default function ShopScreen() {
                         />
                         <ThemedView style={globalStyles.productCardContent}>
                             <ThemedText type="defaultBold" >{item.name}</ThemedText>
-                            <ThemedText type="small" style={{ color: 'gray' }}>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</ThemedText>
+                            <ThemedText type="small" style={{ color: Colors[colorScheme].tri }}>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</ThemedText>
                             <ThemedText type="defaultSemiBold">${item.price}</ThemedText>
                         </ThemedView>
                     </TouchableOpacity>

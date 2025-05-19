@@ -1,8 +1,8 @@
-import { View, Text, FlatList, Pressable, Image, Modal, TextInput, ScrollView } from "react-native";
+import { View, FlatList, Pressable, Image, Alert } from "react-native";
 import { DeviceEventEmitter } from "react-native";
 import { useEffect, useState } from "react";
 import { db } from '@/firebaseConfig';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { useGlobalStyles } from '@/constants/globalStyles';
@@ -133,10 +133,9 @@ export default function ProductList() {
         </Pressable>
     );
 
-    // Save handler (Add or Update)
     const handleSaveProduct = async () => {
         setErrorMsg('');
-        // Validate required fields
+
         if (!newProduct.name.trim()) {
             setErrorMsg("Product name is required.");
             return;
@@ -145,7 +144,7 @@ export default function ProductList() {
             setErrorMsg("Valid price is required.");
             return;
         }
-        // Check for unique name (case-insensitive, ignore self if editing)
+
         const nameLC = newProduct.name.trim().toLowerCase();
         const duplicate = products.find(
             (p) =>
@@ -156,20 +155,20 @@ export default function ProductList() {
             setErrorMsg("Product name already exists.");
             return;
         }
-        // Prepare data
+
         const data = {
             ...newProduct,
             price: parseFloat(newProduct.price),
         };
-        // Remove legacy sizeEntries if present
+
         if ('sizeEntries' in data) {
             delete data.sizeEntries;
         }
-        // Remove flat size if present
+
         if ('size' in data) {
             delete data.size;
         }
-        // Remove stockEntries if present
+
         if ('stockEntries' in data) {
             delete data.stockEntries;
         }
@@ -189,20 +188,27 @@ export default function ProductList() {
         }
     };
 
-    // Delete handler
-    const handleDeleteProduct = async () => {
-        if (!editingProduct) return;
-        try {
-            await deleteDoc(doc(db, "products", editingProduct.id));
-            await loadProducts();
-            setModalVisible(false);
-            setEditingProduct(null);
-        } catch (e) {
-            setErrorMsg("Error deleting product.");
-        }
+    const handleDelete = () => {
+        Alert.alert('Confirm Delete', 'Are you sure?', [
+            { text: 'Cancel', style: 'cancel' },
+            {
+                text: 'Delete',
+                style: 'destructive',
+                onPress: async () => {
+                    if (!editingProduct) return;
+                    try {
+                        await deleteDoc(doc(db, "products", editingProduct.id));
+                        await loadProducts();
+                        setModalVisible(false);
+                        setEditingProduct(null);
+                    } catch (e) {
+                        setErrorMsg("Error deleting product.");
+                    }
+                }
+            }
+        ]);
     };
 
-    // Close handler (no changes)
     const handleCloseModal = () => {
         setModalVisible(false);
         setEditingProduct(null);
@@ -223,7 +229,7 @@ export default function ProductList() {
                 onClose={handleCloseModal}
                 editingItem={editingProduct}
                 onSave={handleSaveProduct}
-                onDelete={handleDeleteProduct}
+                onDelete={handleDelete}
                 form={newProduct}
                 setForm={setNewProduct}
                 uploading={uploading}

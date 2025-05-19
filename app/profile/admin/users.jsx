@@ -78,14 +78,14 @@ export default function UserList() {
                             />
                             <Pressable
                                 onPress={() => handleSavePoints(item)}
-                                style={[globalStyles.smallButton, { backgroundColor: '#3498db', borderColor: '#3498db', marginBottom: 8 }]}
+                                style={[globalStyles.smallPillButton, { backgroundColor: '#3498db', borderColor: '#3498db', marginBottom: 8 }]}
                             >
                                 <ThemedText style={{ color: 'white' }}>Save Points</ThemedText>
                             </Pressable>
                             <Pressable
                                 onPress={() => handleToggleAdmin(item)}
                                 style={[
-                                    globalStyles.smallButton,
+                                    globalStyles.smallPillButton,
                                     item.admin
                                         ? { backgroundColor: '#ff69b4', borderColor: '#ff69b4' }
                                         : { backgroundColor: '#2ecc71', borderColor: '#2ecc71' }
@@ -97,7 +97,7 @@ export default function UserList() {
                             </Pressable>
                             <Pressable
                                 onPress={() => handleRemoveUser(item)}
-                                style={[globalStyles.smallButton, { backgroundColor: '#e74c3c', borderColor: '#e74c3c', marginTop: 8 }]}
+                                style={[globalStyles.smallPillButton, { backgroundColor: '#e74c3c', borderColor: '#e74c3c', marginTop: 8 }]}
                             >
                                 <ThemedText style={{ color: 'white' }}>Remove User</ThemedText>
                             </Pressable>

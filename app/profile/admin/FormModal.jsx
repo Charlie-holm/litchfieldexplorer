@@ -77,7 +77,7 @@ export default function FormModal({
                                                 updated[index].open = !updated[index].open;
                                                 setForm(prev => ({ ...prev, statusEntries: updated }));
                                             }}
-                                            style={[globalStyles.smallButton, { backgroundColor: entry.open ? 'green' : 'red', width: 90 }]}
+                                            style={[globalStyles.smallPillButton, { backgroundColor: entry.open ? 'green' : 'red', width: 90 }]}
                                         >
                                             <ThemedText style={{ color: 'white' }}>{entry.open ? 'Open' : 'Closed'}</ThemedText>
                                         </Pressable>
@@ -90,7 +90,7 @@ export default function FormModal({
                                             statusEntries: [...(prev.statusEntries || []), { label: '', open: true }]
                                         }));
                                     }}
-                                    style={[globalStyles.smallButton, { width: '100%', marginBottom: 10, backgroundColor: Colors[colorScheme].sec }]}
+                                    style={[globalStyles.smallPillButton, { width: '100%', marginBottom: 10, backgroundColor: Colors[colorScheme].sec }]}
                                 >
                                     <ThemedText type="defaultSemiBold" style={{ textAlign: 'center', color: 'white' }}>Add Status Label</ThemedText>
                                 </Pressable>
@@ -215,14 +215,14 @@ export default function FormModal({
                                 </Pressable>
                                 <Pressable
                                     onPress={onSave}
-                                    style={[globalStyles.smallButton, { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }]}
+                                    style={[globalStyles.smallPillButton, { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }]}
                                 >
                                     <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Save</ThemedText>
                                 </Pressable>
                                 {editingItem && (
                                     <Pressable
                                         onPress={onDelete}
-                                        style={[globalStyles.smallButton, { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' }]}
+                                        style={[globalStyles.smallPillButton, { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' }]}
                                     >
                                         <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Delete</ThemedText>
                                     </Pressable>
@@ -335,7 +335,7 @@ export default function FormModal({
                                                 inventory: [...(prev.inventory || []), { size: '', color: '', quantity: 0 }]
                                             }));
                                         }}
-                                        style={[globalStyles.smallButton, { width: '100%', marginBottom: 10, backgroundColor: Colors[colorScheme].sec }]}
+                                        style={[globalStyles.smallPillButton, { width: '100%', marginBottom: 10, backgroundColor: Colors[colorScheme].sec }]}
                                     >
                                         <ThemedText type="default" style={{ color: '#fff' }}>Add Row</ThemedText>
                                     </Pressable>
@@ -372,7 +372,7 @@ export default function FormModal({
                                                 >
                                                     <Picker.Item label="Category..." value="" />
                                                     <Picker.Item label="Dress" value="dress" />
-                                                    <Picker.Item label="T-Shirts" value="tshirts" />
+                                                    <Picker.Item label="T-Shirts" value="t-shirts" />
                                                     <Picker.Item label="Pants" value="pants" />
                                                     <Picker.Item label="Socks" value="socks" />
                                                     <Picker.Item label="Hats" value="hats" />
@@ -406,7 +406,7 @@ export default function FormModal({
                                         <Pressable
                                             onPress={onSave}
                                             style={[
-                                                globalStyles.smallButton,
+                                                globalStyles.smallPillButton,
                                                 { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }
                                             ]}
                                         >
@@ -416,7 +416,7 @@ export default function FormModal({
                                             <Pressable
                                                 onPress={onDelete}
                                                 style={[
-                                                    globalStyles.smallButton,
+                                                    globalStyles.smallPillButton,
                                                     { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' }
                                                 ]}
                                             >
@@ -459,11 +459,11 @@ export default function FormModal({
                                         style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
                                         multiline
                                     />
-                                    <Pressable onPress={onSave} style={[globalStyles.smallButton, { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }]}>
+                                    <Pressable onPress={onSave} style={[globalStyles.smallPillButton, { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }]}>
                                         <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Save</ThemedText>
                                     </Pressable>
                                     {editingItem && (
-                                        <Pressable onPress={onDelete} style={[globalStyles.smallButton, { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' }]}>
+                                        <Pressable onPress={onDelete} style={[globalStyles.smallPillButton, { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' }]}>
                                             <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Delete</ThemedText>
                                         </Pressable>
                                     )}

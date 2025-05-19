@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, TextInput, Pressable, View, ScrollView } from 'react-native';
+import { FlatList, Pressable, Alert } from 'react-native';
 import { DeviceEventEmitter } from 'react-native';
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
@@ -58,15 +58,24 @@ export default function QuickInfoPanel() {
         }
     };
 
-    const handleDelete = async () => {
-        if (!editingInfo) return;
-        try {
-            await deleteDoc(doc(db, "quickInfo", editingInfo.id));
-            setModalVisible(false);
-            setEditingInfo(null);
-        } catch (error) {
-            console.error("Failed to delete info:", error);
-        }
+    const handleDelete = () => {
+        Alert.alert('Confirm Delete', 'Are you sure?', [
+            { text: 'Cancel', style: 'cancel' },
+            {
+                text: 'Delete',
+                style: 'destructive',
+                onPress: async () => {
+                    if (!editingInfo) return;
+                    try {
+                        await deleteDoc(doc(db, "quickInfo", editingInfo.id));
+                        setModalVisible(false);
+                        setEditingInfo(null);
+                    } catch (error) {
+                        console.error("Failed to delete info:", error);
+                    }
+                }
+            }
+        ]);
     };
 
     const renderItem = ({ item }) => (

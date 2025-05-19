@@ -13,9 +13,8 @@ import { useGlobalStyles } from '@/constants/globalStyles';
 
 
 export default function AttractionDetail() {
-    const { theme: colorScheme } = useThemeContext(); const globalStyles = useGlobalStyles();
-
-
+    const { theme: colorScheme } = useThemeContext();
+    const globalStyles = useGlobalStyles();
     const [attraction, setAttraction] = useState(null);
     const { id } = useLocalSearchParams();
     const navigation = useNavigation();
