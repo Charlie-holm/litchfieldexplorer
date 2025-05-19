@@ -43,79 +43,77 @@ export default function LoginScreen() {
     };
 
     return (
-        <ThemedView
-            style={[
-                globalStyles.container,
-                {
-                    padding: 20,
-                    gap: 20,
-                },
-            ]}
-        >
-            <ThemedText type="title" style={{ fontFamily: 'Lobster-Regular' }}>
-                Litchfield Explorer
-            </ThemedText>
-            <ThemedText
-                type="title"
-                style={{ fontWeight: '900' }}
-            >
-                Hello,
-            </ThemedText>
-            <ThemedText
-                type="title"
-                style={{ fontWeight: '900' }}
-            >
-                Explorer!
-            </ThemedText>
-            <TextInput
-                style={globalStyles.inputTextBox}
-                placeholder="Email"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-            />
-            <TextInput
-                style={globalStyles.inputTextBox}
-                placeholder="Password"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-            />
-            {errorMessage !== '' && (
-                <ThemedText type="default" style={{ color: 'red', marginTop: -10 }}>
-                    {errorMessage}
+        <ThemedView style={globalStyles.container}>
+            <ThemedView
+                style={{ padding: 20, gap: 20 }}>
+                <ThemedText type="title" style={{ fontFamily: 'Lobster-Regular' }}>
+                    Litchfield Explorer
                 </ThemedText>
-            )}
-
-            <View style={{ alignItems: 'flex-end', width: '100%', marginBottom: 20 }}>
-                <Pressable onPress={() => router.push('/forgetpassword')}>
-                    <ThemedText type="default" style={{ textAlign: 'right' }}>
-                        Forgot Password?
+                <ThemedText
+                    type="title"
+                    style={{ fontWeight: '900' }}
+                >
+                    Hello,
+                </ThemedText>
+                <ThemedText
+                    type="title"
+                    style={{ fontWeight: '900' }}
+                >
+                    Explorer!
+                </ThemedText>
+            </ThemedView>
+            <ThemedView style={globalStyles.itemContainer}>
+                <TextInput
+                    style={globalStyles.inputTextBox}
+                    placeholder="Email"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    value={email}
+                    onChangeText={setEmail}
+                />
+                <TextInput
+                    style={globalStyles.inputTextBox}
+                    placeholder="Password"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                />
+                {errorMessage !== '' && (
+                    <ThemedText type="default" style={{ alignSelf: 'flex-start', color: 'red', marginVertical: 10 }}>
+                        {errorMessage}
                     </ThemedText>
-                </Pressable>
-            </View>
+                )}
 
-            <View style={{ alignItems: 'flex-end', width: '100%' }}>
-                <Pressable style={globalStyles.smallPillButton} onPress={handleLogin}>
-                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pillButtonText }}>Login</ThemedText>
-                </Pressable>
-            </View>
+                <View style={{ alignItems: 'flex-end', width: '100%', marginVertical: 10 }}>
+                    <Pressable onPress={() => router.push('/forgetpassword')}>
+                        <ThemedText type="default" style={{ textAlign: 'right' }}>
+                            Forgot Password?
+                        </ThemedText>
+                    </Pressable>
+                </View>
 
-            <View style={{ alignItems: 'flex-end', width: '100%' }}>
-                <Pressable
-                    style={[
-                        globalStyles.smallPillButton,
-                        {
-                            backgroundColor: 'transparent',
-                            borderWidth: 1,
-                            borderColor: Colors[colorScheme].nav,
-                        },
-                    ]}
-                    onPress={() => router.push('/signup')}>
-                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].text }}>Sign up</ThemedText>
-                </Pressable>
-            </View>
+                <View style={{ alignItems: 'flex-end', width: '100%', marginVertical: 10 }}>
+                    <Pressable style={globalStyles.smallPillButton} onPress={handleLogin}>
+                        <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>Login</ThemedText>
+                    </Pressable>
+                </View>
+
+                <View style={{ alignItems: 'flex-end', width: '100%', marginVertical: 10 }}>
+                    <Pressable
+                        style={[
+                            globalStyles.smallPillButton,
+                            {
+                                backgroundColor: 'transparent',
+                                borderWidth: 1,
+                                borderColor: Colors[colorScheme].highlight,
+                            },
+                        ]}
+                        onPress={() => router.push('/signup')}>
+                        <ThemedText type="subtitle">Sign up</ThemedText>
+                    </Pressable>
+                </View>
+            </ThemedView>
         </ThemedView>
+
     );
 }

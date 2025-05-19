@@ -3,8 +3,11 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
+import { useGlobalStyles } from '@/constants/globalStyles';
+
 
 export default function HelpScreen() {
+    const globalStyles = useGlobalStyles();
     const { theme } = useThemeContext();
     const colorScheme = Colors[theme];
 
@@ -13,7 +16,7 @@ export default function HelpScreen() {
     };
 
     return (
-        <ThemedView style={styles.container}>
+        <ThemedView style={globalStyles.container}>
             <ScrollView contentContainerStyle={styles.content}>
                 <ThemedText type="title" style={{ marginBottom: 10 }}>
                     Help & Support
@@ -44,9 +47,9 @@ export default function HelpScreen() {
                 <ThemedText type="subtitle" style={styles.sectionTitle}>
                     📧 Contact Support
                 </ThemedText>
-                <ThemedText 
-                    style={[styles.paragraph, { color: colorScheme.tint }]} 
-                    onPress= {openEmail}
+                <ThemedText
+                    style={[styles.paragraph, { color: colorScheme.tint }]}
+                    onPress={openEmail}
                 >
                     admin@litchfieldapp.com.au
                 </ThemedText>
