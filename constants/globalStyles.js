@@ -362,6 +362,21 @@ const createGlobalStyles = (colorScheme) =>
             fontWeight: '600',
             fontSize: 16,
         },
+        cartOverlay: {
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            right: 0,
+            width: screenWidth * 0.8,
+            height: screenHeight,
+            backgroundColor: Colors[colorScheme].pri,
+            shadowColor: '#000',
+            shadowOffset: { width: -2, height: 0 },
+            shadowOpacity: 0.3,
+            shadowRadius: 5,
+            elevation: 10,
+            padding: 20,
+        }
     });
 
 export const useGlobalStyles = () => {

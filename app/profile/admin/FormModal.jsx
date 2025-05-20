@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Modal, Pressable, ScrollView, TextInput, Image, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Text } from 'react-native';
-import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { IconSymbol } from '@/components/ui/IconSymbol';

@@ -60,24 +60,25 @@ export function SearchModal({ visible, onClose, allItems }) {
             animationType="fade"
             onRequestClose={onClose}
         >
-            <View style={{ flex: 1, backgroundColor: '#00000088' }}>
+
+            <View style={globalStyles.overlay}>
                 <Pressable
-                    style={{ position: 'absolute', width: '100%', height: '100%' }}
                     onPress={() => {
                         onClose();
                         setSearchText('');
                     }}
+                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
                 />
-
-                <Pressable onPress={onClose} style={{ position: 'absolute', top: 40, right: 20, zIndex: 10 }}>
-                    <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].card} />
+                <IconSymbol name="circle.fill" size={40} color={Colors[colorScheme].highlight} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }} />
+                <Pressable onPress={onClose} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }}>
+                    <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].pri} />
                 </Pressable>
 
                 <Animated.View style={{ position: 'absolute', width: '95%', left: '2.5%', top: animatedTop }}>
                     <TextInput
                         placeholder="Search Here..."
                         style={globalStyles.inputTextBox}
-                        placeholderTextColor={Colors[colorScheme].text}
+                        placeholderTextColor={Colors[colorScheme].tri}
                         value={searchText}
                         onChangeText={setSearchText}
                     />

@@ -12,12 +12,14 @@ import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { app } from '@/firebaseConfig';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { ThemedText } from '@/components/ThemedText';
+import Cart from '@/components/cart';
 
 export default function TabLayout() {
   const globalStyles = useGlobalStyles();
   const { theme: colorScheme } = useThemeContext();
   const pathname = usePathname();
   const [showSearch, setShowSearch] = useState(false);
+  const [showCart, setShowCart] = useState(false);
   const router = useRouter();
   const [profileImage, setProfileImage] = useState(null);
   const currentScreen = pathname.split('/').pop();
@@ -58,9 +60,11 @@ export default function TabLayout() {
         </View>
         <View style={globalStyles.buttonContainer}>
           <Pressable onPress={() => setShowSearch(true)}>
-            <IconSymbol name="magnifyingglass" size={28} />
+            <IconSymbol name="magnifyingglass" />
           </Pressable>
-          <IconSymbol name="cart" size={28} />
+          <Pressable onPress={() => setShowCart(true)}>
+            <IconSymbol name="cart" />
+          </Pressable>
           <Pressable onPress={() => router.push('/profile')}>
             <View style={globalStyles.smallprofileImage}>
               {profileImage ? (
@@ -111,6 +115,17 @@ export default function TabLayout() {
         visible={showSearch}
         onClose={() => setShowSearch(false)}
         allItems={[...attractions, ...products, ...tabs]}
+      />
+      <Cart
+        cartVisible={showCart}
+        setCartVisible={setShowCart}
+        cartItems={[]} // Replace with actual cart state later
+        incrementQuantity={() => { }} // Replace with actual logic
+        decrementQuantity={() => { }} // Replace with actual logic
+        totalPrice={0} // Replace with computed total
+        gst={0} // Replace with computed GST
+        points={0} // Replace with computed points
+        onCheckout={() => { }} // Replace with checkout logic
       />
     </SearchProvider>
   );
