@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { router } from 'expo-router';
 import {
     View,
     Pressable,
@@ -65,11 +66,11 @@ const Cart = ({
                             <IconSymbol
                                 name="circle.fill"
                                 size={40}
-                                color={Colors[theme].highlight}
+                                color={Colors[theme].sec}
                                 style={{ position: 'absolute' }}
                             />
                             <TouchableOpacity onPress={() => setCartVisible(false)}>
-                                <IconSymbol name="xmark.circle.fill" size={40} color={Colors[theme].sec} />
+                                <IconSymbol name="xmark.circle.fill" size={40} color={Colors[theme].for} />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -125,9 +126,14 @@ const Cart = ({
                         </View>
                         <TouchableOpacity
                             style={[globalStyles.pillButton, { marginTop: 30, backgroundColor: Colors[theme].sec }]}
-                            onPress={onCheckout}
+                            onPress={() => {
+                                setCartVisible(false);
+                                router.push('/checkout');
+                            }}
                         >
-                            <ThemedText type="subtitle">Pay</ThemedText>
+                            <ThemedText type="subtitle" style={{ color: '#f8f8f8' }}>
+                                Check Out
+                            </ThemedText>
                         </TouchableOpacity>
                     </View>
                 </View>

@@ -32,7 +32,7 @@ export default function AttractionDetail() {
     }, [id]);
 
     return (
-        <ThemedView style={{ flex: 1 }}>
+        <ThemedView style={{ flex: 1, backgroundColor: Colors[colorScheme].pri }}>
             <View style={globalStyles.attractionImageContainer}>
                 <Image
                     source={{ uri: attraction?.imageUrl }}
