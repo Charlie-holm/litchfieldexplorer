@@ -9,9 +9,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 
 export default function ThemeScreen() {
     const globalStyles = useGlobalStyles();
-    const { theme, setTheme } = useThemeContext();
-    const systemTheme = useColorScheme();
-    const activeTheme = theme === 'auto' ? systemTheme : theme;
+    const { setTheme, savedTheme } = useThemeContext();
 
     return (
         <ThemedView style={globalStyles.container}>
@@ -22,7 +20,7 @@ export default function ThemeScreen() {
                     onPress={() => setTheme('light')}
                 >
                     <ThemedText type="defaultBold">Light Mode</ThemedText>
-                    {activeTheme === 'light' && (
+                    {savedTheme === 'light' && (
                         <IconSymbol name="checkmark" size={24} />
                     )}
                 </Pressable>
@@ -31,7 +29,7 @@ export default function ThemeScreen() {
                     onPress={() => setTheme('dark')}
                 >
                     <ThemedText type="defaultBold">Dark Mode</ThemedText>
-                    {activeTheme === 'dark' && (
+                    {savedTheme === 'dark' && (
                         <IconSymbol name="checkmark" size={24} />
                     )}
                 </Pressable>
@@ -40,7 +38,7 @@ export default function ThemeScreen() {
                     onPress={() => setTheme('auto')}
                 >
                     <ThemedText type="defaultBold">Auto Mode</ThemedText>
-                    {activeTheme === 'auto' && (
+                    {savedTheme === 'auto' && (
                         <IconSymbol name="checkmark" size={24} />
                     )}
                 </Pressable>

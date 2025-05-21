@@ -34,10 +34,16 @@ export default function AttractionDetail() {
     return (
         <ThemedView style={{ flex: 1, backgroundColor: Colors[colorScheme].pri }}>
             <View style={globalStyles.attractionImageContainer}>
-                <Image
-                    source={{ uri: attraction?.imageUrl }}
-                    style={globalStyles.image}
-                />
+                {attraction?.imageUrl ? (
+                    <Image
+                        source={{ uri: attraction.imageUrl }}
+                        style={globalStyles.image}
+                    />
+                ) : (
+                    <View style={[globalStyles.image, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#ccc' }]}>
+                        <ThemedText>Loading Image...</ThemedText>
+                    </View>
+                )}
                 <TouchableOpacity
                     onPress={() => {
                         router.back();
@@ -58,7 +64,7 @@ export default function AttractionDetail() {
                             <View style={globalStyles.infoCard}>
                                 <View>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
-                                        <ThemedText type="title">{attraction.name}</ThemedText>
+                                        <ThemedText type="title">{attraction?.name || 'Loading...'}</ThemedText>
                                         <View style={globalStyles.rating}>
                                             <ThemedText type="defaultSemiBold" style={{ color: '#D97706' }}>
                                                 {attraction.review || 0}
@@ -66,7 +72,7 @@ export default function AttractionDetail() {
                                             <Ionicons name="star" size={20} color="#FACC15" />
                                         </View>
                                     </View>
-                                    <ThemedText type="small" style={{ color: Colors[colorScheme].for }}>{attraction.description}</ThemedText>
+                                    <ThemedText type="small" style={{ color: Colors[colorScheme].for }}>{attraction?.description || '...'}</ThemedText>
                                 </View>
                                 <View>
                                     <ThemedText type="subtitle">Status</ThemedText>
@@ -145,10 +151,10 @@ const renderFacility = (label, iconName = 'checkbox-marked', key, colorScheme) =
             }}
             key={key}
         >
-            <IconSymbol name={getIconName(label)} />
+            <IconSymbol name={getIconName(label)} color='#f8f8f8' />
             <ThemedText
                 type="default"
-                style={{ flexShrink: 1, flex: 1, marginLeft: 6 }}
+                style={{ flexShrink: 1, flex: 1, marginLeft: 6, color: '#f8f8f8' }}
             >
                 {label}
             </ThemedText>

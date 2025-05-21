@@ -1,5 +1,6 @@
+import NetInfo from '@react-native-community/netinfo';
 import { initializeApp, getApp, getApps } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import {
     getAuth,
     initializeAuth,
@@ -19,10 +20,30 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+console.log('Firebase app initialized:', app.name);
+
 const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
 
 const db = getFirestore(app);
 
-export { app, auth, db };
+async function isFirebaseReady() {
+    try {
+        const state = await NetInfo.fetch();
+        console.log('Network state:', state);
+        if (!state.isConnected) {
+            console.log('No network connection.');
+            return false;
+        }
+        const quickInfoCol = collection(db, 'quickInfo');
+        const snapshot = await getDocs(quickInfoCol);
+        console.log('Snapshot empty:', snapshot.empty);
+        return !snapshot.empty;
+    } catch (error) {
+        console.error('Error checking Firebase readiness:', error);
+        return false;
+    }
+}
+
+export { app, auth, db, isFirebaseReady };

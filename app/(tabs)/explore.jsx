@@ -1,12 +1,11 @@
-import { Image, Dimensions, TouchableOpacity, FlatList, View } from 'react-native';
+import { Image, Dimensions, TouchableOpacity, FlatList } from 'react-native';
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { router } from 'expo-router';
+import { getCachedAttractions } from '@/context/dataCache';
 
 export default function TabTwoScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -15,8 +14,7 @@ export default function TabTwoScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const snap = await getDocs(collection(db, 'attractions'));
-      const attractionsData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const attractionsData = await getCachedAttractions();
       const wangiFall = attractionsData.find(item => item.name?.toLowerCase().includes('wangi'));
       const others = attractionsData.filter(item => !item.name?.toLowerCase().includes('wangi'));
       setAttractions(wangiFall ? [wangiFall, ...others] : attractionsData);
@@ -29,10 +27,13 @@ export default function TabTwoScreen() {
       <ThemedView style={globalStyles.itemContainer}>
         <ThemedText type="title" style={{ marginBottom: 10, alignSelf: 'left' }}>Most Visited Place</ThemedText>
         {attractions[0] && (
-          <TouchableOpacity onPress={() => router.push(`/attractiondetail/${attractions[0].id}`)}>
+          <TouchableOpacity onPress={() => {
+            const { id, ...rest } = attractions[0];
+            router.push({ pathname: `/attractiondetail/${id}`, params: rest });
+          }}>
             <ThemedView style={[globalStyles.heroImage, { width: Dimensions.get('window').width * 0.9 }]}>
               <Image
-                source={{ uri: attractions[0]?.imageUrl }}
+                source={{ uri: attractions[0].imagePath }}
                 style={globalStyles.image}
                 resizeMode="cover"
               />
@@ -52,10 +53,13 @@ export default function TabTwoScreen() {
         showsHorizontalScrollIndicator={true}
         contentContainerStyle={globalStyles.attractionsContainer}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => router.push(`/attractiondetail/${item.id}`)}>
+          <TouchableOpacity onPress={() => {
+            const { id, ...rest } = item;
+            router.push({ pathname: `/attractiondetail/${id}`, params: rest });
+          }}>
             <ThemedView style={[globalStyles.heroImage, { width: Dimensions.get('window').width * 0.45 }]}>
               <Image
-                source={{ uri: item.imageUrl }}
+                source={{ uri: item.imagePath }}
                 style={globalStyles.image}
                 resizeMode="cover"
               />

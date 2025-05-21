@@ -333,12 +333,6 @@ const createGlobalStyles = (colorScheme) =>
             marginRight: 10,
             marginTop: 6,
         },
-        colorDot: {
-            width: 24,
-            height: 24,
-            borderRadius: 12,
-            marginRight: 10,
-        },
         quantityInline: {
             flexDirection: 'row',
             alignItems: 'center',

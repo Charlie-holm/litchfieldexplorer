@@ -1,3 +1,4 @@
+import NetInfo from '@react-native-community/netinfo';
 import { View, Pressable, TextInput, Alert, Image } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -23,6 +24,14 @@ export default function ProfileDetailScreen() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [profileImage, setProfileImage] = useState('');
     const [email, setEmail] = useState('');
+    const [isOffline, setIsOffline] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsOffline(!state.isConnected);
+        });
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -154,7 +163,8 @@ export default function ProfileDetailScreen() {
                         />
                     </View>
                 </View>
-                <View style={{ width: '100%', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 10 }}>                    <ThemedText type="defaultBold" style={{ marginVertical: 5 }}>Email</ThemedText>
+                <View style={{ width: '100%', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 10 }}>
+                    <ThemedText type="defaultBold" style={{ marginVertical: 5 }}>Email</ThemedText>
                     <TextInput
                         style={[globalStyles.inputTextBox, { width: '100%' }]}
                         placeholder="Email"
@@ -171,11 +181,20 @@ export default function ProfileDetailScreen() {
                     />
                 </View>
                 <View style={{ width: '100%', alignItems: 'center', marginTop: 'auto' }}>
+                    {isOffline && (
+                        <ThemedText type="default" style={{ marginBottom: 30, color: Colors[colorScheme].pri }}>
+                            Please reconnect to save changes.
+                        </ThemedText>
+                    )}
                     <Pressable
-                        style={[globalStyles.pillButton, { width: '100%' }]}
+                        style={[
+                            globalStyles.pillButton,
+                            { width: '100%', opacity: isOffline ? 0.5 : 1 }
+                        ]}
                         onPress={handleSave}
+                        disabled={isOffline}
                     >
-                        <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>
+                        <ThemedText type="subtitle" style={{ color: '#f8f8f8' }}>
                             Save
                         </ThemedText>
                     </Pressable>

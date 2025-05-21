@@ -43,10 +43,10 @@ export default function CheckoutScreen() {
         <>
             <View style={globalStyles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <IconSymbol name="chevron.left" size={28} />
+                    <IconSymbol name="chevron.left" />
                 </TouchableOpacity>
                 <ThemedText type="title" >Checkout</ThemedText>
-                <View style={{ width: 28 }} />
+                <View style={{ width: 32 }} />
             </View>
             <ThemedView style={globalStyles.container}>
                 <ScrollView

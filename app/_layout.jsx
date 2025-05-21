@@ -4,15 +4,15 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useState, useEffect } from 'react';
 import 'react-native-reanimated';
 import { ThemeProvider } from '@/context/ThemeProvider';
-import { useColorScheme } from 'react-native';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+
 export default function RootLayout() {
-  
+
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    Lobster: require('../assets/fonts/Lobster-Regular.ttf'),
   });
 
   const [authChecked, setAuthChecked] = useState(false);
@@ -24,7 +24,7 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded){
+  if (!loaded) {
     return null;
   }
 

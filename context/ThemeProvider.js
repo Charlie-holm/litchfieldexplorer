@@ -6,27 +6,35 @@ const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
     const systemScheme = useColorScheme();
-    const [theme, setTheme] = useState(systemScheme);
+    const [rawTheme, setRawTheme] = useState('auto');
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
         const loadThemePreference = async () => {
             const savedTheme = await AsyncStorage.getItem('themePreference');
             if (savedTheme) {
-                setTheme(savedTheme);
+                setRawTheme(savedTheme);
             }
+            setIsLoaded(true);
         };
         loadThemePreference();
     }, []);
 
     const setAndSaveTheme = async (newTheme) => {
-        setTheme(newTheme);
+        setRawTheme(newTheme);
         await AsyncStorage.setItem('themePreference', newTheme);
     };
 
-    const effectiveTheme = theme === 'auto' ? systemScheme : theme;
+    const effectiveTheme = rawTheme === 'auto' ? systemScheme : rawTheme;
+
+    if (!isLoaded) return null;
 
     return (
-        <ThemeContext.Provider value={{ theme: effectiveTheme, setTheme: setAndSaveTheme }}>
+        <ThemeContext.Provider value={{
+            theme: effectiveTheme,
+            setTheme: setAndSaveTheme,
+            savedTheme: rawTheme
+        }}>
             {children}
         </ThemeContext.Provider>
     );

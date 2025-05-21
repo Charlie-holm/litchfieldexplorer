@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Tabs, usePathname, useRouter } from 'expo-router';
-import { Text, View, Pressable, Image } from 'react-native';
+import { View, Pressable, Image } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -56,7 +56,7 @@ export default function TabLayout() {
     <SearchProvider>
       <View style={globalStyles.header}>
         <View style={globalStyles.titleContainer}>
-          <ThemedText type="title" style={{ fontFamily: 'Lobster-Regular' }}>{pageTitle}</ThemedText>
+          <ThemedText type="title" style={{ fontFamily: 'Lobster' }}>{pageTitle}</ThemedText>
         </View>
         <View style={globalStyles.buttonContainer}>
           <Pressable onPress={() => setShowSearch(true)}>
