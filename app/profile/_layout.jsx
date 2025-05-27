@@ -41,7 +41,7 @@ export default function Layout() {
           <IconSymbol name="chevron.left" size={28} />
         </TouchableOpacity>
         <ThemedText type="title">{screenTitle.charAt(0).toUpperCase() + screenTitle.slice(1)}</ThemedText>
-        {['products', 'attractions', 'quickinfo'].includes(currentPage) ? (
+        {['products', 'attractions', 'quickinfo', 'payment'].includes(currentPage) ? (
           <TouchableOpacity
             onPress={() => {
               DeviceEventEmitter.emit('triggerAddOverlay', currentPage);

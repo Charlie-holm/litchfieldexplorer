@@ -77,13 +77,13 @@ export default function ProductDetailScreen() {
                 <ThemedText type="title" >{item.name}</ThemedText>
                 <View style={globalStyles.quantityInline}>
                   <TouchableOpacity onPress={() => setQuantity(prev => Math.max(1, prev - 1))} style={globalStyles.smallButton}>
-                    <ThemedText type={'defaultSemiBold'}>−</ThemedText>
+                    <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>−</ThemedText>
                   </TouchableOpacity>
 
                   <ThemedText type={'defaultSemiBold'}>{quantity}</ThemedText>
 
                   <TouchableOpacity onPress={() => setQuantity(prev => prev + 1)} style={globalStyles.smallButton}>
-                    <ThemedText type={'defaultSemiBold'}>+</ThemedText>
+                    <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>+</ThemedText>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -109,14 +109,19 @@ export default function ProductDetailScreen() {
                             {
                               backgroundColor: isSelected ? themeColors.for : themeColors.sec,
                               borderColor: themeColors.highlight,
+                              width: isSelected ? 44 : 36,
+                              height: isSelected ? 44 : 36,
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              borderRadius: 22,
                             },
                           ]}
                         >
                           <ThemedText
                             style={{
-                              fontSize: 14,
-                              fontWeight: '500',
-                              color: isSelected ? themeColors.sec : themeColors.highlight,
+                              fontSize: isSelected ? 16 : 14,
+                              fontWeight: '600',
+                              color: isSelected ? themeColors.sec : '#f8f8f8',
                             }}
                           >
                             {size}
@@ -140,7 +145,9 @@ export default function ProductDetailScreen() {
                             backgroundColor: color,
                             borderColor: selectedColor === color ? themeColors.highlight : themeColors.sec,
                             borderWidth: selectedColor === color ? 3 : 1,
-
+                            width: selectedColor === color ? 44 : 36,
+                            height: selectedColor === color ? 44 : 36,
+                            borderRadius: 22,
                           },
                         ]}
                       />
@@ -164,7 +171,7 @@ export default function ProductDetailScreen() {
             </View>
           </View>
         </ScrollView>
-      </View>
-    </ThemedView>
+      </View >
+    </ThemedView >
   );
 }
