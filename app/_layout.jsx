@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useState, useEffect } from 'react';
 import 'react-native-reanimated';
 import { ThemeProvider } from '@/context/ThemeProvider';
+import { CartProvider } from '@/context/CartContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,8 +30,10 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <Slot />
-    </ThemeProvider>
+    <CartProvider>
+      <ThemeProvider>
+        <Slot />
+      </ThemeProvider>
+    </CartProvider>
   );
 }

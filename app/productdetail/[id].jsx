@@ -10,6 +10,7 @@ import { Colors } from '@/constants/Colors';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { useCart } from '@/context/CartContext';
 
 const sizes = ['S', 'M', 'L', 'XL'];
 const colors = ['#222', '#aaa'];
@@ -39,6 +40,7 @@ export default function ProductDetailScreen() {
   }, [id]);
 
   const themeColors = Colors[colorScheme];
+  const { addToCart } = useCart();
 
   if (!item) {
     return (
@@ -158,11 +160,18 @@ export default function ProductDetailScreen() {
 
               <TouchableOpacity
                 style={[globalStyles.pillButton, { marginTop: 20, width: '100%' }]}
-                onPress={() =>
-                  alert(
-                    `Added ${quantity} × ${item.name} (${selectedSize}, ${selectedColor}) to cart.`
-                  )
-                }
+                onPress={() => {
+                  addToCart({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    image: item.imageUrl,
+                    quantity,
+                    size: selectedSize,
+                    color: selectedColor,
+                  });
+                  alert(`${item.name} has been added to the cart.`);
+                }}
               >
                 <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>
                   Add to Cart | {item.price ? `$${item.price}` : 'Price Unavailable'}

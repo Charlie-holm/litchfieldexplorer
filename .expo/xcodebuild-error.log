@@ -1,3 +1,6 @@
---- xcodebuild: WARNING: Using the first of multiple matching destinations:
-{ platform:iOS Simulator, arch:arm64, id:2135144F-E4F1-4DCB-92DC-F140186F71AC, OS:18.4, name:iPhone 16 Pro }
-{ platform:iOS Simulator, arch:x86_64, id:2135144F-E4F1-4DCB-92DC-F140186F71AC, OS:18.4, name:iPhone 16 Pro }
+2025-06-03 11:13:40.835 xcodebuild[41749:713276] Writing error result bundle to /var/folders/pq/z2kg7hqd5gg413xg1rx48pfw0000gn/T/ResultBundle_2025-03-06_11-13-0040.xcresult
+xcodebuild: error: Unable to find a destination matching the provided destination specifier:
+		{ id:2135144F-E4F1-4DCB-92DC-F140186F71AC }
+
+	Ineligible destinations for the "Litchfieldapp" scheme:
+		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device, error:iOS 18.5 is not installed. To use with Xcode, first download and install the platform }
