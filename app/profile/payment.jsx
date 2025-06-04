@@ -1,4 +1,4 @@
-import { View, Pressable, TextInput, DeviceEventEmitter, TouchableOpacity } from 'react-native';
+import { View, Pressable, TextInput, DeviceEventEmitter, TouchableOpacity, Animated, LayoutAnimation, UIManager, Platform } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -9,6 +9,10 @@ import { getAuth, EmailAuthProvider, reauthenticateWithCredential } from 'fireba
 import { doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { auth, db } from '@/firebaseConfig';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export default function PaymentScreen() {
     const colorScheme = useColorScheme();
@@ -72,47 +76,50 @@ export default function PaymentScreen() {
 
     if (!pageAuthenticated) {
         return (
-            <View style={globalStyles.container}>
-                <ThemedText type="default">Enter Password</ThemedText>
-                <TextInput
-                    style={globalStyles.inputTextBox}
-                    value={pagePassword}
-                    onChangeText={setPagePassword}
-                    placeholder="Password"
-                    placeholderTextColor="#888"
-                    secureTextEntry
-                />
-                <Pressable
-                    onPress={async () => {
-                        try {
-                            const user = auth.currentUser;
-                            if (!user || !user.email) return;
-                            const credential = EmailAuthProvider.credential(user.email, pagePassword);
-                            await reauthenticateWithCredential(user, credential);
-                            setPageAuthenticated(true);
-                            console.log("Reauthenticated, now fetching card data...");
-                            await fetchCardData();
-                        } catch (error) {
-                            console.error("Reauthentication failed:", error);
-                            alert("Incorrect password");
-                        }
-                    }}
-                    style={[globalStyles.smallPillButton, { backgroundColor: '#3498db', borderColor: '#3498db', marginTop: 10 }]}
-                >
-                    <ThemedText style={{ color: 'white' }}>Submit</ThemedText>
-                </Pressable>
-            </View>
+            <ThemedView style={globalStyles.container}>
+                <View style={globalStyles.itemContainer}>
+                    <ThemedText type="subtitle">Enter Password</ThemedText>
+                    <TextInput
+                        style={globalStyles.inputTextBox}
+                        value={pagePassword}
+                        onChangeText={setPagePassword}
+                        placeholder="Password"
+                        placeholderTextColor="#888"
+                        secureTextEntry
+                    />
+                    <Pressable
+                        onPress={async () => {
+                            try {
+                                const user = auth.currentUser;
+                                if (!user || !user.email) return;
+                                const credential = EmailAuthProvider.credential(user.email, pagePassword);
+                                await reauthenticateWithCredential(user, credential);
+                                setPageAuthenticated(true);
+                                console.log("Reauthenticated, now fetching card data...");
+                                await fetchCardData();
+                            } catch (error) {
+                                console.error("Reauthentication failed:", error);
+                                alert("Incorrect password");
+                            }
+                        }}
+                        style={[globalStyles.smallPillButton, { marginTop: 10 }]}
+                    >
+                        <ThemedText style={{ color: 'white' }}>Submit</ThemedText>
+                    </Pressable>
+                </View>
+            </ThemedView>
         );
     }
 
     return (
-        <View style={globalStyles.container}>
-            <ThemedView style={{ flex: 1 }}>
+        <ThemedView style={globalStyles.container}>
+            <ThemedView style={{ flex: 1, padding: 20 }}>
                 {cards.length === 0 && (
-                    <ThemedText type="default">No cards found.</ThemedText>
+                    <ThemedText type="subtitle">No cards added.</ThemedText>
                 )}
                 {cards.map((card, index) => (
                     <Pressable key={index} onPress={() => {
+                        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                         setCards(prev => prev.map((c, i) => i === index ? { ...c, expanded: !c.expanded } : c));
                     }}>
                         <ThemedView style={[globalStyles.buttonCard, { flexDirection: 'column' }]}>
@@ -158,6 +165,19 @@ export default function PaymentScreen() {
                                         onPress={async () => {
                                             if (card.editing) {
                                                 try {
+                                                    const cleanedCardNumber = card.cardNumber.replace(/\s/g, '');
+                                                    const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+
+                                                    if (cleanedCardNumber.length !== 16) {
+                                                        alert("Card number must be 16 digits.");
+                                                        return;
+                                                    }
+
+                                                    if (!expiryRegex.test(card.expiryDate)) {
+                                                        alert("Expiry date must be in MM/YY format and valid.");
+                                                        return;
+                                                    }
+
                                                     const newCards = cards.map((c, i) => i === index ? { ...c, editing: false } : c);
                                                     await setDoc(doc(db, 'users', auth.currentUser.uid), {
                                                         cards: newCards.map(({ expanded, editing, ...data }) => data)
@@ -272,6 +292,6 @@ export default function PaymentScreen() {
                     </View>
                 </View>
             )}
-        </View>
+        </ThemedView>
     );
 }

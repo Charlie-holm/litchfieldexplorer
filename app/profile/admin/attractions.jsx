@@ -1,4 +1,5 @@
-import { View, FlatList, Image, Pressable, Alert } from "react-native";
+import { View, FlatList, Image, Pressable, Alert, Text } from "react-native";
+import { Swipeable } from 'react-native-gesture-handler';
 import { Animated } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { DeviceEventEmitter } from "react-native";
@@ -146,32 +147,66 @@ export default function AttractionList() {
     }, [editingAttraction]);
 
     const renderItem = ({ item, index }) => (
-        <Animated.View style={{
-            opacity: animatedValues[index] || 0,
-            transform: [{
-                translateY: (animatedValues[index] || new Animated.Value(0)).interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [20, 0],
-                }),
-            }]
-        }}>
-            <Pressable onPress={() => {
-                setEditingAttraction(item);
-                setModalVisible(true);
-            }}>
-                <View style={globalStyles.buttonCard}>
-                    <View style={globalStyles.buttonCardIcon}>
-                        <Image source={{ uri: item.imageUrl }} style={{ width: '100%', height: '100%' }} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <ThemedText type="subtitle">{item.name}</ThemedText>
-                        <ThemedText type="small">{item.review}</ThemedText>
-                    </View>
-
-                    <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
+        <Swipeable
+            renderRightActions={() => (
+                <View style={globalStyles.buttonRemove}>
+                    <Pressable
+                        onPress={() => {
+                            Alert.alert(
+                                'Delete Attraction',
+                                'Are you sure you want to delete this attraction?',
+                                [
+                                    { text: 'Cancel', style: 'cancel' },
+                                    {
+                                        text: 'Delete',
+                                        style: 'destructive',
+                                        onPress: async () => {
+                                            await deleteDoc(doc(db, "attractions", item.id));
+                                            const snap = await getDocs(collection(db, "attractions"));
+                                            setAttractions(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                                        },
+                                    },
+                                ]
+                            );
+                        }}
+                        style={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '100%',
+                            width: '100%',
+                        }}
+                    >
+                        <Text style={{ color: 'white', fontSize: 28 }}>×</Text>
+                    </Pressable>
                 </View>
-            </Pressable>
-        </Animated.View>
+            )}
+        >
+            <Animated.View style={{
+                opacity: animatedValues[index] || 0,
+                transform: [{
+                    translateY: (animatedValues[index] || new Animated.Value(0)).interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [20, 0],
+                    }),
+                }]
+            }}>
+                <Pressable onPress={() => {
+                    setEditingAttraction(item);
+                    setModalVisible(true);
+                }}>
+                    <View style={globalStyles.buttonCard}>
+                        <View style={globalStyles.buttonCardIcon}>
+                            <Image source={{ uri: item.imageUrl }} style={{ width: '100%', height: '100%' }} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <ThemedText type="subtitle">{item.name}</ThemedText>
+                            <ThemedText type="small">{item.review}</ThemedText>
+                        </View>
+                        <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
+                    </View>
+                </Pressable>
+            </Animated.View>
+        </Swipeable>
     );
 
     const handleSave = async () => {

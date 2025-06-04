@@ -152,6 +152,15 @@ const createGlobalStyles = (colorScheme) =>
             alignItems: 'center',
             gap: 8,
         },
+        buttonRemove: {
+            width: 80,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'red',
+            marginLeft: 10,
+            marginBottom: 12,
+            borderRadius: 10,
+        },
         overlay: {
             flex: 1,
             justifyContent: 'center',

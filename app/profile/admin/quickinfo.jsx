@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, Alert, View } from 'react-native';
-import { DeviceEventEmitter } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { FlatList, Pressable, Alert, View, Text, Animated, DeviceEventEmitter } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -18,11 +18,27 @@ export default function QuickInfoPanel() {
     const [modalVisible, setModalVisible] = useState(false);
     const [editingInfo, setEditingInfo] = useState(null);
     const [form, setForm] = useState({ title: '', message: '' });
+    const animatedValues = useRef([]).current;
 
     useEffect(() => {
         const q = query(collection(db, 'quickInfo'), orderBy('timestamp', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            setInfos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            animatedValues.length = 0;
+            items.forEach((_, i) => {
+                animatedValues[i] = new Animated.Value(0);
+            });
+            setInfos(items);
+
+            const animations = items.map((_, i) =>
+                Animated.timing(animatedValues[i], {
+                    toValue: 1,
+                    duration: 400,
+                    delay: i * 80,
+                    useNativeDriver: true,
+                })
+            );
+            Animated.stagger(80, animations).start();
         });
         return unsubscribe;
     }, []);
@@ -78,19 +94,66 @@ export default function QuickInfoPanel() {
         ]);
     };
 
-    const renderItem = ({ item }) => (
-        <Pressable onPress={() => {
-            setForm({ title: item.title || '', message: item.message || '' });
-            setEditingInfo(item);
-            setModalVisible(true);
-        }}>
-            <ThemedView style={globalStyles.buttonCard}>
-                <View style={globalStyles.buttonLeft}>
-                    <ThemedText type="subtitle">{item.title || '(No title)'}</ThemedText>
+    const renderItem = ({ item, index }) => (
+        <Swipeable
+            renderRightActions={() => (
+                <View style={globalStyles.buttonRemove}>
+                    <Pressable
+                        onPress={() => {
+                            Alert.alert(
+                                'Delete Info',
+                                'Are you sure you want to delete this quick info?',
+                                [
+                                    { text: 'Cancel', style: 'cancel' },
+                                    {
+                                        text: 'Delete',
+                                        style: 'destructive',
+                                        onPress: async () => {
+                                            try {
+                                                await deleteDoc(doc(db, "quickInfo", item.id));
+                                            } catch (error) {
+                                                console.error("Failed to delete info:", error);
+                                            }
+                                        },
+                                    },
+                                ]
+                            );
+                        }}
+                        style={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '100%',
+                            width: '100%',
+                        }}
+                    >
+                        <Text style={{ color: 'white', fontSize: 28 }}>×</Text>
+                    </Pressable>
                 </View>
-                <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
-            </ThemedView>
-        </Pressable>
+            )}
+        >
+            <Animated.View style={{
+                opacity: animatedValues[index] || 0,
+                transform: [{
+                    translateY: (animatedValues[index] || new Animated.Value(0)).interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [20, 0],
+                    })
+                }]
+            }}>
+                <Pressable onPress={() => {
+                    setForm({ title: item.title || '', message: item.message || '' });
+                    setEditingInfo(item);
+                    setModalVisible(true);
+                }}>
+                    <ThemedView style={globalStyles.buttonCard}>
+                        <View style={globalStyles.buttonLeft}>
+                            <ThemedText type="subtitle">{item.title || '(No title)'}</ThemedText>
+                        </View>
+                        <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
+                    </ThemedView>
+                </Pressable>
+            </Animated.View>
+        </Swipeable>
     );
 
     return (

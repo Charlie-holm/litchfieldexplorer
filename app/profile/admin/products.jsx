@@ -1,6 +1,7 @@
-import { View, FlatList, Pressable, Image, Alert } from "react-native";
-import { DeviceEventEmitter } from "react-native";
-import { useEffect, useState } from "react";
+import { View, FlatList, Pressable, Image, Alert, Animated, DeviceEventEmitter } from "react-native";
+import { Swipeable } from 'react-native-gesture-handler';
+import { Text } from 'react-native';
+import { useEffect, useState, useRef } from "react";
 import { db } from '@/firebaseConfig';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import * as ImagePicker from 'expo-image-picker';
@@ -28,11 +29,29 @@ export default function ProductList() {
     const [uploading, setUploading] = useState(false);
     const [showCategoryPicker, setShowCategoryPicker] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const animatedValues = useRef([]).current;
 
     // Load products from Firestore
     const loadProducts = async () => {
         const snap = await getDocs(collection(db, "products"));
-        setProducts(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        const loaded = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+        animatedValues.length = 0;
+        loaded.forEach((_, i) => {
+            animatedValues[i] = new Animated.Value(0);
+        });
+
+        setProducts(loaded);
+
+        const animations = loaded.map((_, i) =>
+            Animated.timing(animatedValues[i], {
+                toValue: 1,
+                duration: 400,
+                delay: i * 80,
+                useNativeDriver: true,
+            })
+        );
+        Animated.stagger(80, animations).start();
     };
 
     useEffect(() => {
@@ -118,19 +137,69 @@ export default function ProductList() {
         setModalVisible(true);
     };
 
-    const renderItem = ({ item }) => (
-        <Pressable onPress={() => handleEditProduct(item)}>
-            <View style={globalStyles.buttonCard}>
-                <View style={globalStyles.buttonCardIcon}>
-                    <Image source={{ uri: item.imageUrl }} style={{ width: '100%', height: '100%' }} />
+    const renderItem = ({ item, index }) => (
+        <Swipeable
+            renderRightActions={() => (
+                <View style={globalStyles.buttonRemove}>
+                    <Pressable
+                        onPress={() => {
+                            Alert.alert(
+                                'Delete Product',
+                                'Are you sure you want to delete this product?',
+                                [
+                                    { text: 'Cancel', style: 'cancel' },
+                                    {
+                                        text: 'Delete',
+                                        style: 'destructive',
+                                        onPress: async () => {
+                                            try {
+                                                await deleteDoc(doc(db, "products", item.id));
+                                                await loadProducts();
+                                            } catch (error) {
+                                                console.error("Failed to delete product:", error);
+                                            }
+                                        },
+                                    },
+                                ]
+                            );
+                        }}
+                        style={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '100%',
+                            width: '100%',
+                        }}
+                    >
+                        <Text style={{ color: 'white', fontSize: 28 }}>×</Text>
+                    </Pressable>
                 </View>
-                <View style={{ flex: 1 }}>
-                    <ThemedText type="subtitle">{item.name}</ThemedText>
-                    <ThemedText type="small">${item.price?.toFixed(2)}</ThemedText>
-                </View>
-                <IconSymbol name="chevron.right" size={28} color="#000" />
-            </View>
-        </Pressable>
+            )}
+        >
+            <Animated.View
+                style={{
+                    opacity: animatedValues[index] || 0,
+                    transform: [{
+                        translateY: (animatedValues[index] || new Animated.Value(0)).interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [20, 0],
+                        })
+                    }]
+                }}
+            >
+                <Pressable onPress={() => handleEditProduct(item)}>
+                    <View style={globalStyles.buttonCard}>
+                        <View style={globalStyles.buttonCardIcon}>
+                            <Image source={{ uri: item.imageUrl }} style={{ width: '100%', height: '100%' }} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <ThemedText type="subtitle">{item.name}</ThemedText>
+                            <ThemedText type="small">${item.price?.toFixed(2)}</ThemedText>
+                        </View>
+                        <IconSymbol name="chevron.right" size={28} color="#000" />
+                    </View>
+                </Pressable>
+            </Animated.View>
+        </Swipeable>
     );
 
     const handleSaveProduct = async () => {

@@ -47,28 +47,28 @@ export default function ProductDetailScreen() {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const product = { id: docSnap.id, ...docSnap.data() };
-      setItem(product);
+        setItem(product);
 
-      // Extract unique colors where quantity > 0
-      const colorsSet = new Set();
-      product.inventory?.forEach(inv => {
-        if (inv.quantity > 0) {
-          colorsSet.add(inv.color);
+        // Extract unique colors where quantity > 0
+        const colorsSet = new Set();
+        product.inventory?.forEach(inv => {
+          if (inv.quantity > 0) {
+            colorsSet.add(inv.color);
+          }
+        });
+        const colorsArray = Array.from(colorsSet);
+        setAvailableColors(colorsArray);
+
+        // Also update selectedColor to first available color dynamically
+        if (colorsArray.length > 0) {
+          setSelectedColor(colorsArray[0]);
         }
-      });
-      const colorsArray = Array.from(colorsSet);
-      setAvailableColors(colorsArray);
-
-      // Also update selectedColor to first available color dynamically
-      if (colorsArray.length > 0) {
-        setSelectedColor(colorsArray[0]);
       }
-    }
-  };
+    };
     fetchItem();
   }, [id]);
-// Reset quantity when size or color changes to valid stock or 1
-  useEffect(() => {  
+  // Reset quantity when size or color changes to valid stock or 1
+  useEffect(() => {
     if (!item) return;
     const currentStock = item.inventory?.find(
       inv => inv.size === selectedSize && inv.color === selectedColor
@@ -135,14 +135,14 @@ export default function ProductDetailScreen() {
 
                     setQuantity(prev => {
                       if (prev < currentStock) return prev + 1;
-                      else{
+                      else {
                         setAlertMessage(`Only ${currentStock} items available in stock.`);
                         setShowAlertModal(true);
                         return prev;
-                      } 
+                      }
                     });
                   }}
-                  style={globalStyles.smallButton}>
+                    style={globalStyles.smallButton}>
                     <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>+</ThemedText>
                   </TouchableOpacity>
                 </View>
@@ -242,32 +242,32 @@ export default function ProductDetailScreen() {
             </View>
           </View>
           <Modal
-          visible={showAlertModal}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowAlertModal(false)}
-        >
-          <View style={globalStyles.overlay}>
-            <Pressable
-              onPress={() => setShowAlertModal(false)}
-              style={globalStyles.overlaybg}
-            />
-            <View style={globalStyles.overlayContent}>
-              <ThemedText type="title" style={{ marginBottom: 20, alignSelf: 'center' }}>
-                Alert
-              </ThemedText>
-              <ThemedText type="default" style={{ textAlign: 'center' }}>
-                {alertMessage}
-              </ThemedText>
-              <TouchableOpacity
+            visible={showAlertModal}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setShowAlertModal(false)}
+          >
+            <View style={globalStyles.overlay}>
+              <Pressable
                 onPress={() => setShowAlertModal(false)}
-                style={[globalStyles.smallButton, { marginTop: 20, alignSelf: 'center' }]}
-              >
-              <ThemedText>OK</ThemedText>
-            </TouchableOpacity>
+                style={globalStyles.overlaybg}
+              />
+              <View style={globalStyles.overlayContent}>
+                <ThemedText type="title" style={{ marginBottom: 20, alignSelf: 'center' }}>
+                  Alert
+                </ThemedText>
+                <ThemedText type="default" style={{ textAlign: 'center' }}>
+                  {alertMessage}
+                </ThemedText>
+                <TouchableOpacity
+                  onPress={() => setShowAlertModal(false)}
+                  style={[globalStyles.smallPillButton, { marginTop: 20, alignSelf: 'center' }]}
+                >
+                  <ThemedText style={{ color: '#f8f8f8' }}>OK</ThemedText>
+                </TouchableOpacity>
+              </View>
             </View>
-            </View>
-        </Modal>
+          </Modal>
         </ScrollView>
       </View>
     </ThemedView>

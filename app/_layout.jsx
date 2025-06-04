@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import 'react-native-reanimated';
 import { ThemeProvider } from '@/context/ThemeProvider';
 import { CartProvider } from '@/context/CartContext';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -30,10 +31,12 @@ export default function RootLayout() {
   }
 
   return (
-    <CartProvider>
-      <ThemeProvider>
-        <Slot />
-      </ThemeProvider>
-    </CartProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <CartProvider>
+        <ThemeProvider>
+          <Slot />
+        </ThemeProvider>
+      </CartProvider>
+    </GestureHandlerRootView>
   );
 }
