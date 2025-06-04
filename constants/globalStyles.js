@@ -81,7 +81,7 @@ const createGlobalStyles = (colorScheme) =>
             borderTopColor: 'transparent',
         },
         container: {
-            paddingTop: screenHeight * 0.13,
+            paddingTop: screenHeight * 0.14,
             height: screenHeight,
             justifyContent: 'flex-start',
         },
@@ -142,7 +142,6 @@ const createGlobalStyles = (colorScheme) =>
         buttonLeft: {
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: Colors[colorScheme].pri,
             gap: 8,
         },
         overlay: {
@@ -318,6 +317,12 @@ const createGlobalStyles = (colorScheme) =>
             width: '100%',
             backgroundColor: Colors[colorScheme].highlight,
             marginVertical: 20,
+        },
+        divider: {
+            height: 1,
+            width: '100%',
+            backgroundColor: Colors[colorScheme].highlight,
+            marginVertical: 10,
         },
         selectorGroup: {
             flex: 1,

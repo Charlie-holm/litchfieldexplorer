@@ -53,10 +53,10 @@ export default function HomeScreen() {
         <ThemedText type="title" style={{ paddingBottom: 20 }}>Welcome to Litchfield!</ThemedText>
         <Pressable onPress={() => setShowModal(true)}>
           <ThemedView style={globalStyles.buttonCard}>
-            <ThemedView style={globalStyles.buttonLeft}>
+            <View style={globalStyles.buttonLeft}>
               <IconSymbol name="info.circle" />
               <ThemedText type="subtitle" >Quick Information</ThemedText>
-            </ThemedView>
+            </View>
             <IconSymbol name="chevron.right" size={28} />
           </ThemedView>
         </Pressable>

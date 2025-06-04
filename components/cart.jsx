@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 import { Animated, Dimensions, PanResponder, ScrollView, TouchableOpacity, View, Image, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -10,19 +11,24 @@ import { useGlobalStyles } from '@/constants/globalStyles';
 const { height: screenHeight } = Dimensions.get('window');
 
 const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
+    const router = useRouter();
     const [internalVisible, setInternalVisible] = useState(false);
     const panY = useRef(new Animated.Value(0)).current;
     const translateY = useRef(new Animated.Value(screenHeight)).current;
     const translateYOffset = useRef(screenHeight);
     const overlayOpacity = useRef(new Animated.Value(0)).current;
-    const { getCart } = useCart();
+    const { getCart, updateCartItemQuantity } = useCart();
     const [cartItems, setCartItems] = useState([]);
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const gst = totalPrice * 0.1;
-    const points = Math.floor(totalPrice / 10);
+    const gst = totalPrice * 0.05;
+    const points = Math.floor(totalPrice * 5);
     const { theme } = useThemeContext();
     const globalStyles = useGlobalStyles();
 
+    const fetchCartItems = async () => {
+        const items = await getCart();
+        setCartItems(items || []);
+    };
 
     const resetPosition = (toValue) => {
         translateYOffset.current = toValue;
@@ -70,11 +76,6 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
     ).current;
 
     useEffect(() => {
-        const fetchCartItems = async () => {
-            const items = await getCart();
-            setCartItems(items || []);
-        };
-
         if (cartVisible) {
             setInternalVisible(true);
             resetPosition(screenHeight * 0.4);
@@ -109,7 +110,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                     bottom: 0,
                     width: '100%',
                     height: screenHeight,
-                    backgroundColor: 'white',
+                    backgroundColor: '#f8f8f8',
                     borderTopLeftRadius: 20,
                     borderTopRightRadius: 20,
                     padding: 20,
@@ -126,38 +127,64 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
 
                 <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
                     {cartItems.map((item) => (
-                        <ThemedView key={item.id} style={{ flexDirection: 'row', marginBottom: 15 }}>
-                            <View style={{ justifyContent: 'center' }}>
+                        <View key={item.id} style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].for }]}>
+                            <View style={[globalStyles.buttonLeft, { maxWidth: '60%' }]}>
                                 <Image
                                     source={{ uri: item.image }}
-                                    style={{ width: 60, height: 60, borderRadius: 6, margin: 15 }}
+                                    style={{ width: 70, height: 70, borderRadius: 20 }}
                                 />
+                                <View style={{ flexShrink: 1 }}>
+                                    <ThemedText
+                                        type="defaultSemiBold"
+                                        numberOfLines={0}
+                                        style={{ flexWrap: 'wrap' }}
+                                    >
+                                        {item.name}
+                                    </ThemedText>
+                                    <ThemedText
+                                        type="small"
+                                        numberOfLines={0}
+                                        style={{ flexWrap: 'wrap' }}
+                                    >
+                                        Size: {item.size}
+                                    </ThemedText>
+                                    <ThemedText
+                                        type="small"
+                                        numberOfLines={0}
+                                        style={{ flexWrap: 'wrap' }}
+                                    >
+                                        Color: {item.color}
+                                    </ThemedText>
+                                    <ThemedText
+                                        type="defaultSemiBold"
+                                        numberOfLines={0}
+                                        style={{ flexWrap: 'wrap' }}
+                                    >
+                                        ${item.price.toFixed(2)}
+                                    </ThemedText>
+                                </View>
                             </View>
-                            <ThemedView style={{ flex: 1 }}>
-                                <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
-                                <ThemedText type="small">Size: {item.size} | Color: {item.color}</ThemedText>
-                                <ThemedText type="defaultSemiBold">
-                                    ${item.price.toFixed(2)}
-                                </ThemedText>
-                            </ThemedView>
-                            <ThemedView style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <TouchableOpacity
-                                    onPress={() => decrementQuantity(item.id)}
-                                    style={[globalStyles.smallButton, { paddingHorizontal: 10, paddingVertical: 4 }]}
-                                >
+
+                            <View style={globalStyles.quantityInline}>
+                                <TouchableOpacity onPress={() => {
+                                    const updated = cartItems.map(i => i.id === item.id ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i);
+                                    setCartItems(updated);
+                                    updateCartItemQuantity(item.id, Math.max(1, item.quantity - 1));
+                                }} style={globalStyles.smallButton}>
                                     <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>−</ThemedText>
                                 </TouchableOpacity>
-                                <ThemedText style={{ marginHorizontal: 10, fontSize: 16, fontWeight: 'bold' }}>
-                                    {item.quantity}
-                                </ThemedText>
-                                <TouchableOpacity
-                                    onPress={() => incrementQuantity(item.id)}
-                                    style={[globalStyles.smallButton, { paddingHorizontal: 10, paddingVertical: 4 }]}
-                                >
+
+                                <ThemedText type={'defaultSemiBold'}>{item.quantity}</ThemedText>
+
+                                <TouchableOpacity onPress={() => {
+                                    const updated = cartItems.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+                                    setCartItems(updated);
+                                    updateCartItemQuantity(item.id, item.quantity + 1);
+                                }} style={globalStyles.smallButton}>
                                     <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>+</ThemedText>
                                 </TouchableOpacity>
-                            </ThemedView>
-                        </ThemedView>
+                            </View>
+                        </View>
                     ))}
                 </ScrollView>
 

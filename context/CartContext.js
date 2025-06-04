@@ -38,8 +38,15 @@ export function CartProvider({ children }) {
         await deleteDoc(itemRef);
     };
 
+    const updateCartItemQuantity = async (productId, quantity) => {
+        const currentUser = auth.currentUser;
+        if (!currentUser) return;
+        const itemRef = doc(db, 'users', currentUser.uid, 'cart', productId);
+        await setDoc(itemRef, { quantity }, { merge: true });
+    };
+
     return (
-        <CartContext.Provider value={{ addToCart, getCart, removeFromCart }}>
+        <CartContext.Provider value={{ addToCart, getCart, removeFromCart, updateCartItemQuantity }}>
             {children}
         </CartContext.Provider>
     );

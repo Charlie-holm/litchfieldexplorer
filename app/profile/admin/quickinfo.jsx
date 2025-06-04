@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, Alert } from 'react-native';
+import { FlatList, Pressable, Alert, View } from 'react-native';
 import { DeviceEventEmitter } from 'react-native';
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
@@ -85,9 +85,9 @@ export default function QuickInfoPanel() {
             setModalVisible(true);
         }}>
             <ThemedView style={globalStyles.buttonCard}>
-                <ThemedView style={globalStyles.buttonLeft}>
+                <View style={globalStyles.buttonLeft}>
                     <ThemedText type="subtitle">{item.title || '(No title)'}</ThemedText>
-                </ThemedView>
+                </View>
                 <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
             </ThemedView>
         </Pressable>

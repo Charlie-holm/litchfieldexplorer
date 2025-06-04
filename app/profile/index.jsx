@@ -134,10 +134,10 @@ export default function ProfileScreen() {
                     {sections.map(({ label, icon, path }) => (
                         <Pressable key={path} onPress={() => router.push({ pathname: path, params: { title: label } })}>
                             <ThemedView style={globalStyles.buttonCard}>
-                                <ThemedView style={globalStyles.buttonLeft}>
+                                <View style={globalStyles.buttonLeft}>
                                     <IconSymbol name={icon} />
                                     <ThemedText type="subtitle">{label}</ThemedText>
-                                </ThemedView>
+                                </View>
                                 <IconSymbol name="chevron.right" size={28} />
                             </ThemedView>
                         </Pressable>
@@ -145,10 +145,10 @@ export default function ProfileScreen() {
                     {isAdmin && (
                         <Pressable onPress={() => router.push('/profile/admin')}>
                             <ThemedView style={globalStyles.buttonCard}>
-                                <ThemedView style={globalStyles.buttonLeft}>
-                                    <IconSymbol name="gear" color={Colors[colorScheme].text} />
+                                <View style={globalStyles.buttonLeft}>
+                                    <IconSymbol name="gear" color={Colors[colorScheme].highlight} />
                                     <ThemedText type="subtitle">Admin Panel</ThemedText>
-                                </ThemedView>
+                                </View>
                                 <IconSymbol name="chevron.right" size={28} />
                             </ThemedView>
                         </Pressable>
