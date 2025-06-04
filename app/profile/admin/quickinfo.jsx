@@ -149,7 +149,7 @@ export default function QuickInfoPanel() {
                         <View style={globalStyles.buttonLeft}>
                             <ThemedText type="subtitle">{item.title || '(No title)'}</ThemedText>
                         </View>
-                        <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />
+                        <IconSymbol name="chevron.right" size={28} />
                     </ThemedView>
                 </Pressable>
             </Animated.View>

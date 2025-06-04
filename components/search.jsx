@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { Animated, Modal, Pressable, TextInput, View, FlatList, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { ThemedText } from '@/components/ThemedText';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
 
-export function SearchModal({ visible, onClose, allItems }) {
+export function SearchModal({ visible, onClose }) {
     const { theme: colorScheme } = useThemeContext();
     const globalStyles = useGlobalStyles();
     const [searchText, setSearchText] = useState('');
@@ -16,19 +17,40 @@ export function SearchModal({ visible, onClose, allItems }) {
     const screenHeight = Dimensions.get('window').height;
     const [animatedTop] = useState(new Animated.Value(screenHeight * 0.6));
     const hasAnimatedUp = useRef(false);
-    const navigation = useNavigation();
     const router = useRouter();
 
-    const updateResults = (query) => {
-        const lower = query.toLowerCase();
-        const filtered = allItems?.filter(item =>
-            item.name?.toLowerCase().includes(lower) ||
-            item.description?.toLowerCase().includes(lower)
-        );
-        setSearchResults(filtered);
-    };
+    useEffect(() => {
+        const fetchAllItems = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'keywords'));
+                const fetchedItems = [];
+                querySnapshot.forEach((doc) => {
+                    fetchedItems.push({ id: doc.id, ...doc.data() });
+                });
+                setSearchResults(fetchedItems);
+                console.log('SearchModal loaded on route:', router.pathname);
+            } catch (error) {
+                console.error('Failed to fetch keywords:', error);
+            }
+        };
+
+        if (visible) {
+            fetchAllItems();
+            setSearchText('');
+            hasAnimatedUp.current = false;
+        }
+    }, [visible]);
 
     useEffect(() => {
+        const updateResults = () => {
+            const lower = searchText.toLowerCase();
+            const filtered = searchResults.filter(item =>
+                item.name?.toLowerCase().includes(lower) ||
+                item.description?.toLowerCase().includes(lower)
+            );
+            setSearchResults(filtered);
+        };
+
         if (searchText.length > 0 && !hasAnimatedUp.current) {
             Animated.timing(animatedTop, {
                 toValue: screenHeight * 0.2,
@@ -36,13 +58,11 @@ export function SearchModal({ visible, onClose, allItems }) {
                 useNativeDriver: false,
             }).start(() => {
                 hasAnimatedUp.current = true;
-                updateResults(searchText);
+                updateResults();
             });
+        } else if (searchText.length > 0) {
+            updateResults();
         } else {
-            updateResults(searchText);
-        }
-
-        if (searchText.length === 0) {
             hasAnimatedUp.current = false;
             Animated.timing(animatedTop, {
                 toValue: screenHeight * 0.4,
@@ -119,8 +139,8 @@ export function SearchModal({ visible, onClose, allItems }) {
                                 >
                                     <Pressable
                                         onPress={() => {
-                                            if (item.type === 'attraction') navigation.navigate('AttractionDetail', { id: item.id });
-                                            else if (item.type === 'product') navigation.navigate('ProductDetail', { id: item.id });
+                                            if (item.type === 'attraction') router.push({ pathname: `/attractiondetail/${item.id}` });
+                                            else if (item.type === 'product') router.push({ pathname: `/productdetail/${item.id}` });
                                             else if (item.type === 'tab') {
                                                 router.push(item.route);
                                                 onClose();

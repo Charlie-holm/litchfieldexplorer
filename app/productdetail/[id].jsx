@@ -49,6 +49,10 @@ export default function ProductDetailScreen() {
         const product = { id: docSnap.id, ...docSnap.data() };
         setItem(product);
 
+        // Log the current route after setting the item
+        const route = `/productdetail/${docSnap.id}`;
+        console.log('Current route:', route);
+
         // Extract unique colors where quantity > 0
         const colorsSet = new Set();
         product.inventory?.forEach(inv => {

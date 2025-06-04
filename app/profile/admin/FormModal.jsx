@@ -472,6 +472,50 @@ export default function FormModal({
                     </Modal>
                 )
             }
+            {mode === 'searchitems' && (
+                <Modal visible={visible} transparent animationType="fade">
+                    <View style={globalStyles.overlay}>
+                        <Pressable
+                            onPress={onClose}
+                            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                        />
+                        <IconSymbol name="circle.fill" size={40} color={Colors[colorScheme].highlight} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }} />
+                        <Pressable onPress={onClose} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }}>
+                            <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].pri} />
+                        </Pressable>
+                        <View style={globalStyles.overlayContent}>
+                            <ScrollView>
+                                {['name', 'description', 'route', 'type'].map((field) => (
+                                    <TextInput
+                                        key={field}
+                                        placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                                        placeholderTextColor={Colors[colorScheme].tri}
+                                        value={form[field]}
+                                        onChangeText={(text) => {
+                                            setForm(prev => ({ ...prev, [field]: text }));
+                                        }}
+                                        style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
+                                    />
+                                ))}
+                                <Pressable
+                                    onPress={onSave}
+                                    style={[globalStyles.smallPillButton, { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }]}
+                                >
+                                    <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Save</ThemedText>
+                                </Pressable>
+                                {editingItem && (
+                                    <Pressable
+                                        onPress={onDelete}
+                                        style={[globalStyles.smallPillButton, { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' }]}
+                                    >
+                                        <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Delete</ThemedText>
+                                    </Pressable>
+                                )}
+                            </ScrollView>
+                        </View>
+                    </View>
+                </Modal>
+            )}
         </>
     );
 }
