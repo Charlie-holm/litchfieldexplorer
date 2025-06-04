@@ -29,7 +29,7 @@ export default function AdminDashboard() {
                         <Pressable onPress={() => router.push(item.route)}>
                             <ThemedView style={globalStyles.buttonCard}>
                                 <View style={globalStyles.buttonLeft}>
-                                    <IconSymbol name="gear" color={Colors[colorScheme].text} />
+                                    <IconSymbol name="gear" />
                                     <ThemedText type="subtitle">{item.title}</ThemedText>
                                 </View>
                                 <IconSymbol name="chevron.right" size={28} color={Colors[colorScheme].text} />

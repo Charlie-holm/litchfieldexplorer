@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { View, Text, ScrollView, TouchableOpacity, Image, Animated } from 'react-native';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -14,6 +16,45 @@ export default function CheckoutScreen() {
     const globalStyles = useGlobalStyles();
     const { getCart } = useCart();
     const [items, setItems] = useState([]);
+    const [pickupExpanded, setPickupExpanded] = useState(false);
+    const [pickupHeight] = useState(new Animated.Value(0));
+    const [selectedPickup, setSelectedPickup] = useState(null);
+    const [cardExpanded, setCardExpanded] = useState(false);
+    const [cardHeight] = useState(new Animated.Value(0));
+    const [cards, setCards] = useState([]);
+    // Animate the pickup location expand/collapse
+    const togglePickup = () => {
+        if (pickupExpanded) {
+            Animated.timing(pickupHeight, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: false,
+            }).start(() => setPickupExpanded(false));
+        } else {
+            setPickupExpanded(true);
+            Animated.timing(pickupHeight, {
+                toValue: 120,
+                duration: 200,
+                useNativeDriver: false,
+            }).start();
+        }
+    };
+    const toggleCard = () => {
+        if (cardExpanded) {
+            Animated.timing(cardHeight, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: false,
+            }).start(() => setCardExpanded(false));
+        } else {
+            setCardExpanded(true);
+            Animated.timing(cardHeight, {
+                toValue: 120,
+                duration: 200,
+                useNativeDriver: false,
+            }).start();
+        }
+    };
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -23,13 +64,42 @@ export default function CheckoutScreen() {
         fetchCartItems();
     }, []);
 
+    useEffect(() => {
+        const fetchCards = async () => {
+            try {
+                const auth = getAuth();
+                const user = auth.currentUser;
+                if (!user) return;
+
+                const docRef = doc(getFirestore(), 'users', user.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.cards && Array.isArray(data.cards)) {
+                        setCards(data.cards.map((card, i) => ({
+                            ...card,
+                            id: `card-${i}`,
+                            last4: card.cardNumber?.replace(/\s/g, '').slice(-4) || '0000',
+                            expanded: false,
+                            editing: false
+                        })));
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching cards:', error);
+            }
+        };
+
+        fetchCards();
+    }, []);
+
     // Calculate summary values
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const gst = subtotal * 0.05;
     const discount = 0;
     const total = subtotal + gst - discount;
-    const pointsEarned = items.reduce((sum, item) => sum + Math.round(item.price * 10) * item.quantity, 0);
+    const pointsEarned = items.reduce((sum, item) => sum + Math.round(item.price * 5) * item.quantity, 0);
 
     return (
         <>
@@ -95,35 +165,96 @@ export default function CheckoutScreen() {
                             );
                         })}
                     </ScrollView>
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        width: '100%',
-                        backgroundColor: '#f8f8f8',
-                        borderTopLeftRadius: 20,
-                        borderTopRightRadius: 20,
-                        padding: 20,
-                        paddingBottom: 0,
-                        zIndex: 100,
-                        elevation: 20,
-                    }}>
-                        <View style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].for }]}>
-                            <IconSymbol name="map-pin" size={22} color={Colors[theme].highlight} style={{ marginRight: 12 }} />
+                    <View style={globalStyles.cartOverlay}>
+                        <TouchableOpacity
+                            onPress={togglePickup}
+                            style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].for }]}
+                        >
+                            <IconSymbol name="shippingbox" style={{ marginRight: 12 }} />
                             <View style={{ flex: 1 }}>
                                 <ThemedText type="subtitle" style={{ marginBottom: 2 }}>Pick Up Information</ThemedText>
-                                <ThemedText type="default">Select a location</ThemedText>
+                                <ThemedText type="default">
+                                    {selectedPickup ? selectedPickup : 'Select a location'}
+                                </ThemedText>
                             </View>
-                            <IconSymbol name="chevron-down" size={20} color={Colors[theme].highlight} />
-                        </View>
+                            <IconSymbol name={pickupExpanded ? "chevron.up" : "chevron.down"} style={{ marginRight: 12 }} />
+                        </TouchableOpacity>
 
-                        <View style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].for }]}>
-                            <IconSymbol name="credit-card" size={22} color={Colors[theme].highlight} style={{ marginRight: 12 }} />
+                        {pickupExpanded && (
+                            <Animated.View
+                                style={[
+                                    globalStyles.buttonCardExpanded,
+                                    {
+                                        backgroundColor: Colors[theme].background,
+                                        height: pickupHeight,
+                                        overflow: 'hidden',
+                                    }
+                                ]}
+                            >
+                                <ScrollView>
+                                    {['Entrance', 'Customer Service Desk', 'Carpark Resception'].map((location) => (
+                                        <TouchableOpacity
+                                            key={location}
+                                            style={{ paddingVertical: 8 }}
+                                            onPress={() => {
+                                                setSelectedPickup(location);
+                                                togglePickup();
+                                            }}
+                                        >
+                                            <ThemedText type="default">{location}</ThemedText>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                            </Animated.View>
+                        )}
+
+                        <TouchableOpacity
+                            onPress={toggleCard}
+                            style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].for }]}
+                        >
+                            <IconSymbol name="creditcard" style={{ marginRight: 12 }} />
                             <View style={{ flex: 1 }}>
                                 <ThemedText type="subtitle" style={{ marginBottom: 2 }}>Credit Card</ThemedText>
-                                <ThemedText type="default" >•••• 1234</ThemedText>
+                                <ThemedText type="default">{cards[0]?.last4 ? `•••• ${cards[0].last4}` : 'Select a card'}</ThemedText>
                             </View>
-                            <IconSymbol name="chevron-right" size={20} color={Colors[theme].highlight} />
-                        </View>
+                            <IconSymbol name={cardExpanded ? "chevron.up" : "chevron.down"} style={{ marginRight: 12 }} />
+                        </TouchableOpacity>
+
+                        {cardExpanded && (
+                            <Animated.View
+                                style={[
+                                    globalStyles.buttonCardExpanded,
+                                    {
+                                        backgroundColor: Colors[theme].background,
+                                        height: cardHeight,
+                                        overflow: 'hidden',
+                                    }
+                                ]}
+                            >
+                                <ScrollView>
+                                    {cards.map((card) => (
+                                        <TouchableOpacity
+                                            key={card.id}
+                                            onPress={() => {
+                                                toggleCard();
+                                            }}
+                                            style={{ paddingVertical: 8 }}
+                                        >
+                                            <ThemedText type="default">•••• {card.last4}</ThemedText>
+                                        </TouchableOpacity>
+                                    ))}
+                                    {cards.length === 0 && (
+                                        <TouchableOpacity
+                                            onPress={() => router.push('/profile/payment')}
+                                            style={{ paddingVertical: 8 }}
+                                        >
+                                            <ThemedText>Add Card</ThemedText>
+                                        </TouchableOpacity>
+                                    )}
+                                </ScrollView>
+                            </Animated.View>
+                        )}
+
 
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
                             <ThemedText type="default" style={{ color: Colors[theme].textSecondary }}>GST (5%)</ThemedText>
@@ -147,7 +278,6 @@ export default function CheckoutScreen() {
                             <ThemedText type="default" style={{ color: Colors[theme].tint }}>{pointsEarned} pts</ThemedText>
                         </View>
 
-                        {/* Pay Button */}
                         <TouchableOpacity
                             style={[globalStyles.pillButton, { marginTop: 30, backgroundColor: Colors[theme].sec }]}
                             onPress={() => {
@@ -156,7 +286,7 @@ export default function CheckoutScreen() {
                             }}
                         >
                             <ThemedText type="subtitle" style={{ color: '#f8f8f8' }}>
-                                Pay
+                                Pay | ${total.toFixed(2)}
                             </ThemedText>
                         </TouchableOpacity>
                     </View>

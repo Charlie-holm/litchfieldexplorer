@@ -129,6 +129,14 @@ const createGlobalStyles = (colorScheme) =>
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
+            zIndex: 10,
+        },
+        buttonCardExpanded: {
+            marginTop: -25,
+            marginBottom: 10,
+            padding: 20,
+            borderBottomLeftRadius: 20,
+            borderBottomRightRadius: 20,
         },
         buttonCardIcon: {
             width: 80,
@@ -364,18 +372,17 @@ const createGlobalStyles = (colorScheme) =>
         cartOverlay: {
             position: 'absolute',
             bottom: 0,
-            left: 0,
-            width: screenWidth,
-            height: screenHeight * 0.6,
-            backgroundColor: Colors[colorScheme].pri,
+            width: '100%',
+            backgroundColor: '#f8f8f8',
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: -4 },
-            shadowOpacity: 0.4,
-            shadowRadius: 8,
-            elevation: 10,
             padding: 20,
+            paddingBottom: 0,
+            zIndex: 100,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 6,
         }
     });
 

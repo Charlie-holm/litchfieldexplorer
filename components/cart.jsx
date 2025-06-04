@@ -105,20 +105,11 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                 />
             </TouchableWithoutFeedback>
             <Animated.View
-                style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    width: '100%',
+                style={[globalStyles.cartOverlay, {
                     height: screenHeight,
-                    backgroundColor: '#f8f8f8',
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                    padding: 20,
                     paddingBottom: 100,
                     transform: [{ translateY }],
-                    zIndex: 100,
-                    elevation: 20,
-                }}
+                }]}
                 {...panResponder.panHandlers}
             >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', margin: 5 }}>
