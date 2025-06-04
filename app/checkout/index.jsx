@@ -170,14 +170,14 @@ export default function CheckoutScreen() {
                             onPress={togglePickup}
                             style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].tri }]}
                         >
-                            <IconSymbol name="shippingbox" style={{ marginRight: 12 }} />
+                            <IconSymbol name="shippingbox" color='#f8f8f8' style={{ marginRight: 12 }} />
                             <View style={{ flex: 1 }}>
-                                <ThemedText type="subtitle" style={{ marginBottom: 2 }}>Pick Up Information</ThemedText>
-                                <ThemedText type="default">
+                                <ThemedText type="subtitle" style={{ marginBottom: 2, color: '#f8f8f8' }}>Pick Up Information</ThemedText>
+                                <ThemedText type="default" style={{ color: '#f8f8f8' }}>
                                     {selectedPickup ? selectedPickup : 'Select a location'}
                                 </ThemedText>
                             </View>
-                            <IconSymbol name={pickupExpanded ? "chevron.up" : "chevron.down"} style={{ marginRight: 12 }} />
+                            <IconSymbol name={pickupExpanded ? "chevron.up" : "chevron.down"} color='#f8f8f8' style={{ marginRight: 12 }} />
                         </TouchableOpacity>
 
                         {pickupExpanded && (
@@ -212,12 +212,12 @@ export default function CheckoutScreen() {
                             onPress={toggleCard}
                             style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].tri }]}
                         >
-                            <IconSymbol name="creditcard" style={{ marginRight: 12 }} />
+                            <IconSymbol name="creditcard" color='#f8f8f8' style={{ marginRight: 12 }} />
                             <View style={{ flex: 1 }}>
-                                <ThemedText type="subtitle" style={{ marginBottom: 2 }}>Credit Card</ThemedText>
-                                <ThemedText type="default">{cards[0]?.last4 ? `•••• ${cards[0].last4}` : 'Select a card'}</ThemedText>
+                                <ThemedText type="subtitle" style={{ marginBottom: 2, color: '#f8f8f8' }}>Credit Card</ThemedText>
+                                <ThemedText type="default" style={{ color: '#f8f8f8' }}>{cards[0]?.last4 ? `•••• ${cards[0].last4}` : 'Select a card'}</ThemedText>
                             </View>
-                            <IconSymbol name={cardExpanded ? "chevron.up" : "chevron.down"} style={{ marginRight: 12 }} />
+                            <IconSymbol name={cardExpanded ? "chevron.up" : "chevron.down"} color='#f8f8f8' style={{ marginRight: 12 }} />
                         </TouchableOpacity>
 
                         {cardExpanded && (

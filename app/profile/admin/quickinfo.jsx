@@ -175,7 +175,7 @@ export default function QuickInfoPanel() {
                 data={infos}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
-                contentContainerStyle={{ marginVertical: 10, padding: 10 }}
+                contentContainerStyle={{ marginVertical: 10, paddingHorizontal: 20 }}
             />
         </ThemedView>
     );

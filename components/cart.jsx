@@ -166,28 +166,28 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                         <ThemedText
                                             type="defaultSemiBold"
                                             numberOfLines={0}
-                                            style={{ flexWrap: 'wrap' }}
+                                            style={{ flexWrap: 'wrap', color: '#f8f8f8' }}
                                         >
                                             {item.name}
                                         </ThemedText>
                                         <ThemedText
                                             type="small"
                                             numberOfLines={0}
-                                            style={{ flexWrap: 'wrap' }}
+                                            style={{ flexWrap: 'wrap', color: '#f8f8f8' }}
                                         >
                                             Size: {item.size}
                                         </ThemedText>
                                         <ThemedText
                                             type="small"
                                             numberOfLines={0}
-                                            style={{ flexWrap: 'wrap' }}
+                                            style={{ flexWrap: 'wrap', color: '#f8f8f8' }}
                                         >
                                             Color: {item.color}
                                         </ThemedText>
                                         <ThemedText
                                             type="defaultSemiBold"
                                             numberOfLines={0}
-                                            style={{ flexWrap: 'wrap' }}
+                                            style={{ flexWrap: 'wrap', color: '#f8f8f8' }}
                                         >
                                             ${item.price.toFixed(2)}
                                         </ThemedText>
@@ -218,7 +218,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                         <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>−</ThemedText>
                                     </TouchableOpacity>
 
-                                    <ThemedText type={'defaultSemiBold'}>{item.quantity}</ThemedText>
+                                    <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>{item.quantity}</ThemedText>
 
                                     <TouchableOpacity onPress={() => {
                                         const updated = cartItems.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);

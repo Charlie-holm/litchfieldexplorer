@@ -290,7 +290,7 @@ export default function ProductList() {
                 data={products}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={{ marginVertical: 10, padding: 10 }}
+                contentContainerStyle={{ marginVertical: 10, paddingHorizontal: 20 }}
             />
             <FormModal
                 mode="product"

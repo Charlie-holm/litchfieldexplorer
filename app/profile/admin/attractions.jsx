@@ -281,7 +281,7 @@ export default function AttractionList() {
                 data={attractions}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
-                contentContainerStyle={{ marginVertical: 10, padding: 10 }}
+                contentContainerStyle={{ marginVertical: 10, paddingHorizontal: 20 }}
                 initialNumToRender={6}
                 maxToRenderPerBatch={10}
             />

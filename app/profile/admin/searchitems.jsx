@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { DeviceEventEmitter } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { DeviceEventEmitter, Animated } from 'react-native';
 import { View, FlatList, StyleSheet, TextInput, Text, Pressable, Button, Alert, Platform, TouchableOpacity } from 'react-native';
 import { tabs } from '@/context/allItems';
 import { getDocs, collection, setDoc, doc, deleteDoc } from 'firebase/firestore';
@@ -23,7 +23,10 @@ export default function SearchItemsAdminScreen() {
     const [form, setForm] = useState({});
 
     const [items, setItems] = useState([]);
-    const [filteredCategory, setFilteredCategory] = useState(null);
+    // Animation values for list items
+    const animatedValues = useRef([]).current;
+    const [filteredCategory, setFilteredCategory] = useState('all');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const listener = DeviceEventEmitter.addListener('triggerAddOverlay', (page) => {
@@ -38,6 +41,7 @@ export default function SearchItemsAdminScreen() {
 
     useEffect(() => {
         const fetchItems = async () => {
+            setLoading(true);
             const snapAttractions = await getDocs(collection(db, 'attractions'));
             const dbAttractions = snapAttractions.docs.map(doc => ({
                 id: doc.id,
@@ -62,6 +66,21 @@ export default function SearchItemsAdminScreen() {
                 ...tabs,
             ];
             setItems(combined);
+            // Animation initialization after items are set
+            animatedValues.length = combined.length;
+            for (let i = 0; i < combined.length; i++) {
+                animatedValues[i] = new Animated.Value(0);
+            }
+            const animations = combined.map((_, index) =>
+                Animated.timing(animatedValues[index], {
+                    toValue: 1,
+                    duration: 400,
+                    delay: index * 80,
+                    useNativeDriver: true,
+                })
+            );
+            Animated.stagger(80, animations).start();
+            setLoading(false);
         };
 
         fetchItems();
@@ -113,26 +132,36 @@ export default function SearchItemsAdminScreen() {
         }
     };
 
-    const renderItem = ({ item }) => {
+    const renderItem = ({ item, index }) => {
         if (filteredCategory && filteredCategory !== 'all' && item.type !== filteredCategory) return null;
-
+        if (!animatedValues[index]) return null;
         return (
-            <Pressable onPress={() => {
-                setForm(item);
-                setEditingInfo(item);
-                setModalVisible(true);
-            }} style={{ marginTop: 10 }}>
-                <ThemedView style={globalStyles.buttonCard}>
-                    <View style={[globalStyles.buttonLeft, { maxWidth: '60%' }]}>
-                        <View style={{ flex: 1 }}>
-                            <ThemedText type="subtitle">{item.name}</ThemedText>
-                            <ThemedText type="default">{item.route || '(No route)'}</ThemedText>
-                            <ThemedText type="small">{item.type}</ThemedText>
+            <Animated.View style={{
+                opacity: animatedValues[index],
+                transform: [{
+                    translateY: animatedValues[index].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [20, 0],
+                    }),
+                }]
+            }}>
+                <Pressable onPress={() => {
+                    setForm(item);
+                    setEditingInfo(item);
+                    setModalVisible(true);
+                }}>
+                    <ThemedView style={globalStyles.buttonCard}>
+                        <View style={[globalStyles.buttonLeft, { maxWidth: '60%' }]}>
+                            <View style={{ flex: 1 }}>
+                                <ThemedText type="subtitle">{item.name}</ThemedText>
+                                <ThemedText type="default">{item.route || '(No route)'}</ThemedText>
+                                <ThemedText type="small">{item.type}</ThemedText>
+                            </View>
                         </View>
-                    </View>
-                    <IconSymbol name="chevron.right" size={28} />
-                </ThemedView>
-            </Pressable>
+                        <IconSymbol name="chevron.right" size={28} />
+                    </ThemedView>
+                </Pressable>
+            </Animated.View>
         );
     };
 
@@ -140,40 +169,48 @@ export default function SearchItemsAdminScreen() {
     const categories = ['all', ...uniqueTypes];
 
     return (
-        <ThemedView style={globalStyles.container}>
-            <View style={globalStyles.categoryContainer}>
-                {categories.map(cat => (
-                    <TouchableOpacity
-                        key={cat}
-                        style={[
-                            globalStyles.categoryButton,
-                            filteredCategory === cat && globalStyles.categoryButtonSelected,
-                        ]}
-                        onPress={() => setFilteredCategory(cat)}
-                    >
-                        <ThemedText
-                            style={{
-                                color:
-                                    filteredCategory === cat
-                                        ? Colors[colorScheme].pri
-                                        : Colors[colorScheme].highlight,
-                            }}
+        <View style={{ flex: 1 }}>
+            <ThemedView style={globalStyles.container}>
+                <View style={globalStyles.categoryContainer}>
+                    {categories.map(cat => (
+                        <TouchableOpacity
+                            key={cat}
+                            style={[
+                                globalStyles.categoryButton,
+                                filteredCategory === cat && globalStyles.categoryButtonSelected,
+                            ]}
+                            onPress={() => setFilteredCategory(cat)}
                         >
-                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </ThemedText>
-                    </TouchableOpacity>
-                ))}
-            </View>
-            <FlatList
-                data={items}
-                keyExtractor={item => item.id}
-                renderItem={renderItem}
-                contentContainerStyle={{ padding: 16, }}
-            />
-            <View style={{ paddingHorizontal: 16, }}>
-                <Pressable style={globalStyles.pillButton} onPress={handleSaveToAllItems}>
-                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>Save all to firebase</ThemedText>
-                </Pressable>
+                            <ThemedText
+                                style={{
+                                    color:
+                                        filteredCategory === cat
+                                            ? Colors[colorScheme].pri
+                                            : Colors[colorScheme].highlight,
+                                }}
+                            >
+                                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            </ThemedText>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+                {loading ? (
+                    <ThemedText style={{ textAlign: 'center', marginTop: 20 }}>Loading...</ThemedText>
+                ) : (
+                    <FlatList
+                        data={items}
+                        keyExtractor={item => item.id}
+                        renderItem={renderItem}
+                        contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+                    />
+                )}
+            </ThemedView>
+            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: Colors[colorScheme].background }}>
+                <View style={{ paddingHorizontal: 20 }}>
+                    <Pressable style={globalStyles.pillButton} onPress={handleSaveToAllItems}>
+                        <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>Save all to firebase</ThemedText>
+                    </Pressable>
+                </View>
             </View>
             <FormModal
                 mode="searchitems"
@@ -188,6 +225,6 @@ export default function SearchItemsAdminScreen() {
                 form={form}
                 setForm={setForm}
             />
-        </ThemedView>
+        </View>
     );
 }
