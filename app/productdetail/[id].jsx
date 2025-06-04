@@ -23,7 +23,7 @@ export default function ProductDetailScreen() {
 
   const [item, setItem] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState('L');
+  const [selectedSize, setSelectedSize] = useState();
   const [availableColors, setAvailableColors] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
   const [showAlertModal, setShowAlertModal] = useState(false);
