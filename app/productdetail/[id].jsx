@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image, ScrollView, TouchableOpacity, View, Dimensions } from 'react-native';
+import { Modal, Pressable, View, Image, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ThemedView } from '@/components/ThemedView';
@@ -13,7 +13,6 @@ import { db } from '@/firebaseConfig';
 import { useCart } from '@/context/CartContext';
 
 const sizes = ['S', 'M', 'L', 'XL'];
-const colors = ['#222', '#aaa'];
 
 export default function ProductDetailScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -25,7 +24,21 @@ export default function ProductDetailScreen() {
   const [item, setItem] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('L');
-  const [selectedColor, setSelectedColor] = useState(colors[0]);
+  const [availableColors, setAvailableColors] = useState([]);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+
+  const getColorStyle = (color) => {
+    switch (color.toLowerCase()) {
+      case 'black': return '#222';
+      case 'grey': return '#aaa';
+      case 'red': return '#d00';
+      case 'blue': return '#007aff';
+      case 'white': return '#fff';
+      default: return '#ccc';
+    }
+  };
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -33,11 +46,38 @@ export default function ProductDetailScreen() {
       const docRef = doc(db, 'products', id);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setItem({ id: docSnap.id, ...docSnap.data() });
+        const product = { id: docSnap.id, ...docSnap.data() };
+      setItem(product);
+
+      // Extract unique colors where quantity > 0
+      const colorsSet = new Set();
+      product.inventory?.forEach(inv => {
+        if (inv.quantity > 0) {
+          colorsSet.add(inv.color);
+        }
+      });
+      const colorsArray = Array.from(colorsSet);
+      setAvailableColors(colorsArray);
+
+      // Also update selectedColor to first available color dynamically
+      if (colorsArray.length > 0) {
+        setSelectedColor(colorsArray[0]);
       }
-    };
+    }
+  };
     fetchItem();
   }, [id]);
+// Reset quantity when size or color changes to valid stock or 1
+  useEffect(() => {  
+    if (!item) return;
+    const currentStock = item.inventory?.find(
+      inv => inv.size === selectedSize && inv.color === selectedColor
+    )?.quantity || 0;
+
+    if (quantity > currentStock) {
+      setQuantity(currentStock > 0 ? currentStock : 1);
+    }
+  }, [selectedSize, selectedColor, item])
 
   const themeColors = Colors[colorScheme];
   const { addToCart } = useCart();
@@ -51,6 +91,10 @@ export default function ProductDetailScreen() {
   }
 
   const imageSource = { uri: item.imageUrl };
+
+  const currentStock = item.inventory?.find(
+    inv => inv.size === selectedSize && inv.color === selectedColor
+  )?.quantity || 0;
 
   return (
     <ThemedView style={{ flex: 1, backgroundColor: themeColors.pri }}>
@@ -84,7 +128,21 @@ export default function ProductDetailScreen() {
 
                   <ThemedText type={'defaultSemiBold'}>{quantity}</ThemedText>
 
-                  <TouchableOpacity onPress={() => setQuantity(prev => prev + 1)} style={globalStyles.smallButton}>
+                  <TouchableOpacity onPress={() => {
+                    const currentStock = item.inventory?.find(
+                      inv => inv.size === selectedSize && inv.color === selectedColor
+                    )?.quantity || 0;
+
+                    setQuantity(prev => {
+                      if (prev < currentStock) return prev + 1;
+                      else{
+                        setAlertMessage(`Only ${currentStock} items available in stock.`);
+                        setShowAlertModal(true);
+                        return prev;
+                      } 
+                    });
+                  }}
+                  style={globalStyles.smallButton}>
                     <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>+</ThemedText>
                   </TouchableOpacity>
                 </View>
@@ -100,17 +158,21 @@ export default function ProductDetailScreen() {
                   <ThemedText type={'subtitle'} style={{ marginBottom: 10 }}>Size</ThemedText>
                   <View style={globalStyles.sizeRow}>
                     {sizes.map(size => {
+                      const match = item.inventory?.find(i => i.size === size && i.color === selectedColor);
+                      const isAvailable = match ? match.quantity > 0 : false;
                       const isSelected = selectedSize === size;
 
                       return (
                         <TouchableOpacity
                           key={size}
-                          onPress={() => setSelectedSize(size)}
+                          disabled={!isAvailable}
+                          onPress={() => isAvailable && setSelectedSize(size)}
                           style={[
                             globalStyles.smallButton,
                             {
                               backgroundColor: isSelected ? themeColors.for : themeColors.sec,
-                              borderColor: themeColors.highlight,
+                              borderColor: isAvailable ? themeColors.highlight : 'black',
+                              opacity: isAvailable ? 1 : 0.4,
                               width: isSelected ? 44 : 36,
                               height: isSelected ? 44 : 36,
                               justifyContent: 'center',
@@ -137,14 +199,14 @@ export default function ProductDetailScreen() {
                 <View style={[globalStyles.selectorGroup, { marginTop: 16 }]}>
                   <ThemedText type={'subtitle'} style={{ marginBottom: 10 }}>Color</ThemedText>
                   <View style={globalStyles.colorRow}>
-                    {colors.map(color => (
+                    {availableColors.map(color => (
                       <TouchableOpacity
                         key={color}
                         onPress={() => setSelectedColor(color)}
                         style={[
                           globalStyles.smallButton,
                           {
-                            backgroundColor: color,
+                            backgroundColor: getColorStyle(color),
                             borderColor: selectedColor === color ? themeColors.highlight : themeColors.sec,
                             borderWidth: selectedColor === color ? 3 : 1,
                             width: selectedColor === color ? 44 : 36,
@@ -179,8 +241,35 @@ export default function ProductDetailScreen() {
               </TouchableOpacity>
             </View>
           </View>
+          <Modal
+          visible={showAlertModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowAlertModal(false)}
+        >
+          <View style={globalStyles.overlay}>
+            <Pressable
+              onPress={() => setShowAlertModal(false)}
+              style={globalStyles.overlaybg}
+            />
+            <View style={globalStyles.overlayContent}>
+              <ThemedText type="title" style={{ marginBottom: 20, alignSelf: 'center' }}>
+                Alert
+              </ThemedText>
+              <ThemedText type="default" style={{ textAlign: 'center' }}>
+                {alertMessage}
+              </ThemedText>
+              <TouchableOpacity
+                onPress={() => setShowAlertModal(false)}
+                style={[globalStyles.smallButton, { marginTop: 20, alignSelf: 'center' }]}
+              >
+              <ThemedText>OK</ThemedText>
+            </TouchableOpacity>
+            </View>
+            </View>
+        </Modal>
         </ScrollView>
-      </View >
-    </ThemedView >
+      </View>
+    </ThemedView>
   );
 }
