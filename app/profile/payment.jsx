@@ -1,9 +1,9 @@
 import { View, Pressable, TextInput, DeviceEventEmitter, TouchableOpacity, Animated, LayoutAnimation, UIManager, Platform } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { useGlobalStyles } from '@/constants/globalStyles';
+import { useThemeContext } from '@/context/ThemeProvider';
 import { useState, useEffect } from 'react';
 import { getAuth, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
@@ -15,8 +15,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 export default function PaymentScreen() {
-    const colorScheme = useColorScheme();
-    const themeColors = Colors[colorScheme];
+    const { theme: colorScheme } = useThemeContext();
     const globalStyles = useGlobalStyles();
 
     const [cards, setCards] = useState([]);
@@ -25,6 +24,7 @@ export default function PaymentScreen() {
     const [showAddCardOverlay, setShowAddCardOverlay] = useState(false);
     const [newCardNumber, setNewCardNumber] = useState('');
     const [newExpiryDate, setNewExpiryDate] = useState('');
+    const [overlayOpacity] = useState(new Animated.Value(0));
 
     const fetchCardData = async () => {
         try {
@@ -55,9 +55,18 @@ export default function PaymentScreen() {
         DeviceEventEmitter.emit('triggerAddOverlay');
     };
 
-    DeviceEventEmitter.addListener('triggerAddOverlay', () => {
-        setShowAddCardOverlay(true);
-    });
+    // Only add listener once
+    useEffect(() => {
+        const sub = DeviceEventEmitter.addListener('triggerAddOverlay', () => {
+            setShowAddCardOverlay(true);
+            Animated.timing(overlayOpacity, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true
+            }).start();
+        });
+        return () => sub.remove();
+    }, [overlayOpacity]);
 
     const updateCard = (index, updates) => {
         setCards(prev => prev.map((c, i) => i === index ? { ...c, ...updates } : c));
@@ -104,7 +113,7 @@ export default function PaymentScreen() {
                         }}
                         style={[globalStyles.smallPillButton, { marginTop: 10 }]}
                     >
-                        <ThemedText style={{ color: 'white' }}>Submit</ThemedText>
+                        <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>Submit</ThemedText>
                     </Pressable>
                 </View>
             </ThemedView>
@@ -219,20 +228,30 @@ export default function PaymentScreen() {
                 ))}
             </ThemedView>
             {showAddCardOverlay && (
-                <View style={{
-                    position: 'absolute',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 999
-                }}>
-                    <View style={{
-                        backgroundColor: '#fff',
-                        padding: 20,
-                        borderRadius: 10,
-                        width: '80%'
-                    }}>
+                <Animated.View style={[globalStyles.overlay, { opacity: overlayOpacity }]}>
+                    <Pressable
+                        onPress={() => {
+                            Animated.timing(overlayOpacity, {
+                                toValue: 0,
+                                duration: 300,
+                                useNativeDriver: true
+                            }).start(() => setShowAddCardOverlay(false));
+                        }}
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                    />
+                    <Pressable
+                        onPress={() => {
+                            Animated.timing(overlayOpacity, {
+                                toValue: 0,
+                                duration: 300,
+                                useNativeDriver: true
+                            }).start(() => setShowAddCardOverlay(false));
+                        }}
+                        style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }}
+                    >
+                        <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].pri} />
+                    </Pressable>
+                    <View style={globalStyles.overlayContent}>
                         <ThemedText type="subtitle">Add New Card</ThemedText>
                         <TextInput
                             style={globalStyles.inputTextBox}
@@ -272,7 +291,11 @@ export default function PaymentScreen() {
                                         cards: updatedCards
                                     }, { merge: true });
                                     setCards(updatedCards.map(card => ({ ...card, expanded: false, editing: false })));
-                                    setShowAddCardOverlay(false);
+                                    Animated.timing(overlayOpacity, {
+                                        toValue: 0,
+                                        duration: 300,
+                                        useNativeDriver: true
+                                    }).start(() => setShowAddCardOverlay(false));
                                     setNewCardNumber('');
                                     setNewExpiryDate('');
                                 } catch (err) {
@@ -285,12 +308,18 @@ export default function PaymentScreen() {
                         </Pressable>
                         <Pressable
                             style={[globalStyles.smallPillButton, { backgroundColor: '#e74c3c', marginTop: 10 }]}
-                            onPress={() => setShowAddCardOverlay(false)}
+                            onPress={() => {
+                                Animated.timing(overlayOpacity, {
+                                    toValue: 0,
+                                    duration: 300,
+                                    useNativeDriver: true
+                                }).start(() => setShowAddCardOverlay(false));
+                            }}
                         >
                             <ThemedText style={{ color: 'white' }}>Cancel</ThemedText>
                         </Pressable>
                     </View>
-                </View>
+                </Animated.View>
             )}
         </ThemedView>
     );

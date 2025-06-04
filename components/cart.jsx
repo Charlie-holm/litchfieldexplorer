@@ -156,7 +156,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                 </View>
                             )}
                         >
-                            <View style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].for }]}>
+                            <View style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].tri }]}>
                                 <View style={[globalStyles.buttonLeft, { maxWidth: '60%' }]}>
                                     <Image
                                         source={{ uri: item.image }}

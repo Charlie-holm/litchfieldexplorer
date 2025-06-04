@@ -168,7 +168,7 @@ export default function CheckoutScreen() {
                     <View style={globalStyles.cartOverlay}>
                         <TouchableOpacity
                             onPress={togglePickup}
-                            style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].for }]}
+                            style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].tri }]}
                         >
                             <IconSymbol name="shippingbox" style={{ marginRight: 12 }} />
                             <View style={{ flex: 1 }}>
@@ -210,7 +210,7 @@ export default function CheckoutScreen() {
 
                         <TouchableOpacity
                             onPress={toggleCard}
-                            style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].for }]}
+                            style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].tri }]}
                         >
                             <IconSymbol name="creditcard" style={{ marginRight: 12 }} />
                             <View style={{ flex: 1 }}>
@@ -257,15 +257,15 @@ export default function CheckoutScreen() {
 
 
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
-                            <ThemedText type="default" style={{ color: Colors[theme].textSecondary }}>GST (5%)</ThemedText>
+                            <ThemedText type="default">GST (5%)</ThemedText>
                             <ThemedText type="default">${gst.toFixed(2)}</ThemedText>
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
-                            <ThemedText type="default" style={{ color: Colors[theme].textSecondary }}>Discount</ThemedText>
-                            <ThemedText type="default" style={{ color: Colors[theme].tint }}>-${discount.toFixed(2)}</ThemedText>
+                            <ThemedText type="default">Discount</ThemedText>
+                            <ThemedText type="default">-${discount.toFixed(2)}</ThemedText>
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
-                            <ThemedText type="default" style={{ color: Colors[theme].textSecondary }}>Subtotal</ThemedText>
+                            <ThemedText type="default">Subtotal</ThemedText>
                             <ThemedText type="default">${subtotal.toFixed(2)}</ThemedText>
                         </View>
                         <View style={[globalStyles.divider, { marginVertical: 10 }]} />
@@ -274,8 +274,8 @@ export default function CheckoutScreen() {
                             <ThemedText type="subtitle">${total.toFixed(2)}</ThemedText>
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
-                            <ThemedText type="default" style={{ color: Colors[theme].tint }}>Points Earned</ThemedText>
-                            <ThemedText type="default" style={{ color: Colors[theme].tint }}>{pointsEarned} pts</ThemedText>
+                            <ThemedText type="default">Points Earned</ThemedText>
+                            <ThemedText type="default">{pointsEarned} pts</ThemedText>
                         </View>
 
                         <TouchableOpacity

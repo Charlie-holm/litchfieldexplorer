@@ -6,7 +6,7 @@ import { getDocs, collection, setDoc, doc, deleteDoc } from 'firebase/firestore'
 import { db } from '@/firebaseConfig';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import FormModal from './FormModal';
@@ -15,8 +15,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 
 
 export default function SearchItemsAdminScreen() {
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme];
+    const { theme: colorScheme } = useThemeContext();
     const globalStyles = useGlobalStyles();
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -128,7 +127,7 @@ export default function SearchItemsAdminScreen() {
                         <View style={{ flex: 1 }}>
                             <ThemedText type="subtitle">{item.name}</ThemedText>
                             <ThemedText type="default">{item.route || '(No route)'}</ThemedText>
-                            <ThemedText type="small" style={{ color: theme.tint }}>{item.type}</ThemedText>
+                            <ThemedText type="small">{item.type}</ThemedText>
                         </View>
                     </View>
                     <IconSymbol name="chevron.right" size={28} />
