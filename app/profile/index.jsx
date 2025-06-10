@@ -59,7 +59,6 @@ export default function ProfileScreen() {
     const sections = [
         { label: 'Theme', icon: 'paintpalette', path: '/profile/theme' },
         { label: 'Orders', icon: 'shippingbox', path: '/profile/order' },
-        { label: 'Payment', icon: 'creditcard', path: '/profile/payment' },
         { label: 'Help', icon: 'questionmark.circle', path: '/profile/help' },
         { label: 'Support', icon: 'bubble.left.and.bubble.right', path: '/profile/support' },
     ];

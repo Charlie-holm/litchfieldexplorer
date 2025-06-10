@@ -18,6 +18,7 @@ export default function AdminDashboard() {
         { title: 'Products Panel', route: '/profile/admin/products' },
         { title: 'Quick Info Panel', route: '/profile/admin/quickinfo' },
         { title: 'Search Keywords', route: '/profile/admin/searchitems' },
+        { title: 'Orders Panel', route: '/profile/admin/order' },
     ];
 
     return (

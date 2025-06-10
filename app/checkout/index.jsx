@@ -21,9 +21,6 @@ export default function CheckoutScreen() {
     const [pickupExpanded, setPickupExpanded] = useState(false);
     const [pickupHeight] = useState(new Animated.Value(0));
     const [selectedPickup, setSelectedPickup] = useState(null);
-    const [cardExpanded, setCardExpanded] = useState(false);
-    const [cardHeight] = useState(new Animated.Value(0));
-    const [cards, setCards] = useState([]);
     // Animate the pickup location expand/collapse
     const togglePickup = () => {
         if (pickupExpanded) {
@@ -41,22 +38,6 @@ export default function CheckoutScreen() {
             }).start();
         }
     };
-    const toggleCard = () => {
-        if (cardExpanded) {
-            Animated.timing(cardHeight, {
-                toValue: 0,
-                duration: 200,
-                useNativeDriver: false,
-            }).start(() => setCardExpanded(false));
-        } else {
-            setCardExpanded(true);
-            Animated.timing(cardHeight, {
-                toValue: 120,
-                duration: 200,
-                useNativeDriver: false,
-            }).start();
-        }
-    };
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -66,34 +47,6 @@ export default function CheckoutScreen() {
         fetchCartItems();
     }, []);
 
-    useEffect(() => {
-        const fetchCards = async () => {
-            try {
-                const auth = getAuth();
-                const user = auth.currentUser;
-                if (!user) return;
-
-                const docRef = doc(getFirestore(), 'users', user.uid);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.cards && Array.isArray(data.cards)) {
-                        setCards(data.cards.map((card, i) => ({
-                            ...card,
-                            id: `card-${i}`,
-                            last4: card.cardNumber?.replace(/\s/g, '').slice(-4) || '0000',
-                            expanded: false,
-                            editing: false
-                        })));
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching cards:', error);
-            }
-        };
-
-        fetchCards();
-    }, []);
 
     // Calculate summary values
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -209,55 +162,6 @@ export default function CheckoutScreen() {
                                 </ScrollView>
                             </Animated.View>
                         )}
-
-                        <TouchableOpacity
-                            onPress={toggleCard}
-                            style={[globalStyles.buttonCard, { backgroundColor: themeColors.tri }]}
-                        >
-                            <IconSymbol name="creditcard" color='#f8f8f8' style={{ marginRight: 12 }} />
-                            <View style={{ flex: 1 }}>
-                                <ThemedText type="subtitle" style={{ marginBottom: 2, color: '#f8f8f8' }}>Credit Card</ThemedText>
-                                <ThemedText type="default" style={{ color: '#f8f8f8' }}>{cards[0]?.last4 ? `•••• ${cards[0].last4}` : 'Select a card'}</ThemedText>
-                            </View>
-                            <IconSymbol name={cardExpanded ? "chevron.up" : "chevron.down"} color='#f8f8f8' style={{ marginRight: 12 }} />
-                        </TouchableOpacity>
-
-                        {cardExpanded && (
-                            <Animated.View
-                                style={[
-                                    globalStyles.buttonCardExpanded,
-                                    {
-                                        backgroundColor: themeColors.background,
-                                        height: cardHeight,
-                                        overflow: 'hidden',
-                                    }
-                                ]}
-                            >
-                                <ScrollView>
-                                    {cards.map((card) => (
-                                        <TouchableOpacity
-                                            key={card.id}
-                                            onPress={() => {
-                                                toggleCard();
-                                            }}
-                                            style={{ paddingVertical: 8 }}
-                                        >
-                                            <ThemedText type="default">•••• {card.last4}</ThemedText>
-                                        </TouchableOpacity>
-                                    ))}
-                                    {cards.length === 0 && (
-                                        <TouchableOpacity
-                                            onPress={() => router.push('/profile/payment')}
-                                            style={{ paddingVertical: 8 }}
-                                        >
-                                            <ThemedText>Add Card</ThemedText>
-                                        </TouchableOpacity>
-                                    )}
-                                </ScrollView>
-                            </Animated.View>
-                        )}
-
-
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
                             <ThemedText type="default">GST (5%)</ThemedText>
                             <ThemedText type="default">${gst.toFixed(2)}</ThemedText>
@@ -287,47 +191,51 @@ export default function CheckoutScreen() {
                                     alert('Please select a pickup location.');
                                     return;
                                 }
-                                if (!cards[0]?.last4) {
-                                    alert('Please select a credit card.');
-                                    return;
-                                }
-                                try {
-                                    const auth = getAuth();
-                                    const user = auth.currentUser;
-                                    if (user) {
-                                        const orderRef = collection(getFirestore(), 'orders');
-                                        // Generate unique order number
-                                        const orderNumber = 'ORD-' + Date.now().toString(36).toUpperCase();
-                                        await addDoc(orderRef, {
-                                            userId: user.uid,
-                                            items,
-                                            total: parseFloat(total.toFixed(2)),
-                                            subtotal: parseFloat(subtotal.toFixed(2)),
-                                            gst: parseFloat(gst.toFixed(2)),
-                                            discount: parseFloat(discount.toFixed(2)),
-                                            pickupLocation: selectedPickup || null,
-                                            cardLast4: cards[0]?.last4 || null,
-                                            pointsEarned,
-                                            orderNumber,
-                                            createdAt: serverTimestamp()
-                                        });
-                                        await getCart(true); // Clear the cart
-                                        router.push('/checkout/confirmation');
-                                    } else {
-                                        console.log('User not authenticated');
-                                    }
-                                } catch (err) {
-                                    console.error('Failed to submit order:', err);
-                                }
+                                triggerApplePay({ items, total, subtotal, gst, discount, selectedPickup, pointsEarned, getCart });
                             }}
                         >
-                            <ThemedText type="subtitle" style={{ color: '#f8f8f8' }}>
-                                Pay | ${total.toFixed(2)}
-                            </ThemedText>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <IconSymbol name="applelogo" size={18} color="#f8f8f8" style={{ marginRight: 6 }} />
+                                <ThemedText type="subtitle" style={{ color: '#f8f8f8' }}>
+                                    Pay with Apple Pay | ${total.toFixed(2)}
+                                </ThemedText>
+                            </View>
                         </TouchableOpacity>
                     </View>
                 </View>
             </ThemedView>
         </>
     );
+}
+// Placeholder Apple Pay trigger function
+async function triggerApplePay({ items, total, subtotal, gst, discount, selectedPickup, pointsEarned, getCart }) {
+    alert('Apple Pay payment successful.');
+
+    try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (user) {
+            const orderRef = collection(getFirestore(), 'orders');
+            const orderNumber = 'ORD-' + Date.now().toString(36).toUpperCase();
+            await addDoc(orderRef, {
+                userId: user.uid,
+                items,
+                total: parseFloat(total.toFixed(2)),
+                subtotal: parseFloat(subtotal.toFixed(2)),
+                gst: parseFloat(gst.toFixed(2)),
+                discount: parseFloat(discount.toFixed(2)),
+                pickupLocation: selectedPickup || null,
+                pointsEarned,
+                paymentMethod: 'Apple Pay',
+                orderNumber,
+                createdAt: serverTimestamp()
+            });
+            await getCart(true); // Clear the cart
+            router.push('/checkout/confirmation');
+        } else {
+            console.log('User not authenticated');
+        }
+    } catch (err) {
+        console.error('Failed to submit order:', err);
+    }
 }

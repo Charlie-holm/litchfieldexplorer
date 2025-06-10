@@ -22,7 +22,6 @@ export default function Layout() {
     'order': 'Orders',
     'support': 'Support',
     'help': 'Help',
-    'payment': 'Payment',
     'points': 'Points',
     'admin': 'Admin Panel',
     'users': 'Users',

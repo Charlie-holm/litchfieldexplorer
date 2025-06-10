@@ -55,7 +55,7 @@ export default function ThemeScreen() {
                             <ThemedText>Points: {order.pointsEarned}</ThemedText>
                             <ThemedText>Items: {order.items?.length || 0}</ThemedText>
                             <View style={[globalStyles.smallPillButton, {
-                                backgroundColor: statusColorMap[order.status?.toLowerCase()] || '#FF4C4C', marginTop: 8
+                                backgroundColor: statusColorMap[order.status?.toLowerCase()] || '#FF4C4C', marginTop: 8, width: '55%'
                             }]}>
                                 <ThemedText type="defaultSemiBold" style={{ color: '#fff' }}>
                                     {order.status || 'Pending'}

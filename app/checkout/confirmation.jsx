@@ -46,7 +46,7 @@ export default function ConfirmationScreen() {
                 </ThemedText>
                 <ThemedText type="defaultSemiBold">Points Earned: {latestOrder?.pointsEarned ?? 'Loading...'}</ThemedText>
                 <ThemedText type="defaultSemiBold">Pickup Location: {latestOrder?.pickupLocation ?? 'Loading...'}</ThemedText>
-                <ThemedText type="defaultSemiBold">Card: **** **** **** {latestOrder?.cardLast4 ?? 'XXXX'}</ThemedText>
+                <ThemedText type="defaultSemiBold">Payment: {latestOrder?.paymentMethod ?? 'Loading...'}</ThemedText>
             </View>
 
             <View style={{ position: 'absolute', bottom: 5, width: '100%', alignItems: 'center' }}>

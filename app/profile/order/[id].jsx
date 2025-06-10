@@ -63,14 +63,14 @@ export default function OrderDetailScreen() {
                 <View style={globalStyles.buttonCard}>
                     <View style={{ flex: 1 }}>
                         <ThemedText>Date: {order.createdAt?.seconds ? new Date(order.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</ThemedText>
-                        <ThemedText>Pickup Location: {order.pickupLocation || 'N/A'}</ThemedText>
-                        <ThemedText>Card: •••• {order.cardLast4 || 'XXXX'}</ThemedText>
+                        <ThemedText>Pickup Location: {order.pickupLocation}</ThemedText>
+                        <ThemedText>payment:  {order.paymentMethod}</ThemedText>
                         <ThemedText>Points Earned: {order.pointsEarned ?? 0} pts</ThemedText>
                         <ThemedText>GST: ${typeof order.gst === 'number' ? order.gst.toFixed(2) : '0.00'}</ThemedText>
                         <ThemedText>Discount: -${typeof order.discount === 'number' ? order.discount.toFixed(2) : '0.00'}</ThemedText>
                         <ThemedText>Total Amount: ${typeof order.total === 'number' ? order.total.toFixed(2) : '0.00'}</ThemedText>
                         <View style={[globalStyles.smallPillButton, {
-                            backgroundColor: statusColorMap[order.status?.toLowerCase()] || '#FF4C4C', marginTop: 8
+                            backgroundColor: statusColorMap[order.status?.toLowerCase()] || '#FF4C4C', marginTop: 8, width: '50%'
                         }]}>
                             <ThemedText type="defaultSemiBold" style={{ color: '#fff' }}>
                                 {order.status || 'Pending'}

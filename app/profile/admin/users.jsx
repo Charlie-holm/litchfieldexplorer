@@ -78,7 +78,7 @@ export default function UserList() {
                             />
                             <Pressable
                                 onPress={() => handleSavePoints(item)}
-                                style={[globalStyles.smallPillButton, { backgroundColor: '#3498db', borderColor: '#3498db', marginBottom: 8 }]}
+                                style={[globalStyles.smallPillButton, { backgroundColor: '#3498db', borderColor: '#3498db', marginBottom: 8, width: '50%' }]}
                             >
                                 <ThemedText style={{ color: 'white' }}>Save Points</ThemedText>
                             </Pressable>
@@ -87,8 +87,8 @@ export default function UserList() {
                                 style={[
                                     globalStyles.smallPillButton,
                                     item.admin
-                                        ? { backgroundColor: '#ff69b4', borderColor: '#ff69b4' }
-                                        : { backgroundColor: '#2ecc71', borderColor: '#2ecc71' }
+                                        ? { backgroundColor: '#ff69b4', borderColor: '#ff69b4', width: '50%' }
+                                        : { backgroundColor: '#2ecc71', borderColor: '#2ecc71', width: '50%' }
                                 ]}
                             >
                                 <ThemedText style={{ color: 'white' }}>
@@ -97,7 +97,7 @@ export default function UserList() {
                             </Pressable>
                             <Pressable
                                 onPress={() => handleRemoveUser(item)}
-                                style={[globalStyles.smallPillButton, { backgroundColor: '#e74c3c', borderColor: '#e74c3c', marginTop: 8 }]}
+                                style={[globalStyles.smallPillButton, { backgroundColor: '#e74c3c', borderColor: '#e74c3c', marginTop: 8, width: '50%' }]}
                             >
                                 <ThemedText style={{ color: 'white' }}>Remove User</ThemedText>
                             </Pressable>
