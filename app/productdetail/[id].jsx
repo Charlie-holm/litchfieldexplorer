@@ -27,6 +27,7 @@ export default function ProductDetailScreen() {
   const [availableColors, setAvailableColors] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
   const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('Quick Info');
   const [alertMessage, setAlertMessage] = useState('');
 
   const getColorStyle = (color) => {
@@ -100,6 +101,8 @@ export default function ProductDetailScreen() {
     inv => inv.size === selectedSize && inv.color === selectedColor
   )?.quantity || 0;
 
+  const isAddDisabled = !selectedSize || !selectedColor;
+  
   return (
     <ThemedView style={{ flex: 1, backgroundColor: themeColors.pri }}>
       <View style={[globalStyles.attractionImageContainer, { height: Dimensions.get('window').width }]}>
@@ -140,7 +143,8 @@ export default function ProductDetailScreen() {
                     setQuantity(prev => {
                       if (prev < currentStock) return prev + 1;
                       else {
-                        setAlertMessage(`Only ${currentStock} items available in stock.`);
+                        setAlertTitle('Stock Alert');
+                        setAlertMessage(`Only ${currentStock} ${item.name} (Size: ${selectedSize}, Color: ${selectedColor}) available in stock.`);
                         setShowAlertModal(true);
                         return prev;
                       }
@@ -225,7 +229,12 @@ export default function ProductDetailScreen() {
               </View>
 
               <TouchableOpacity
-                style={[globalStyles.pillButton, { marginTop: 20, width: '100%' }]}
+                disabled={isAddDisabled || currentStock === 0} style={[
+                  (isAddDisabled || currentStock === 0)
+                  ? globalStyles.pillButtonDisabled
+                  : globalStyles.pillButton,
+                  { marginTop: 20, width: '100%' }]}
+                  
                 onPress={() => {
                   addToCart({
                     id: item.id,
@@ -236,7 +245,9 @@ export default function ProductDetailScreen() {
                     size: selectedSize,
                     color: selectedColor,
                   });
-                  alert(`${item.name} has been added to the cart.`);
+                  setAlertTitle('Added to Cart');
+                  setAlertMessage(`${item.name} (Size: ${selectedSize}, Color: ${selectedColor}) has been added to the cart.`);
+                  setShowAlertModal(true);
                 }}
               >
                 <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>
@@ -258,7 +269,7 @@ export default function ProductDetailScreen() {
               />
               <View style={globalStyles.overlayContent}>
                 <ThemedText type="title" style={{ marginBottom: 20, alignSelf: 'center' }}>
-                  Alert
+                  {alertTitle}
                 </ThemedText>
                 <ThemedText type="default" style={{ textAlign: 'center' }}>
                   {alertMessage}
