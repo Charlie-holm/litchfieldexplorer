@@ -20,7 +20,6 @@ export default function Layout() {
     'theme': 'Theme',
     'points': 'Points',
     'order': 'Orders',
-    'support': 'Support',
     'help': 'Help',
     'points': 'Points',
     'admin': 'Admin Panel',
