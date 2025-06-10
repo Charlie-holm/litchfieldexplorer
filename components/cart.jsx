@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import { Animated, Dimensions, PanResponder, ScrollView, TouchableOpacity, View, Image, StyleSheet, TouchableWithoutFeedback, Text, Alert } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { useCart } from '@/context/CartContext';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -22,7 +21,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
     const [cartItems, setCartItems] = useState([]);
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const gst = totalPrice * 0.05;
-    const points = Math.floor(totalPrice * 5);
+    const points = Math.round(totalPrice * 5);
     const { theme } = useThemeContext();
     const globalStyles = useGlobalStyles();
 

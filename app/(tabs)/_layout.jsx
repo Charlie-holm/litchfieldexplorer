@@ -4,11 +4,12 @@ import { View, Pressable, Image } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
+import { useCart } from '@/context/CartContext';
 import { SearchModal } from '@/components/search';
 import { SearchProvider } from '@/context/SearchContext';
 import { attractions, products, tabs } from '@/context/allItems';
 import { auth } from '@/firebaseConfig';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, onSnapshot, collection } from 'firebase/firestore';
 import { app } from '@/firebaseConfig';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { ThemedText } from '@/components/ThemedText';
@@ -29,6 +30,8 @@ export default function TabLayout() {
     shop: 'Shop',
   };
   const pageTitle = titleMap[currentScreen] || 'Litchfield Explorer';
+
+  const { cart, setCart, getCart, user } = useCart();
 
   useEffect(() => {
     const fetchProfileImage = async () => {
@@ -52,6 +55,24 @@ export default function TabLayout() {
     fetchProfileImage();
   }, []);
 
+  useEffect(() => {
+    const unsubscribeAuth = auth.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) {
+        const db = getFirestore();
+        const cartRef = collection(db, 'users', firebaseUser.uid, 'cart');
+
+        const unsubscribeCart = onSnapshot(cartRef, async () => {
+          const updatedCart = await getCart();
+          setCart(updatedCart);
+        });
+
+        return () => unsubscribeCart();
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
   return (
     <SearchProvider>
       <View style={globalStyles.header}>
@@ -63,7 +84,7 @@ export default function TabLayout() {
             <IconSymbol name="magnifyingglass" />
           </Pressable>
           <Pressable onPress={() => setShowCart(true)}>
-            <IconSymbol name="cart" />
+            <IconSymbol name={Array.isArray(cart) && cart.length > 0 ? 'cart.fill' : 'cart'} />
           </Pressable>
           <Pressable onPress={() => router.push('/profile')}>
             <View style={globalStyles.smallprofileImage}>
@@ -119,13 +140,6 @@ export default function TabLayout() {
       <Cart
         cartVisible={showCart}
         setCartVisible={setShowCart}
-        cartItems={[]} // Replace with actual cart state later
-        incrementQuantity={() => { }} // Replace with actual logic
-        decrementQuantity={() => { }} // Replace with actual logic
-        totalPrice={0} // Replace with computed total
-        gst={0} // Replace with computed GST
-        points={0} // Replace with computed points
-        onCheckout={() => { }} // Replace with checkout logic
       />
     </SearchProvider>
   );

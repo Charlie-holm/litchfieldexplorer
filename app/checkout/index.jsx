@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getFirestore, collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { View, Text, ScrollView, TouchableOpacity, Image, Animated } from 'react-native';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -280,9 +280,43 @@ export default function CheckoutScreen() {
 
                         <TouchableOpacity
                             style={[globalStyles.pillButton, { marginTop: 30, backgroundColor: Colors[theme].sec }]}
-                            onPress={() => {
-                                setCartVisible(false);
-                                router.push('/checkout_confirmed');
+                            onPress={async () => {
+                                if (!selectedPickup) {
+                                    alert('Please select a pickup location.');
+                                    return;
+                                }
+                                if (!cards[0]?.last4) {
+                                    alert('Please select a credit card.');
+                                    return;
+                                }
+                                try {
+                                    const auth = getAuth();
+                                    const user = auth.currentUser;
+                                    if (user) {
+                                        const orderRef = collection(getFirestore(), 'orders');
+                                        // Generate unique order number
+                                        const orderNumber = 'ORD-' + Date.now().toString(36).toUpperCase();
+                                        await addDoc(orderRef, {
+                                            userId: user.uid,
+                                            items,
+                                            total: parseFloat(total.toFixed(2)),
+                                            subtotal: parseFloat(subtotal.toFixed(2)),
+                                            gst: parseFloat(gst.toFixed(2)),
+                                            discount: parseFloat(discount.toFixed(2)),
+                                            pickupLocation: selectedPickup || null,
+                                            cardLast4: cards[0]?.last4 || null,
+                                            pointsEarned,
+                                            orderNumber,
+                                            createdAt: serverTimestamp()
+                                        });
+                                        await getCart(true); // Clear the cart
+                                        router.push('/checkout/confirmation');
+                                    } else {
+                                        console.log('User not authenticated');
+                                    }
+                                } catch (err) {
+                                    console.error('Failed to submit order:', err);
+                                }
                             }}
                         >
                             <ThemedText type="subtitle" style={{ color: '#f8f8f8' }}>

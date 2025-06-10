@@ -18,7 +18,7 @@ export default function Layout() {
     'profile_detail': 'Profile Info',
     'theme': 'Theme',
     'points': 'Points',
-    'wishlist': 'Wishlist',
+    'order': 'Orders',
     'support': 'Support',
     'help': 'Help',
     'payment': 'Payment',
