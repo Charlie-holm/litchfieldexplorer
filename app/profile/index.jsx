@@ -60,7 +60,6 @@ export default function ProfileScreen() {
         { label: 'Theme', icon: 'paintpalette', path: '/profile/theme' },
         { label: 'Orders', icon: 'shippingbox', path: '/profile/order' },
         { label: 'Help', icon: 'questionmark.circle', path: '/profile/help' },
-        { label: 'Support', icon: 'bubble.left.and.bubble.right', path: '/profile/support' },
     ];
 
     return (
