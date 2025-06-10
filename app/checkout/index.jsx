@@ -8,11 +8,13 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useGlobalStyles } from '@/constants/globalStyles';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { router } from 'expo-router';
 import { useCart } from '@/context/CartContext';
 
 export default function CheckoutScreen() {
-    const { theme } = useThemeContext();
+    const colorScheme = useColorScheme();
+    const themeColors = Colors[colorScheme];
     const globalStyles = useGlobalStyles();
     const { getCart } = useCart();
     const [items, setItems] = useState([]);
@@ -125,7 +127,7 @@ export default function CheckoutScreen() {
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                         marginBottom: 20,
-                                        backgroundColor: Colors[theme].pri,
+                                        backgroundColor: themeColors.pri,
                                         borderRadius: 12,
                                         padding: 12,
                                         shadowOpacity: 0.07,
@@ -153,7 +155,7 @@ export default function CheckoutScreen() {
                                             <ThemedText type="defaultSemiBold" style={{ marginRight: 8 }}>
                                                 ${item.price.toFixed(2)}
                                             </ThemedText>
-                                            <View style={{ backgroundColor: Colors[theme].pri, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 }}>
+                                            <View style={{ backgroundColor: themeColors.pri, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 }}>
                                                 <ThemedText type="small" style={{ marginRight: 8 }}>{itemPoints} pts</ThemedText>
                                             </View>
                                         </View>
@@ -168,7 +170,7 @@ export default function CheckoutScreen() {
                     <View style={globalStyles.cartOverlay}>
                         <TouchableOpacity
                             onPress={togglePickup}
-                            style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].tri }]}
+                            style={[globalStyles.buttonCard, { backgroundColor: themeColors.tri }]}
                         >
                             <IconSymbol name="shippingbox" color='#f8f8f8' style={{ marginRight: 12 }} />
                             <View style={{ flex: 1 }}>
@@ -185,7 +187,7 @@ export default function CheckoutScreen() {
                                 style={[
                                     globalStyles.buttonCardExpanded,
                                     {
-                                        backgroundColor: Colors[theme].background,
+                                        backgroundColor: themeColors.background,
                                         height: pickupHeight,
                                         overflow: 'hidden',
                                     }
@@ -210,7 +212,7 @@ export default function CheckoutScreen() {
 
                         <TouchableOpacity
                             onPress={toggleCard}
-                            style={[globalStyles.buttonCard, { backgroundColor: Colors[theme].tri }]}
+                            style={[globalStyles.buttonCard, { backgroundColor: themeColors.tri }]}
                         >
                             <IconSymbol name="creditcard" color='#f8f8f8' style={{ marginRight: 12 }} />
                             <View style={{ flex: 1 }}>
@@ -225,7 +227,7 @@ export default function CheckoutScreen() {
                                 style={[
                                     globalStyles.buttonCardExpanded,
                                     {
-                                        backgroundColor: Colors[theme].background,
+                                        backgroundColor: themeColors.background,
                                         height: cardHeight,
                                         overflow: 'hidden',
                                     }
@@ -279,7 +281,7 @@ export default function CheckoutScreen() {
                         </View>
 
                         <TouchableOpacity
-                            style={[globalStyles.pillButton, { marginTop: 30, backgroundColor: Colors[theme].sec }]}
+                            style={[globalStyles.pillButton, { marginTop: 30, backgroundColor: themeColors.sec }]}
                             onPress={async () => {
                                 if (!selectedPickup) {
                                     alert('Please select a pickup location.');

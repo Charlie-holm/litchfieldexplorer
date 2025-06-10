@@ -1,4 +1,4 @@
-import { View, Pressable, Image } from 'react-native';
+import { View, Pressable, Image, Dimensions, ScrollView } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -9,11 +9,20 @@ import { getFirestore, collection, query, where, getDocs } from 'firebase/firest
 import { db } from '@/firebaseConfig';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useRouter } from 'expo-router';
 
 export default function ThemeScreen() {
     const systemScheme = useColorScheme();
     const globalStyles = useGlobalStyles();
     const [orders, setOrders] = useState([]);
+    const router = useRouter();
+
+    const screenWidth = Dimensions.get('window').width;
+    const statusColorMap = {
+        packing: '#4C9BFF',
+        'ready for pick up': '#4CAF50',
+        'picked up': '#4CAF50',
+    };
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -33,20 +42,30 @@ export default function ThemeScreen() {
 
     return (
         <ThemedView style={globalStyles.container}>
-            <ThemedView style={globalStyles.itemContainer}>
+            <ScrollView contentContainerStyle={globalStyles.itemContainer}>
                 {orders.map(order => (
-                    <Pressable key={order.id} style={[globalStyles.buttonCard, { marginBottom: 16, flexDirection: 'row', alignItems: 'center', padding: 12 }]}>
+                    <Pressable
+                        key={order.id}
+                        onPress={() => router.push(`/profile/order/${order.id}`)}
+                        style={[globalStyles.buttonCard, { marginBottom: 16, flexDirection: 'row', alignItems: 'center', padding: 12 }]}
+                    >
                         <View style={{ flex: 1, paddingHorizontal: 12 }}>
                             <ThemedText type="subtitle">Order #: {order.orderNumber} </ThemedText>
                             <ThemedText>Total: ${order.total?.toFixed(2)}</ThemedText>
                             <ThemedText>Points: {order.pointsEarned}</ThemedText>
                             <ThemedText>Items: {order.items?.length || 0}</ThemedText>
-                            <ThemedText>Status: {order.status || 'Pending'}</ThemedText>
+                            <View style={[globalStyles.smallPillButton, {
+                                backgroundColor: statusColorMap[order.status?.toLowerCase()] || '#FF4C4C', marginTop: 8
+                            }]}>
+                                <ThemedText type="defaultSemiBold" style={{ color: '#fff' }}>
+                                    {order.status || 'Pending'}
+                                </ThemedText>
+                            </View>
                         </View>
-                        <IconSymbol name="chevron.right" size={24} color="#000" />
+                        <IconSymbol name="chevron.right" />
                     </Pressable>
                 ))}
-            </ThemedView>
+            </ScrollView>
         </ThemedView>
     );
 }

@@ -14,6 +14,7 @@ export default function Layout() {
   const router = useRouter();
   const { title } = useLocalSearchParams();
   const currentPage = usePathname().split('/').pop();
+  const isOrderDetail = usePathname().includes('/order/');
   const labelMap = {
     'profile_detail': 'Profile Info',
     'theme': 'Theme',
@@ -33,7 +34,9 @@ export default function Layout() {
 
   const screenTitle = typeof title === 'string'
     ? title
-    : labelMap[currentPage] || 'Profile';
+    : isOrderDetail
+      ? 'Order Detail'
+      : labelMap[currentPage] || 'Profile';
 
   return (
     <View style={{ flex: 1 }}>
