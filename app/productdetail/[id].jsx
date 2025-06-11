@@ -22,7 +22,7 @@ export default function ProductDetailScreen() {
   const { id } = route.params || {};
 
   const [item, setItem] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [selectedSize, setSelectedSize] = useState();
   const [availableColors, setAvailableColors] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -72,7 +72,7 @@ export default function ProductDetailScreen() {
     };
     fetchItem();
   }, [id]);
-  // Reset quantity when size or color changes to valid stock or 1
+  // Reset quantity when size or color changes to valid stock or 0
   useEffect(() => {
     if (!item) return;
     const currentStock = item.inventory?.find(
@@ -80,7 +80,7 @@ export default function ProductDetailScreen() {
     )?.quantity || 0;
 
     if (quantity > currentStock) {
-      setQuantity(currentStock > 0 ? currentStock : 1);
+      setQuantity(currentStock > 0 ? currentStock : 0);
     }
   }, [selectedSize, selectedColor, item])
 
@@ -112,7 +112,7 @@ export default function ProductDetailScreen() {
         />
         <TouchableOpacity
           onPress={() => {
-            router.back();
+            router.push('/shop');
           }}
           style={globalStyles.backIcon}
         >

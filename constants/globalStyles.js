@@ -256,6 +256,23 @@ const createGlobalStyles = (colorScheme) =>
             shadowRadius: 10,
             borderTopWidth: 0,
         },
+        pillButtonDisabled: {
+            position: 'relative',
+            backgroundColor: Colors[colorScheme].for,
+            borderRadius: 40,
+            height: 60,
+            bottom: 30,
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 5 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            borderTopWidth: 0,
+            opacity: 0.6,
+        },
+
         categoryContainer: {
             flexDirection: 'row',
             paddingHorizontal: 24,
