@@ -555,6 +555,133 @@ export default function FormModal({
                         </View>
                     </View>
                 </Modal>
+            )
+            }
+            {mode === 'reward' && (
+                <Modal visible={visible} transparent animationType="fade">
+                    <View style={globalStyles.overlay}>
+                        <Pressable
+                            onPress={onClose}
+                            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                        />
+                        <IconSymbol name="circle.fill" size={40} color={Colors[colorScheme].highlight} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }} />
+                        <Pressable onPress={onClose} style={{ position: 'absolute', top: 60, right: 20, zIndex: 10 }}>
+                            <IconSymbol name="xmark.circle.fill" size={40} color={Colors[colorScheme].pri} />
+                        </Pressable>
+                        <View style={globalStyles.overlayContent}>
+                            <ScrollView>
+                                <TextInput
+                                    placeholder="Reward Name"
+                                    placeholderTextColor={Colors[colorScheme].tri}
+                                    value={form.name}
+                                    onChangeText={(text) => setForm(prev => ({ ...prev, name: text }))}
+                                    style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
+                                />
+                                <TextInput
+                                    placeholder="Cost in Points"
+                                    placeholderTextColor={Colors[colorScheme].tri}
+                                    value={form.cost || ''}
+                                    onChangeText={(text) => setForm(prev => ({ ...prev, cost: text }))}
+                                    style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
+                                    keyboardType="numeric"
+                                />
+                                <ThemedText type="defaultSemiBold" style={{ marginBottom: 5 }}>Reward Type</ThemedText>
+                                {[
+                                    { label: 'Free Item', value: 'free' },
+                                    { label: 'Discount', value: 'discount' }
+                                ].map(({ label, value }) => (
+                                    <Pressable
+                                        key={value}
+                                        onPress={() => setForm(prev => ({ ...prev, type: value }))}
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            gap: 6,
+                                            marginBottom: 6,
+                                        }}
+                                    >
+                                        {form.type === value ? (
+                                            <IconSymbol
+                                                name="checkmark"
+                                                size={18}
+                                                style={{
+                                                    width: 18,
+                                                    height: 18,
+                                                    borderWidth: 1,
+                                                    textAlign: 'center',
+                                                }}
+                                            />
+                                        ) : (
+                                            <View
+                                                style={{
+                                                    width: 18,
+                                                    height: 18,
+                                                    borderWidth: 1,
+                                                }}
+                                            />
+                                        )}
+                                        <ThemedText type="default">{label}</ThemedText>
+                                    </Pressable>
+                                ))}
+                                {form.type === 'discount' && (
+                                    <TextInput
+                                        placeholder="Discount %"
+                                        placeholderTextColor={Colors[colorScheme].tri}
+                                        value={form.discount?.toString() || ''}
+                                        onChangeText={(text) => setForm(prev => ({ ...prev, discount: parseFloat(text) || 0 }))}
+                                        style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
+                                        keyboardType="numeric"
+                                    />
+                                )}
+
+                                {form.type === 'free' && (
+                                    <TextInput
+                                        placeholder="Product ID"
+                                        placeholderTextColor={Colors[colorScheme].tri}
+                                        value={form.productId || ''}
+                                        onChangeText={(text) => setForm(prev => ({ ...prev, productId: text }))}
+                                        style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
+                                    />
+                                )}
+                                <Pressable
+                                    onPress={() => {
+                                        console.log("Save button pressed in reward form");
+                                        if (!form.name || !form.cost || !form.type) {
+                                            console.log("Missing required fields", form);
+                                            Alert.alert("Error", "Please fill in Reward Name, Cost, and Type.");
+                                            return;
+                                        }
+
+                                        if (form.type === 'discount' && (!form.discount || isNaN(form.discount))) {
+                                            console.log("Invalid discount value", form.discount);
+                                            Alert.alert("Error", "Please enter a valid discount percentage.");
+                                            return;
+                                        }
+
+                                        if (form.type === 'free' && !form.productId) {
+                                            console.log("Missing product ID for free item", form.productId);
+                                            Alert.alert("Error", "Please enter a Product ID for Free Item reward.");
+                                            return;
+                                        }
+
+                                        onSave();
+                                    }}
+                                    style={[globalStyles.smallPillButton, { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }]}
+                                >
+                                    <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Save</ThemedText>
+                                </Pressable>
+                                {editingItem && (
+                                    <Pressable
+                                        onPress={onDelete}
+                                        style={[globalStyles.smallPillButton, { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' }]}
+                                    >
+                                        <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Delete</ThemedText>
+                                    </Pressable>
+                                )}
+                            </ScrollView>
+                        </View>
+                    </View>
+                </Modal>
             )}
         </>
     );

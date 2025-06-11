@@ -26,6 +26,7 @@ export default function Layout() {
     'users': 'Users',
     'products': 'Products',
     'attractions': 'Attractions',
+    'reward': 'Rewards',
     'quickinfo': 'Quick Info',
     'searchitems': 'Keywords',
   };
@@ -43,7 +44,7 @@ export default function Layout() {
           <IconSymbol name="chevron.left" size={28} />
         </TouchableOpacity>
         <ThemedText type="title">{screenTitle.charAt(0).toUpperCase() + screenTitle.slice(1)}</ThemedText>
-        {['products', 'attractions', 'quickinfo', 'payment', 'searchitems'].includes(currentPage) ? (
+        {['products', 'attractions', 'quickinfo', 'payment', 'searchitems', 'reward'].includes(currentPage) ? (
           <TouchableOpacity
             onPress={() => {
               DeviceEventEmitter.emit('triggerAddOverlay', currentPage);
