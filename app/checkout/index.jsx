@@ -8,12 +8,11 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useGlobalStyles } from '@/constants/globalStyles';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { router } from 'expo-router';
 import { useCart } from '@/context/CartContext';
 
 export default function CheckoutScreen() {
-    const colorScheme = useColorScheme();
+    const { theme: colorScheme } = useThemeContext();
     const themeColors = Colors[colorScheme];
     const globalStyles = useGlobalStyles();
     const { getCart } = useCart();
