@@ -22,7 +22,7 @@ export default function ProductDetailScreen() {
   const { id } = route.params || {};
 
   const [item, setItem] = useState(null);
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState();
   const [availableColors, setAvailableColors] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -77,7 +77,7 @@ export default function ProductDetailScreen() {
     if (!item) return;
     const currentStock = item.inventory?.find(
       inv => inv.size === selectedSize && inv.color === selectedColor
-    )?.quantity || 0;
+    )?.quantity || 1;
 
     if (quantity > currentStock) {
       setQuantity(currentStock > 0 ? currentStock : 0);
@@ -99,7 +99,7 @@ export default function ProductDetailScreen() {
 
   const currentStock = item.inventory?.find(
     inv => inv.size === selectedSize && inv.color === selectedColor
-  )?.quantity || 0;
+  )?.quantity || 1;
 
   const isAddDisabled = !selectedSize || !selectedColor;
   
