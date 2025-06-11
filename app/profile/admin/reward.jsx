@@ -21,7 +21,7 @@ export default function RewardPanel() {
     const animatedValues = useRef([]).current;
 
     useEffect(() => {
-        const q = query(collection(db, 'rewards'));
+        const q = query(collection(db, 'rewards'), orderBy('name'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             animatedValues.length = 0;
@@ -183,7 +183,7 @@ export default function RewardPanel() {
                     <ThemedView style={globalStyles.buttonCard}>
                         <View style={globalStyles.buttonLeft}>
                             <ThemedText type="subtitle">{item.name || '(No name)'}</ThemedText>
-                            <ThemedText type="small">{item.description || '(No description)'}</ThemedText>
+                            <ThemedText type="small">{`(${item.cost || 0} pts)`}</ThemedText>
                         </View>
                         <IconSymbol name="chevron.right" size={28} />
                     </ThemedView>

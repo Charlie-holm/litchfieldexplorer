@@ -22,6 +22,7 @@ export default function PointsDetailScreen() {
   const [showUpgradeMessage, setShowUpgradeMessage] = useState(false);
   const [redeemedRewards, setRedeemedRewards] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [availableRewards, setAvailableRewards] = useState([]);
 
   const { theme: colorScheme } = useThemeContext();
   const backgroundColor = Colors[colorScheme].background;
@@ -32,12 +33,6 @@ export default function PointsDetailScreen() {
     getTierDisplayDetails(tier, currentPoints, tierAchievedDate);
 
   const progressColor = Colors.tier[tier] || Colors.tier.Basic;
-
-  const rewards = [
-    { name: 'Free Coffee', cost: 200 },
-    { name: '10% Off Coupon', cost: 500 },
-    { name: 'Exclusive Mug', cost: 800 },
-  ];
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
@@ -96,11 +91,19 @@ export default function PointsDetailScreen() {
       const allRewards = Array.isArray(data.redeemedRewards) ? data.redeemedRewards : [];
       console.log("Setting redeemed rewards with:", allRewards);
       setRedeemedRewards(allRewards);
+
+      const rewardsSnap = await getDocs(collection(db, 'rewards'));
+      const fetchedRewards = rewardsSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setAvailableRewards(fetchedRewards);
+      console.log("Fetched rewards:", fetchedRewards);
     }
   };
 
   const handleRedeem = async (rewardName) => {
-    const selected = rewards.find(r => r.name === rewardName);
+    const selected = availableRewards.find(r => r.name === rewardName);
     if (!selected || currentPoints < selected.cost) return;
 
     const newPoints = currentPoints - selected.cost;
@@ -197,7 +200,7 @@ export default function PointsDetailScreen() {
           <View style={{ marginTop: 20 }}>
             <ThemedText type="title">Rewards</ThemedText>
             <View style={{ marginTop: 10 }}>
-              {rewards.map((reward, index) => (
+              {availableRewards.map((reward, index) => (
                 <View key={index} style={[globalStyles.buttonCard, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
                   <ThemedText type="default">
                     🎁 {reward.name} - {reward.cost} pts
@@ -233,6 +236,11 @@ export default function PointsDetailScreen() {
                   </TouchableOpacity>
                 </View>
               ))}
+              {availableRewards.length === 0 && (
+                <ThemedText style={{ textAlign: 'center', marginTop: 10 }}>
+                  No rewards available. Check Firestore collection.
+                </ThemedText>
+              )}
             </View>
 
             <ThemedText type="title" style={{ marginTop: 30 }}>
