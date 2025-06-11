@@ -246,7 +246,15 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                         <ThemedText type="defaultSemiBold">{points}</ThemedText>
                     </View>
                     <TouchableOpacity
-                        style={[globalStyles.pillButton, { marginTop: 30, backgroundColor: Colors[theme].sec }]}
+                        style={[
+                            globalStyles.pillButton,
+                            {
+                                marginTop: 30,
+                                backgroundColor: cartItems.length === 0 ? Colors[theme].tri : Colors[theme].sec,
+                                opacity: cartItems.length === 0 ? 0.5 : 1,
+                            },
+                        ]}
+                        disabled={cartItems.length === 0}
                         onPress={() => {
                             setCartVisible(false);
                             router.push('/checkout');
