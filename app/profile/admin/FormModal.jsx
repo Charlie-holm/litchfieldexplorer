@@ -485,11 +485,12 @@ export default function FormModal({
                         </Pressable>
                         <View style={globalStyles.overlayContent}>
                             <ScrollView>
-                                {['name', 'description', 'route', 'type'].map((field) => (
+                                {['name', 'description', 'route'].map((field) => (
                                     <TextInput
                                         key={field}
                                         placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                                         placeholderTextColor={Colors[colorScheme].tri}
+                                        autoCapitalize={field === 'route' ? 'none' : 'sentences'}
                                         value={form[field]}
                                         onChangeText={(text) => {
                                             setForm(prev => ({ ...prev, [field]: text }));
@@ -497,6 +498,45 @@ export default function FormModal({
                                         style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
                                     />
                                 ))}
+                                <ThemedText type="defaultSemiBold">Type</ThemedText>
+                                <Pressable
+                                    onPress={() => setShowCategoryPicker('type')}
+                                    style={{
+                                        borderWidth: 1,
+                                        borderColor: '#ccc',
+                                        borderRadius: 6,
+                                        padding: 10,
+                                        marginBottom: 10,
+                                        backgroundColor: '#f9f9f9'
+                                    }}
+                                >
+                                    <Text>{form.type ? form.type.charAt(0).toUpperCase() + form.type.slice(1) : 'Select Type...'}</Text>
+                                </Pressable>
+
+                                <Modal
+                                    visible={showCategoryPicker === 'type'}
+                                    transparent
+                                    animationType="fade"
+                                    onRequestClose={() => setShowCategoryPicker(null)}
+                                >
+                                    <Pressable style={{ flex: 1, justifyContent: 'center', backgroundColor: '#00000099' }} onPress={() => setShowCategoryPicker(null)}>
+                                        <View style={{ borderRadius: 8, backgroundColor: 'white', padding: 10, height: 200, width: '80%', alignSelf: 'center' }}>
+                                            <Picker
+                                                selectedValue={form.type}
+                                                onValueChange={(value) => {
+                                                    setForm(prev => ({ ...prev, type: value }));
+                                                    setShowCategoryPicker(null);
+                                                }}
+                                                style={{ height: '100%', width: '100%' }}
+                                            >
+                                                <Picker.Item label="Select Type..." value="" />
+                                                <Picker.Item label="Tab" value="tab" />
+                                                <Picker.Item label="Attraction" value="attraction" />
+                                                <Picker.Item label="Product" value="product" />
+                                            </Picker>
+                                        </View>
+                                    </Pressable>
+                                </Modal>
                                 <Pressable
                                     onPress={onSave}
                                     style={[globalStyles.smallPillButton, { backgroundColor: '#2ecc71', marginTop: 8, width: '100%' }]}

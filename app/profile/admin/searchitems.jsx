@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { DeviceEventEmitter, Animated } from 'react-native';
-import { View, FlatList, StyleSheet, TextInput, Text, Pressable, Button, Alert, Platform, TouchableOpacity } from 'react-native';
-import { tabs } from '@/context/allItems';
+import { View, FlatList, StyleSheet, TextInput, Text, Pressable, Button, Alert, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { getDocs, collection, setDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { ThemedView } from '@/components/ThemedView';
@@ -11,6 +11,7 @@ import { Colors } from '@/constants/Colors';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import FormModal from './FormModal';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Swipeable } from 'react-native-gesture-handler';
 
 
 
@@ -22,11 +23,14 @@ export default function SearchItemsAdminScreen() {
     const [editingInfo, setEditingInfo] = useState(null);
     const [form, setForm] = useState({});
 
+    const [showCategoryPicker, setShowCategoryPicker] = useState(null);
+
     const [items, setItems] = useState([]);
     // Animation values for list items
     const animatedValues = useRef([]).current;
     const [filteredCategory, setFilteredCategory] = useState('all');
     const [loading, setLoading] = useState(true);
+    const [savingAll, setSavingAll] = useState(false);
 
     useEffect(() => {
         const listener = DeviceEventEmitter.addListener('triggerAddOverlay', (page) => {
@@ -39,55 +43,60 @@ export default function SearchItemsAdminScreen() {
         return () => listener.remove();
     }, []);
 
+    const fetchItems = async () => {
+        setLoading(true);
+        const snapAttractions = await getDocs(collection(db, 'attractions'));
+        const dbAttractions = snapAttractions.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name,
+            description: doc.data().description || '',
+            type: 'attraction',
+            route: `/attractiondetail/${doc.id}`,
+        }));
+
+        const snapProducts = await getDocs(collection(db, 'products'));
+        const dbProducts = snapProducts.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name,
+            description: doc.data().description || '',
+            type: 'product',
+            route: `/productdetail/${doc.id}`,
+        }));
+        const snapKeywords = await getDocs(collection(db, 'keywords'));
+        const dbKeywords = snapKeywords.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(item => item.type !== 'attraction' && item.type !== 'product');
+
+        const combined = [
+            ...dbAttractions,
+            ...dbProducts,
+            ...dbKeywords,
+        ];
+        setItems(combined);
+        // Animation initialization after items are set
+        animatedValues.length = combined.length;
+        for (let i = 0; i < combined.length; i++) {
+            animatedValues[i] = new Animated.Value(0);
+        }
+        const animations = combined.map((_, index) =>
+            Animated.timing(animatedValues[index], {
+                toValue: 1,
+                duration: 400,
+                delay: index * 80,
+                useNativeDriver: true,
+            })
+        );
+        Animated.stagger(80, animations).start();
+        setLoading(false);
+    };
+
     useEffect(() => {
-        const fetchItems = async () => {
-            setLoading(true);
-            const snapAttractions = await getDocs(collection(db, 'attractions'));
-            const dbAttractions = snapAttractions.docs.map(doc => ({
-                id: doc.id,
-                name: doc.data().name,
-                description: doc.data().description || '',
-                type: 'attraction',
-                route: `/attractiondetail/${doc.id}`,
-            }));
-
-            const snapProducts = await getDocs(collection(db, 'products'));
-            const dbProducts = snapProducts.docs.map(doc => ({
-                id: doc.id,
-                name: doc.data().name,
-                description: doc.data().description || '',
-                type: 'product',
-                route: `/productdetail/${doc.id}`,
-            }));
-
-            const combined = [
-                ...dbAttractions,
-                ...dbProducts,
-                ...tabs,
-            ];
-            setItems(combined);
-            // Animation initialization after items are set
-            animatedValues.length = combined.length;
-            for (let i = 0; i < combined.length; i++) {
-                animatedValues[i] = new Animated.Value(0);
-            }
-            const animations = combined.map((_, index) =>
-                Animated.timing(animatedValues[index], {
-                    toValue: 1,
-                    duration: 400,
-                    delay: index * 80,
-                    useNativeDriver: true,
-                })
-            );
-            Animated.stagger(80, animations).start();
-            setLoading(false);
-        };
-
         fetchItems();
     }, []);
 
     const handleSaveToAllItems = async () => {
         try {
+            setSavingAll(true);
             for (const item of items) {
                 await setDoc(doc(db, 'keywords', item.id), item);
             }
@@ -95,6 +104,8 @@ export default function SearchItemsAdminScreen() {
         } catch (e) {
             console.error("Save failed:", e);
             Alert.alert("Save failed", e.message);
+        } finally {
+            setSavingAll(false);
         }
     };
 
@@ -105,12 +116,14 @@ export default function SearchItemsAdminScreen() {
     };
 
     const handleSave = async () => {
-        if (!form.id || !form.name) return;
+        if (!form.name) return;
+
+        const newId = form.type === 'tab' ? form.name : (form.id || uuidv4());
+        const itemToSave = { ...form, id: newId };
+
         try {
-            await setDoc(doc(db, 'keywords', form.id), form);
-            setItems(prev =>
-                prev.map(item => item.id === form.id ? form : item)
-            );
+            await setDoc(doc(db, 'keywords', newId), itemToSave);
+            await fetchItems(); // ensure fresh fetch after save
             setModalVisible(false);
             setEditingInfo(null);
         } catch (e) {
@@ -134,39 +147,93 @@ export default function SearchItemsAdminScreen() {
 
     const renderItem = ({ item, index }) => {
         if (filteredCategory && filteredCategory !== 'all' && item.type !== filteredCategory) return null;
-        if (!animatedValues[index]) return null;
+        const animation = animatedValues[index] || new Animated.Value(1);
+
+        const renderRightActions = () => (
+            <View style={globalStyles.buttonRemove}>
+                <Pressable
+                    onPress={() => {
+                        Alert.alert(
+                            'Delete Attraction',
+                            'Are you sure you want to delete this attraction?',
+                            [
+                                { text: 'Cancel', style: 'cancel' },
+                                {
+                                    text: 'Delete',
+                                    style: 'destructive',
+                                    onPress: async () => {
+                                        await deleteDoc(doc(db, "attractions", item.id));
+                                        const snap = await getDocs(collection(db, "attractions"));
+                                        setAttractions(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                                    },
+                                },
+                            ]
+                        );
+                    }}
+                    style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                        width: '100%',
+                    }}
+                >
+                    <Text style={{ color: 'white', fontSize: 28 }}>×</Text>
+                </Pressable>
+            </View>
+        );
+
         return (
             <Animated.View style={{
-                opacity: animatedValues[index],
+                opacity: animation,
                 transform: [{
-                    translateY: animatedValues[index].interpolate({
+                    translateY: animation.interpolate({
                         inputRange: [0, 1],
                         outputRange: [20, 0],
                     }),
                 }]
             }}>
-                <Pressable onPress={() => {
-                    setForm(item);
-                    setEditingInfo(item);
-                    setModalVisible(true);
-                }}>
-                    <ThemedView style={globalStyles.buttonCard}>
-                        <View style={[globalStyles.buttonLeft, { maxWidth: '60%' }]}>
-                            <View style={{ flex: 1 }}>
-                                <ThemedText type="subtitle">{item.name}</ThemedText>
-                                <ThemedText type="default">{item.route || '(No route)'}</ThemedText>
-                                <ThemedText type="small">{item.type}</ThemedText>
+                {item.type === 'tab' ? (
+                    <Swipeable renderRightActions={renderRightActions}>
+                        <Pressable onPress={() => {
+                            setForm(item);
+                            setEditingInfo(item);
+                            setModalVisible(true);
+                        }}>
+                            <ThemedView style={globalStyles.buttonCard}>
+                                <View style={[globalStyles.buttonLeft, { maxWidth: '60%' }]}>
+                                    <View style={{ flex: 1 }}>
+                                        <ThemedText type="subtitle">{item.name}</ThemedText>
+                                        <ThemedText type="default">{item.route || '(No route)'}</ThemedText>
+                                        <ThemedText type="small">{item.type}</ThemedText>
+                                    </View>
+                                </View>
+                                <IconSymbol name="chevron.right" size={28} />
+                            </ThemedView>
+                        </Pressable>
+                    </Swipeable>
+                ) : (
+                    <Pressable onPress={() => {
+                        setForm(item);
+                        setEditingInfo(item);
+                        setModalVisible(true);
+                    }}>
+                        <ThemedView style={globalStyles.buttonCard}>
+                            <View style={[globalStyles.buttonLeft, { maxWidth: '60%' }]}>
+                                <View style={{ flex: 1 }}>
+                                    <ThemedText type="subtitle">{item.name}</ThemedText>
+                                    <ThemedText type="default">{item.route || '(No route)'}</ThemedText>
+                                    <ThemedText type="small">{item.type}</ThemedText>
+                                </View>
                             </View>
-                        </View>
-                        <IconSymbol name="chevron.right" size={28} />
-                    </ThemedView>
-                </Pressable>
+                            <IconSymbol name="chevron.right" size={28} />
+                        </ThemedView>
+                    </Pressable>
+                )}
             </Animated.View>
         );
     };
 
-    const uniqueTypes = [...new Set(items.map(i => i.type))];
-    const categories = ['all', ...uniqueTypes];
+    const categories = ['all', 'attraction', 'product', 'tab'];
 
     return (
         <View style={{ flex: 1 }}>
@@ -179,7 +246,15 @@ export default function SearchItemsAdminScreen() {
                                 globalStyles.categoryButton,
                                 filteredCategory === cat && globalStyles.categoryButtonSelected,
                             ]}
-                            onPress={() => setFilteredCategory(cat)}
+                            onPress={() => {
+                                Animated.stagger(0, animatedValues.map(anim =>
+                                    Animated.timing(anim, {
+                                        toValue: 1,
+                                        duration: 0,
+                                        useNativeDriver: true,
+                                    })
+                                )).start(() => setFilteredCategory(cat));
+                            }}
                         >
                             <ThemedText
                                 style={{
@@ -224,7 +299,15 @@ export default function SearchItemsAdminScreen() {
                 onDelete={handleDelete}
                 form={form}
                 setForm={setForm}
+                showCategoryPicker={showCategoryPicker}
+                setShowCategoryPicker={setShowCategoryPicker}
             />
+            {savingAll && (
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000099', justifyContent: 'center', alignItems: 'center', zIndex: 999 }}>
+                    <ActivityIndicator size="large" color="white" />
+                    <Text style={{ color: 'white', marginTop: 10, fontSize: 18 }}>Saving...</Text>
+                </View>
+            )}
         </View>
     );
 }

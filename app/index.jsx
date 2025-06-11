@@ -73,7 +73,7 @@ export default function App() {
                                 setLoadingText('Downloading...');
                                 await downloadAndCacheData();
                                 setLoadingText('Download complete!');
-                                await AsyncStorage.setItem('firstScanDone', 'true');
+                                await AsyncStorage.setItem('firstScanDone', 'false');
                                 setFirstScan(false);
                                 setTimeout(() => {
                                     setLoading(false);
