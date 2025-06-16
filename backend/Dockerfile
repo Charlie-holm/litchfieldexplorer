@@ -1,20 +1,18 @@
-# Use an official Node.js runtime
-FROM node:20
+# Use the official Node image
+FROM node:18
 
-# Set working directory
-WORKDIR /usr/src/app
+# Set the working directory inside the container
+WORKDIR /app
 
-# Copy dependencies files
+# Copy package.json and install dependencies
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the app
+# Copy your backend source code
 COPY . .
 
-# Expose port (if using Express)
+# Expose the port your server uses
 EXPOSE 3000
 
-# Run the app
-CMD ["node", "index.js"]
+# Start the server
+CMD ["npm", "start"]
