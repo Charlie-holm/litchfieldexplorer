@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { FlatList, Pressable, Alert, View, Text, Animated, DeviceEventEmitter } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
+import { collection, addDoc, setDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { db, auth } from '@/firebaseConfig';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { ThemedView } from '@/components/ThemedView';
@@ -10,6 +10,14 @@ import { ThemedText } from '@/components/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import FormModal from './FormModal';
+
+async function logLastUpdate(collectionName) {
+    const userId = auth.currentUser?.uid || "unknown";
+    await setDoc(doc(db, "lastupdate", collectionName), {
+        updatedAt: serverTimestamp(),
+        by: userId,
+    });
+}
 
 export default function QuickInfoPanel() {
     const { theme: colorScheme } = useThemeContext();
@@ -66,6 +74,7 @@ export default function QuickInfoPanel() {
             } else {
                 await addDoc(collection(db, "quickInfo"), payload);
             }
+            await logLastUpdate("lastupdate");
             setModalVisible(false);
             setEditingInfo(null);
             setForm({ title: '', message: '' });
@@ -84,6 +93,7 @@ export default function QuickInfoPanel() {
                     if (!editingInfo) return;
                     try {
                         await deleteDoc(doc(db, "quickInfo", editingInfo.id));
+                        await logLastUpdate("lastupdate");
                         setModalVisible(false);
                         setEditingInfo(null);
                     } catch (error) {

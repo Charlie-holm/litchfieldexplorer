@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { FlatList, Pressable, Alert, View, Text, Animated, DeviceEventEmitter } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
+import { collection, addDoc, onSnapshot, query, orderBy, setDoc, doc, serverTimestamp, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db, auth } from '@/firebaseConfig';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { ThemedView } from '@/components/ThemedView';
@@ -10,6 +10,14 @@ import { ThemedText } from '@/components/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import FormModal from './FormModal';
+
+async function logLastUpdate(collectionName) {
+    const userId = auth.currentUser?.uid || "unknown";
+    await setDoc(doc(db, "lastupdate", collectionName), {
+        updatedAt: serverTimestamp(),
+        by: userId,
+    });
+}
 
 export default function RewardPanel() {
     const { theme: colorScheme } = useThemeContext();
@@ -92,6 +100,7 @@ export default function RewardPanel() {
             } else {
                 await addDoc(collection(db, "rewards"), payload);
             }
+            await logLastUpdate("lastupdate");
             setModalVisible(false);
             setEditingReward(null);
             setForm({ name: '', type: 'free', cost: '' });
@@ -112,6 +121,7 @@ export default function RewardPanel() {
                     if (!editingReward) return;
                     try {
                         await deleteDoc(doc(db, "rewards", editingReward.id));
+                        await logLastUpdate("lastupdate");
                         setModalVisible(false);
                         setEditingReward(null);
                         DeviceEventEmitter.emit('triggerRefreshRewardList');

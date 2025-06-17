@@ -2,30 +2,28 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useRef, useEffect } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
 import { Overlay } from "./Overlay";
-import { auth, isFirebaseReady } from '@/firebaseConfig';
+import { auth, isFirebaseReady, db } from '@/firebaseConfig';
 import { downloadAndCacheData } from '@/context/dataCache';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 export default function App() {
     const qrLock = useRef(false);
-    const [facing, setFacing] = useState('back');
     const [permission, requestPermission] = useCameraPermissions();
-    const [firstScan, setFirstScan] = useState(true);
+    const [needsDownload, setNeedsDownload] = useState(true);
     const [loading, setLoading] = useState(false);
     const [loadingText, setLoadingText] = useState('');
     const [firebaseAvailable, setFirebaseAvailable] = useState(false);
     const isLoggedIn = auth.currentUser !== null;
 
-    useEffect(() => {
-        const checkFirstScan = async () => {
-            const value = await AsyncStorage.getItem('firstScanDone');
-            if (value === 'true') {
-                setFirstScan(false);
-            }
-        };
-        checkFirstScan();
+    // 🔑 Fetch lastUpdate from Firestore 'lastupdate/lastupdate'
+    const getServerLastUpdate = async () => {
+        const snapshot = await getDoc(doc(db, 'lastupdate', 'lastupdate'));
+        return snapshot.exists() ? snapshot.data().updatedAt : null;
+    };
 
+    useEffect(() => {
         let retryCount = 0;
         let cancelled = false;
         const maxRetries = 5;
@@ -33,7 +31,7 @@ export default function App() {
 
         const checkFirebase = async () => {
             const ready = await isFirebaseReady();
-            console.log(`Firebase readiness attempt #${retryCount + 1}: ${ready ? 'READY' : 'NOT READY'}`);
+            console.log(`Firebase readiness: ${ready}`);
             if (ready) {
                 if (!cancelled) setFirebaseAvailable(true);
             } else if (retryCount < maxRetries) {
@@ -41,17 +39,40 @@ export default function App() {
                 setTimeout(checkFirebase, retryDelay);
             }
         };
+
+        const checkLastUpdate = async () => {
+            const localLastUpdate = await AsyncStorage.getItem('lastUpdate');
+            const serverLastUpdate = await getServerLastUpdate();
+            console.log('Local lastUpdate:', localLastUpdate);
+            console.log('Server lastUpdate:', serverLastUpdate);
+
+            if (!serverLastUpdate) {
+                console.warn('No server lastUpdate found.');
+                setNeedsDownload(true); // safe fallback
+                return;
+            }
+
+            if (!localLastUpdate || new Date(localLastUpdate) < new Date(serverLastUpdate)) {
+                console.log('Local data missing or stale — needs download');
+                setNeedsDownload(true);
+            } else {
+                console.log('Local data is up to date.');
+                setNeedsDownload(false);
+            }
+        };
+
         checkFirebase();
+        checkLastUpdate();
+
         return () => { cancelled = true; };
     }, []);
 
     const handleScannedData = async (data) => {
         if (!data || qrLock.current) return;
-
         qrLock.current = true;
 
         if (data === 'Litchfield') {
-            if (firstScan) {
+            if (needsDownload) {
                 Alert.alert(
                     "Download Litchfield Explorer?",
                     "",
@@ -64,21 +85,42 @@ export default function App() {
                         {
                             text: "Yes",
                             onPress: async () => {
-                                if (!firebaseAvailable) {
-                                    Alert.alert("Connection Error", " Please try again later.");
-                                    qrLock.current = false;
-                                    return;
-                                }
-                                setLoading(true);
-                                setLoadingText('Downloading...');
-                                await downloadAndCacheData();
-                                setLoadingText('Download complete!');
-                                await AsyncStorage.setItem('firstScanDone', 'false');
-                                setFirstScan(false);
-                                setTimeout(() => {
+                                try {
+                                    if (!firebaseAvailable) {
+                                        Alert.alert("Connection Error", "Please try again later.");
+                                        qrLock.current = false;
+                                        return;
+                                    }
+                                    setLoading(true);
+                                    setLoadingText('Downloading...');
+                                    await downloadAndCacheData();
+
+                                    const serverLastUpdate = await getServerLastUpdate();
+                                    if (serverLastUpdate) {
+                                        let iso;
+                                        try {
+                                            iso = serverLastUpdate.toDate ? serverLastUpdate.toDate().toISOString() : serverLastUpdate;
+                                        } catch (e) {
+                                            console.error('Failed to convert lastUpdate timestamp:', e, serverLastUpdate);
+                                            iso = new Date().toISOString();
+                                        }
+                                        await AsyncStorage.setItem('lastUpdate', iso);
+                                        console.log('Saved lastUpdate locally:', iso);
+                                    } else {
+                                        console.warn('No server lastUpdate found.');
+                                    }
+
+                                    setLoadingText('Download complete!');
                                     setLoading(false);
+                                    setNeedsDownload(false);
+                                    qrLock.current = false;
                                     router.replace('/(auth)');
-                                }, 1000);
+                                } catch (error) {
+                                    setLoading(false);
+                                    console.error('Download failed:', error);
+                                    Alert.alert('Error', `Download failed: ${error.message || error}`);
+                                    qrLock.current = false;
+                                }
                             }
                         }
                     ]
@@ -105,7 +147,7 @@ export default function App() {
         return (
             <View style={styles.container}>
                 <Text style={styles.message}>We need your permission to show the camera</Text>
-                <Button onPress={requestPermission} title="grant permission" />
+                <Button onPress={requestPermission} title="Grant Permission" />
             </View>
         );
     }
@@ -118,6 +160,7 @@ export default function App() {
                 onBarcodeScanned={({ data }) => handleScannedData(data)}
             />
             <Overlay />
+
             <TouchableOpacity
                 style={{
                     position: 'absolute',
@@ -129,18 +172,20 @@ export default function App() {
                     borderRadius: 10,
                 }}
                 onPress={() => {
-                    AsyncStorage.removeItem('firstScanDone');
-                    setFirstScan(true);
+                    AsyncStorage.removeItem('lastUpdate');
+                    setNeedsDownload(true);
                     handleScannedData('Litchfield');
                 }}
             >
                 <Text style={{ color: 'white', fontWeight: 'bold' }}>Skip</Text>
             </TouchableOpacity>
+
             {!firebaseAvailable && (
                 <Text style={{ position: 'absolute', bottom: 10, alignSelf: 'center', color: 'gray' }}>
                     Offline mode
                 </Text>
             )}
+
             {loading && (
                 <View style={{
                     position: 'absolute',
@@ -169,24 +214,5 @@ const styles = StyleSheet.create({
     message: {
         textAlign: 'center',
         paddingBottom: 10,
-    },
-    camera: {
-        flex: 1,
-    },
-    buttonContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        backgroundColor: 'transparent',
-        margin: 64,
-    },
-    button: {
-        flex: 1,
-        alignSelf: 'flex-end',
-        alignItems: 'center',
-    },
-    text: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: 'white',
     },
 });

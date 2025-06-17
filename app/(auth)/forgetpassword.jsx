@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextInput, Pressable, TouchableOpacity, View } from 'react-native';
+import { TextInput, Pressable, TouchableOpacity, View, Alert } from 'react-native';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
@@ -8,11 +8,39 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useRouter } from 'expo-router';
 
+// ✅ Import Firebase Auth methods
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '@/firebaseConfig';
+
 export default function ForgetPasswordScreen() {
     const { theme: colorScheme } = useThemeContext();
     const globalStyles = useGlobalStyles();
     const [email, setEmail] = useState('');
     const router = useRouter();
+
+    const handleResetPassword = async () => {
+        if (!email) {
+            Alert.alert('Please enter your email.');
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, email);
+            Alert.alert(
+                'Password Reset',
+                `A reset link has been sent to ${email}`,
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => router.replace('/(auth)') // ✅ Go back to (auth)
+                    }
+                ]
+            );
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', error.message);
+        }
+    };
 
     return (
         <ThemedView style={globalStyles.container}>
@@ -42,10 +70,10 @@ export default function ForgetPasswordScreen() {
                         autoCapitalize="none"
                     />
                 </ThemedView>
-                <ThemedView style={{ padding: 20, }}>
+                <ThemedView style={{ padding: 20 }}>
                     <Pressable
                         style={globalStyles.pillButton}
-                        onPress={() => {/* TODO: Reset password logic */ }}
+                        onPress={handleResetPassword}
                     >
                         <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>
                             Reset Password

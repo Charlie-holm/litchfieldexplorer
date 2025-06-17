@@ -1,12 +1,9 @@
-import { View, FlatList, Image, Pressable, Alert, Text } from "react-native";
-import { Swipeable } from 'react-native-gesture-handler';
-import { Animated } from "react-native";
 import { useEffect, useRef, useState } from "react";
-import { DeviceEventEmitter } from "react-native";
+import { View, FlatList, Image, Pressable, Alert, Text, Animated, DeviceEventEmitter } from "react-native";
+import { Swipeable } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker';
-import { auth } from '@/firebaseConfig';
-import { db } from '@/firebaseConfig';
-import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { db, auth } from '@/firebaseConfig';
+import { collection, getDocs, addDoc, updateDoc, setDoc, doc, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { useNavigation } from "expo-router";
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
@@ -15,6 +12,14 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import FormModal from './FormModal';
+
+async function logLastUpdate(collectionName) {
+    const userId = auth.currentUser?.uid || "unknown";
+    await setDoc(doc(db, "lastupdate", collectionName), {
+        updatedAt: serverTimestamp(),
+        by: userId,
+    });
+}
 
 export default function AttractionList() {
     const { theme: colorScheme } = useThemeContext();
@@ -232,6 +237,7 @@ export default function AttractionList() {
             } else {
                 await addDoc(collection(db, "attractions"), dataToSave);
             }
+            await logLastUpdate("lastupdate");
             const snap = await getDocs(collection(db, "attractions"));
             setAttractions(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
             setModalVisible(false);
@@ -250,6 +256,7 @@ export default function AttractionList() {
                 style: 'destructive',
                 onPress: async () => {
                     await deleteDoc(doc(db, "attractions", editingAttraction.id));
+                    await logLastUpdate("lastupdate");
                     const snap = await getDocs(collection(db, "attractions"));
                     setAttractions(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
                     setModalVisible(false);

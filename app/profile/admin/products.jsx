@@ -2,8 +2,8 @@ import { View, FlatList, Pressable, Image, Alert, Animated, DeviceEventEmitter }
 import { Swipeable } from 'react-native-gesture-handler';
 import { Text } from 'react-native';
 import { useEffect, useState, useRef } from "react";
-import { db } from '@/firebaseConfig';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { db, auth } from '@/firebaseConfig';
+import { collection, setDoc, getDocs, addDoc, serverTimestamp, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { useGlobalStyles } from '@/constants/globalStyles';
@@ -12,6 +12,14 @@ import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
 import FormModal from './FormModal';
+
+async function logLastUpdate(collectionName) {
+    const userId = auth.currentUser?.uid || "unknown";
+    await setDoc(doc(db, "lastupdate", collectionName), {
+        updatedAt: serverTimestamp(),
+        by: userId,
+    });
+}
 
 export default function ProductList() {
     const [products, setProducts] = useState([]);
@@ -249,6 +257,7 @@ export default function ProductList() {
                 // Add
                 await addDoc(collection(db, "products"), data);
             }
+            await logLastUpdate("lastupdate");
             await loadProducts();
             setModalVisible(false);
             setEditingProduct(null);
@@ -267,6 +276,7 @@ export default function ProductList() {
                     if (!editingProduct) return;
                     try {
                         await deleteDoc(doc(db, "products", editingProduct.id));
+                        await logLastUpdate("lastupdate");
                         await loadProducts();
                         setModalVisible(false);
                         setEditingProduct(null);

@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { View, FlatList, Text, Pressable, Alert, TouchableOpacity, ActivityIndicator, DeviceEventEmitter, Animated } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
-import { DeviceEventEmitter, Animated } from 'react-native';
-import { View, FlatList, StyleSheet, TextInput, Text, Pressable, Button, Alert, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { getDocs, collection, setDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
+import { getDocs, collection, setDoc, doc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { db, auth } from '@/firebaseConfig';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -13,7 +12,13 @@ import FormModal from './FormModal';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Swipeable } from 'react-native-gesture-handler';
 
-
+async function logLastUpdate(collectionName) {
+    const userId = auth.currentUser?.uid || "unknown";
+    await setDoc(doc(db, "lastupdate", collectionName), {
+        updatedAt: serverTimestamp(),
+        by: userId,
+    });
+}
 
 export default function SearchItemsAdminScreen() {
     const { theme: colorScheme } = useThemeContext();
@@ -105,6 +110,7 @@ export default function SearchItemsAdminScreen() {
             console.error("Save failed:", e);
             Alert.alert("Save failed", e.message);
         } finally {
+            await logLastUpdate("lastupdate");
             setSavingAll(false);
         }
     };
@@ -124,6 +130,7 @@ export default function SearchItemsAdminScreen() {
         try {
             await setDoc(doc(db, 'keywords', newId), itemToSave);
             await fetchItems(); // ensure fresh fetch after save
+            await logLastUpdate("lastupdate");
             setModalVisible(false);
             setEditingInfo(null);
         } catch (e) {
@@ -137,6 +144,7 @@ export default function SearchItemsAdminScreen() {
         try {
             await deleteDoc(doc(db, 'keywords', editingInfo.id));
             setItems(prev => prev.filter(item => item.id !== editingInfo.id));
+            await logLastUpdate("lastupdate");
             setModalVisible(false);
             setEditingInfo(null);
         } catch (e) {

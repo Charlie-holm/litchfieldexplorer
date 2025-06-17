@@ -3,40 +3,36 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import NetInfo from '@react-native-community/netinfo';
 import { db } from '@/firebaseConfig';
+
 /**
  * Fetches user data from Firestore or from AsyncStorage if offline.
- * @param {string} userId The user's Firestore document ID.
- * @returns {Promise<object|null>} The user data object or null if not found.
  */
 export const getUserData = async (userId) => {
     if (!userId) return null;
     try {
         const isConnected = (await NetInfo.fetch()).isConnected;
         if (isConnected) {
-            // Try to fetch from Firestore
             const userDocRef = doc(db, 'users', userId);
             const userDocSnap = await getDoc(userDocRef);
             if (userDocSnap.exists()) {
                 const userData = { id: userDocSnap.id, ...userDocSnap.data() };
-                // Save to cache for offline use
                 await AsyncStorage.setItem('userProfileData', JSON.stringify(userData));
                 return userData;
             }
         }
-        // If offline or Firestore fetch fails, try cache
         const cached = await AsyncStorage.getItem('userProfileData');
         return cached ? JSON.parse(cached) : null;
-    } catch (e) {
-        // On any error, fallback to cache
+    } catch {
         const cached = await AsyncStorage.getItem('userProfileData');
         return cached ? JSON.parse(cached) : null;
     }
 };
 
-
+/**
+ * Runs only once if online to prime data.
+ */
 export const fetchInitialData = async () => {
     const isConnected = (await NetInfo.fetch()).isConnected;
-
     const firstLaunch = await AsyncStorage.getItem('hasLaunched');
     if (!firstLaunch && isConnected) {
         await downloadAndCacheData();
@@ -44,74 +40,96 @@ export const fetchInitialData = async () => {
     }
 };
 
+/**
+ * Downloads all collections and images, then saves the lastUpdate.
+ */
 export const downloadAndCacheData = async () => {
     const cacheCollection = async (collectionName, folder = '') => {
         try {
             const snapshot = await getDocs(collection(db, collectionName));
             const data = [];
+            console.log(`Caching collection: ${collectionName}`);
 
-            console.log(`Starting to cache collection: ${collectionName}`);
-            const existingCache = await AsyncStorage.getItem(`${collectionName}Data`);
-            console.log(`Existing cache for ${collectionName}:`, existingCache ? JSON.parse(existingCache) : null);
-
-            for (const doc of snapshot.docs) {
-                const item = doc.data();
-                console.log(`Processing item with id ${doc.id} in collection ${collectionName}`, item);
+            for (const docSnap of snapshot.docs) {
+                const item = docSnap.data();
                 let imagePath = null;
-
                 if (item.imageUrl) {
-                    console.log(`Downloading image for item ${doc.id} from URL: ${item.imageUrl}`);
-                    imagePath = await downloadImage(item.imageUrl, `${folder}_${doc.id}`);
-                    if (imagePath === item.imageUrl) {
-                        console.log(`Image download failed or fallback used for item ${doc.id}, using original URL.`);
-                    } else {
-                        console.log(`Image downloaded and cached at ${imagePath} for item ${doc.id}`);
-                    }
+                    imagePath = await downloadImage(item.imageUrl, `${folder}_${docSnap.id}`);
                 }
-
-                data.push({ id: doc.id, ...item, imagePath });
+                data.push({ id: docSnap.id, ...item, imagePath });
             }
 
             await AsyncStorage.setItem(`${collectionName}Data`, JSON.stringify(data));
-            console.log(`Finished caching collection: ${collectionName}. Cached ${data.length} items.`);
+            console.log(`✅ Cached ${collectionName}`);
             return true;
-        } catch {
-            return null;
+        } catch (e) {
+            console.error(`❌ Error caching ${collectionName}:`, e);
+            return false; // safe fallback
         }
     };
 
-    const cachePromises = [
+    // Cache these collections in parallel
+    const tasks = [
         cacheCollection('attractions', 'attractions'),
         cacheCollection('quickInfo'),
         cacheCollection('users', 'profile_pics'),
-    ].filter(Boolean);
+    ];
 
-    await Promise.all(cachePromises);
+    // Use Promise.allSettled to avoid hanging
+    await Promise.allSettled(tasks);
+
+    // ✅ AFTER caching, fetch and store lastUpdate
+    const configSnap = await getDoc(doc(db, 'config', 'global'));
+    if (configSnap.exists()) {
+        const lastUpdateTimestamp = configSnap.data().lastUpdate;
+        if (lastUpdateTimestamp) {
+            const lastUpdateISO = lastUpdateTimestamp.toDate().toISOString();
+            await AsyncStorage.setItem('lastUpdate', lastUpdateISO);
+            console.log('Updated local lastUpdate:', lastUpdateISO);
+        }
+    }
 };
 
+/**
+ * Loads cached attractions.
+ */
 export const getCachedAttractions = async () => {
     const json = await AsyncStorage.getItem('attractionsData');
     return json ? JSON.parse(json) : [];
 };
 
+/**
+ * Downloads and saves an image locally.
+ */
 const downloadImage = async (uri, name) => {
     const fileUri = `${FileSystem.documentDirectory}${name}.jpg`;
     try {
-        await FileSystem.downloadAsync(uri, fileUri);
-        return fileUri;
-    } catch {
-        return uri;
+        const download = FileSystem.downloadAsync(uri, fileUri);
+        const result = await Promise.race([
+            download,
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Download timeout')), 10000)
+            ),
+        ]);
+        return result.uri;
+    } catch (e) {
+        console.warn(`Image download failed or timed out: ${uri}`);
+        return uri; // fallback to original URL
     }
 };
 
+/**
+ * Debug helper to log what’s cached.
+ */
 export const logCachedData = async () => {
     const keys = [
         'attractionsData',
         'quickInfoData',
         'usersData',
+        'lastUpdate'
     ];
     for (const key of keys) {
         const value = await AsyncStorage.getItem(key);
-        console.log(`Cache for ${key}:`, value ? JSON.parse(value) : null);
+        console.log(`${key}: ${value ? '✅' : '❌'}`);
     }
 };

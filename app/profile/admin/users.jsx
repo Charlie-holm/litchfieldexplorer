@@ -1,13 +1,21 @@
 import { FlatList, Pressable, TextInput, View } from "react-native";
 import { useEffect, useState } from "react";
-import { db } from '@/firebaseConfig';
-import { collection, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { db, auth } from '@/firebaseConfig';
+import { collection, getDocs, updateDoc, doc, setDoc, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+
+async function logLastUpdate(collectionName) {
+    const userId = auth.currentUser?.uid || "unknown";
+    await setDoc(doc(db, "lastupdate", collectionName), {
+        updatedAt: serverTimestamp(),
+        by: userId,
+    });
+}
 
 export default function UserList() {
     const globalStyles = useGlobalStyles();
@@ -28,6 +36,7 @@ export default function UserList() {
     const handleToggleAdmin = async (user) => {
         const userRef = doc(db, "users", user.id);
         await updateDoc(userRef, { admin: !user.admin });
+        await logLastUpdate("lastupdate");
         const snapshot = await getDocs(collection(db, "users"));
         setUsers(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     };
@@ -44,6 +53,7 @@ export default function UserList() {
         const pointsValue = parseInt(editingPoints[user.id], 10);
         if (!isNaN(pointsValue)) {
             await updateDoc(userRef, { points: pointsValue });
+            await logLastUpdate("lastupdate");
             const snapshot = await getDocs(collection(db, "users"));
             setUsers(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
         }
