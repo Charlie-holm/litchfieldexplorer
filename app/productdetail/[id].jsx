@@ -8,8 +8,7 @@ import { useGlobalStyles } from '@/constants/globalStyles';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
+import { getCachedProducts } from '@/context/dataCache';
 import { useCart } from '@/context/CartContext';
 
 const sizes = ['S', 'M', 'L', 'XL'];
@@ -44,15 +43,10 @@ export default function ProductDetailScreen() {
   useEffect(() => {
     const fetchItem = async () => {
       if (!id) return;
-      const docRef = doc(db, 'products', id);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const product = { id: docSnap.id, ...docSnap.data() };
+      const allProducts = await getCachedProducts();
+      const product = allProducts.find(p => p.id === id);
+      if (product) {
         setItem(product);
-
-        // Log the current route after setting the item
-        const route = `/productdetail/${docSnap.id}`;
-        console.log('Current route:', route);
 
         // Extract unique colors where quantity > 0
         const colorsSet = new Set();
@@ -64,7 +58,6 @@ export default function ProductDetailScreen() {
         const colorsArray = Array.from(colorsSet);
         setAvailableColors(colorsArray);
 
-        // Also update selectedColor to first available color dynamically
         if (colorsArray.length > 0) {
           setSelectedColor(colorsArray[0]);
         }
@@ -102,7 +95,7 @@ export default function ProductDetailScreen() {
   )?.quantity || 1;
 
   const isAddDisabled = !selectedSize || !selectedColor;
-  
+
   return (
     <ThemedView style={{ flex: 1, backgroundColor: themeColors.pri }}>
       <View style={[globalStyles.attractionImageContainer, { height: Dimensions.get('window').width }]}>
@@ -231,10 +224,10 @@ export default function ProductDetailScreen() {
               <TouchableOpacity
                 disabled={isAddDisabled || currentStock === 0} style={[
                   (isAddDisabled || currentStock === 0)
-                  ? globalStyles.pillButtonDisabled
-                  : globalStyles.pillButton,
+                    ? globalStyles.pillButtonDisabled
+                    : globalStyles.pillButton,
                   { marginTop: 20, width: '100%' }]}
-                  
+
                 onPress={() => {
                   addToCart({
                     id: item.id,

@@ -14,7 +14,7 @@ import { useGlobalStyles } from '@/constants/globalStyles';
 import { ThemedText } from '@/components/ThemedText';
 import Cart from '@/components/cart';
 import { useFocusEffect } from '@react-navigation/native';
-import { getDocs } from 'firebase/firestore';
+import { getCachedAttractions, getCachedProducts, getCachedKeywords } from '@/context/dataCache';
 
 export default function TabLayout() {
   const globalStyles = useGlobalStyles();
@@ -79,29 +79,25 @@ export default function TabLayout() {
     useCallback(() => {
       const fetchAllItems = async () => {
         try {
-          const db = getFirestore(app);
-          const snapAttractions = await getDocs(collection(db, 'attractions'));
-          const dbAttractions = snapAttractions.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
+          const cachedAttractions = await getCachedAttractions();
+          const cachedProducts = await getCachedProducts();
+          const cachedKeywords = await getCachedKeywords();
+
+          const dbAttractions = cachedAttractions.map(item => ({
+            ...item,
             type: 'attraction',
-            route: `/attractiondetail/${doc.id}`,
+            route: `/attractiondetail/${item.id}`,
           }));
 
-          const snapProducts = await getDocs(collection(db, 'products'));
-          const dbProducts = snapProducts.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
+          const dbProducts = cachedProducts.map(item => ({
+            ...item,
             type: 'product',
-            route: `/productdetail/${doc.id}`,
+            route: `/productdetail/${item.id}`,
           }));
 
-          const snapKeywords = await getDocs(collection(db, 'keywords'));
-          const dbKeywords = snapKeywords.docs.map(doc => doc.data());
-
-          setAllItems([...dbAttractions, ...dbProducts, ...dbKeywords]);
+          setAllItems([...dbAttractions, ...dbProducts, ...cachedKeywords]);
         } catch (err) {
-          console.error("Failed to fetch items:", err);
+          console.error("Failed to load cached items:", err);
         }
       };
 

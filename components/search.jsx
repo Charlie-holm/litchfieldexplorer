@@ -6,8 +6,7 @@ import { useThemeContext } from '@/context/ThemeProvider';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { ThemedText } from '@/components/ThemedText';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
+import { getCachedKeywords } from '@/context/dataCache';
 
 export function SearchModal({ visible, onClose }) {
     const { theme: colorScheme } = useThemeContext();
@@ -72,16 +71,12 @@ export function SearchModal({ visible, onClose }) {
     useEffect(() => {
         const fetchAllItems = async () => {
             try {
-                const querySnapshot = await getDocs(collection(db, 'keywords'));
-                const fetchedItems = [];
-                querySnapshot.forEach((doc) => {
-                    fetchedItems.push({ id: doc.id, ...doc.data() });
-                });
-                setAllItems(fetchedItems);
-                setSearchResults(fetchedItems);
-                console.log('SearchModal loaded on route:', router.pathname);
+                const cachedItems = await getCachedKeywords();
+                setAllItems(cachedItems);
+                setSearchResults(cachedItems);
+                console.log('Loaded keywords from cache');
             } catch (error) {
-                console.error('Failed to fetch keywords:', error);
+                console.error('Failed to load cached keywords:', error);
             }
         };
 

@@ -7,8 +7,7 @@ import { useGlobalStyles } from '@/constants/globalStyles';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
+import { getCachedProducts } from '@/context/dataCache';
 import { router } from 'expo-router';
 
 
@@ -28,8 +27,7 @@ export default function ShopScreen() {
 
     useEffect(() => {
         const fetchItems = async () => {
-            const snapshot = await getDocs(collection(db, 'products'));
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const data = await getCachedProducts();
             setItems(data);
         };
         fetchItems();

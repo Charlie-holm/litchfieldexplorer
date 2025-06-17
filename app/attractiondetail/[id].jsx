@@ -1,9 +1,8 @@
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
+import { getCachedAttractions } from '@/context/dataCache';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -22,10 +21,10 @@ export default function AttractionDetail() {
 
     useEffect(() => {
         const fetchAttraction = async () => {
-            const ref = doc(db, 'attractions', id);
-            const snap = await getDoc(ref);
-            if (snap.exists()) {
-                setAttraction(snap.data());
+            const allAttractions = await getCachedAttractions();
+            const match = allAttractions.find(a => a.id === id);
+            if (match) {
+                setAttraction(match);
             }
         };
         if (id) fetchAttraction();

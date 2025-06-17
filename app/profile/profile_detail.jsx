@@ -6,14 +6,23 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { useState, useEffect } from 'react';
 import { auth, db } from '@/firebaseConfig';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { updateDoc, setDoc, doc, serverTimestamp, } from 'firebase/firestore';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import * as ImagePicker from 'expo-image-picker';
+import { getCachedUsers } from '@/context/dataCache';
 
 const CLOUD_NAME = 'djrzkaal4';
 const UPLOAD_PRESET = 'user-profile-upload';
+
+async function logLastUpdate(collectionName) {
+    const userId = auth.currentUser?.uid || "unknown";
+    await setDoc(doc(db, "lastupdate", collectionName), {
+        updatedAt: serverTimestamp(),
+        by: userId,
+    });
+}
 
 export default function ProfileDetailScreen() {
     const colorScheme = useColorScheme();
@@ -35,15 +44,14 @@ export default function ProfileDetailScreen() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const docRef = doc(db, 'users', auth.currentUser.uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                setFirstName(data.firstName || '');
-                setLastName(data.lastName || '');
-                setEmail(data.email || '');
-                setPhoneNumber(data.phoneNumber || '');
-                setProfileImage(data.profileImage || '');
+            const cachedUsers = await getCachedUsers();
+            const userData = cachedUsers.find(u => u.id === auth.currentUser.uid);
+            if (userData) {
+                setFirstName(userData.firstName || '');
+                setLastName(userData.lastName || '');
+                setEmail(userData.email || '');
+                setPhoneNumber(userData.phoneNumber || '');
+                setProfileImage(userData.imagePath || userData.profileImage || '');
             }
         };
         fetchData();
@@ -63,6 +71,7 @@ export default function ProfileDetailScreen() {
                 email,
                 profileImage
             });
+            await logLastUpdate("lastupdate");
             Alert.alert(
                 'Success',
                 'Profile updated successfully',

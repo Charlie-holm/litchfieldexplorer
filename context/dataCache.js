@@ -71,7 +71,10 @@ export const downloadAndCacheData = async () => {
     // Cache these collections in parallel
     const tasks = [
         cacheCollection('attractions', 'attractions'),
+        cacheCollection('keywords'),
+        cacheCollection('products', 'products'),
         cacheCollection('quickInfo'),
+        cacheCollection('rewards'),
         cacheCollection('users', 'profile_pics'),
     ];
 
@@ -95,6 +98,31 @@ export const downloadAndCacheData = async () => {
  */
 export const getCachedAttractions = async () => {
     const json = await AsyncStorage.getItem('attractionsData');
+    return json ? JSON.parse(json) : [];
+};
+
+export const getCachedProducts = async () => {
+    const json = await AsyncStorage.getItem('productsData');
+    return json ? JSON.parse(json) : [];
+};
+
+export const getCachedQuickInfo = async () => {
+    const json = await AsyncStorage.getItem('quickInfoData');
+    return json ? JSON.parse(json) : [];
+};
+
+export const getCachedRewards = async () => {
+    const json = await AsyncStorage.getItem('rewardsData');
+    return json ? JSON.parse(json) : [];
+};
+
+export const getCachedKeywords = async () => {
+    const json = await AsyncStorage.getItem('keywordsData');
+    return json ? JSON.parse(json) : [];
+};
+
+export const getCachedUsers = async () => {
+    const json = await AsyncStorage.getItem('usersData');
     return json ? JSON.parse(json) : [];
 };
 
@@ -126,6 +154,9 @@ export const logCachedData = async () => {
         'attractionsData',
         'quickInfoData',
         'usersData',
+        'productsData',
+        'keywordsData',
+        'rewardsData',
         'lastUpdate'
     ];
     for (const key of keys) {

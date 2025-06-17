@@ -8,6 +8,7 @@ import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { getCachedQuickInfo } from '@/context/dataCache';
 
 export default function HomeScreen() {
   const [showModal, setShowModal] = useState(false);
@@ -16,11 +17,11 @@ export default function HomeScreen() {
   const globalStyles = useGlobalStyles();
 
   useEffect(() => {
-    const q = query(collection(db, 'quickInfo'), orderBy('timestamp', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setQuickInfos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-    return unsubscribe;
+    const loadQuickInfo = async () => {
+      const cached = await getCachedQuickInfo();
+      setQuickInfos(cached);
+    };
+    loadQuickInfo();
   }, []);
 
   return (

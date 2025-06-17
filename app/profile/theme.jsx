@@ -1,8 +1,7 @@
-import { View, Pressable, useColorScheme } from 'react-native';
+import { Pressable } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeContext } from '@/context/ThemeProvider';
-import { Colors } from '@/constants/Colors';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 

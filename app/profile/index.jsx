@@ -1,6 +1,7 @@
-import { View, Pressable, Alert, Image, ScrollView } from 'react-native';
+import { View, Pressable, Alert, Image, ScrollView, Dimensions } from 'react-native';
 import { useEffect, useState } from 'react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { getCachedUsers } from '@/context/dataCache';
 import { db, auth } from '@/firebaseConfig';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -14,7 +15,7 @@ import { checkTierUpdate } from '@/scripts//pointsSystem';
 import { getTierDisplayDetails } from '@/scripts/pointsSystem';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
-import { Dimensions } from 'react-native';
+
 
 export default function ProfileScreen() {
     const screenHeight = Dimensions.get('window').height;
@@ -33,21 +34,38 @@ export default function ProfileScreen() {
     useEffect(() => {
         const fetchUserData = async () => {
             if (user) {
-                const docRef = doc(db, 'users', user.uid);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    setPhoneNumber(data.phoneNumber || 'No phone number');
-                    setProfileImage(data.profileImage || '');
-                    setPoints(data.points || 0);
-                    setTier(data.tier || 'Basic');
-                    setTierAchievedDate(data.tierAchievedDate || '');
-                    setIsAdmin(data.admin === true);
+                const cachedUsers = await getCachedUsers();
+                const cachedUser = cachedUsers.find(u => u.id === user.uid);
 
-                    const tierUpdate = checkTierUpdate(data.points, data.tier, data.tierAchievedDate);
-                    if (tierUpdate) {
-                        await updateDoc(docRef, tierUpdate);
+                if (cachedUser) {
+                    setProfileImage(cachedUser.imagePath || cachedUser.profileImage || '');
+                    setPhoneNumber(cachedUser.phoneNumber || 'No phone number');
+                    setPoints(cachedUser.points || 0);
+                    setTier(cachedUser.tier || 'Basic');
+                    setTierAchievedDate(cachedUser.tierAchievedDate || '');
+                    setIsAdmin(cachedUser.admin === true);
+                } else {
+                    const docRef = doc(db, 'users', user.uid);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        setProfileImage(data.profileImage || '');
+                        setPhoneNumber(data.phoneNumber || 'No phone number');
+                        setPoints(data.points || 0);
+                        setTier(data.tier || 'Basic');
+                        setTierAchievedDate(data.tierAchievedDate || '');
+                        setIsAdmin(data.admin === true);
                     }
+                }
+
+                const tierUpdate = checkTierUpdate(
+                    cachedUser?.points || 0,
+                    cachedUser?.tier || 'Basic',
+                    cachedUser?.tierAchievedDate || ''
+                );
+                if (tierUpdate) {
+                    const docRef = doc(db, 'users', user.uid);
+                    await updateDoc(docRef, tierUpdate);
                 }
             }
         };

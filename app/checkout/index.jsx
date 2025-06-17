@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getFirestore, collection, getDocs, query, where, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { View, Text, ScrollView, TouchableOpacity, Image, Animated } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Image, Animated } from 'react-native';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
