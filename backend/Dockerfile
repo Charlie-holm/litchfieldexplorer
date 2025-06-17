@@ -1,18 +1,15 @@
-# Use the official Node image
-FROM node:18
+# Use official Node image
+FROM node:20
 
-# Set the working directory inside the container
+# Set working dir
 WORKDIR /app
 
-# Copy package.json and install dependencies
+# Install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy your backend source code
+# Copy code & key
 COPY . .
 
-# Expose the port your server uses
-EXPOSE 3000
-
-# Start the server
-CMD ["npm", "start"]
+# Run processor
+CMD ["node", "process-order.js"]

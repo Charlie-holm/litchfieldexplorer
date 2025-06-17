@@ -1,35 +1,17 @@
 {
-  "name": "welcome-to-docker",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-particles": "^2.9.3",
-    "react-scripts": "5.0.1",
-    "tsparticles": "^2.9.3"
-  },
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "rewardProcessor.js",
   "scripts": {
-    "start": "node index.js",
-    "serve": "firebase emulators:start --only functions",
-    "deploy": "firebase deploy --only functions"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "firebase-admin": "^11.10.1"
   }
 }

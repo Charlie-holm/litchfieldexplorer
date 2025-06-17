@@ -34,38 +34,25 @@ export default function ProfileScreen() {
     useEffect(() => {
         const fetchUserData = async () => {
             if (user) {
-                const cachedUsers = await getCachedUsers();
-                const cachedUser = cachedUsers.find(u => u.id === user.uid);
+                const docRef = doc(db, 'users', user.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    setProfileImage(data.profileImage || '');
+                    setPhoneNumber(data.phoneNumber || 'No phone number');
+                    setPoints(data.points || 0);
+                    setTier(data.tier || 'Basic');
+                    setTierAchievedDate(data.tierAchievedDate || '');
+                    setIsAdmin(data.admin === true);
 
-                if (cachedUser) {
-                    setProfileImage(cachedUser.imagePath || cachedUser.profileImage || '');
-                    setPhoneNumber(cachedUser.phoneNumber || 'No phone number');
-                    setPoints(cachedUser.points || 0);
-                    setTier(cachedUser.tier || 'Basic');
-                    setTierAchievedDate(cachedUser.tierAchievedDate || '');
-                    setIsAdmin(cachedUser.admin === true);
-                } else {
-                    const docRef = doc(db, 'users', user.uid);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        setProfileImage(data.profileImage || '');
-                        setPhoneNumber(data.phoneNumber || 'No phone number');
-                        setPoints(data.points || 0);
-                        setTier(data.tier || 'Basic');
-                        setTierAchievedDate(data.tierAchievedDate || '');
-                        setIsAdmin(data.admin === true);
+                    const tierUpdate = checkTierUpdate(
+                        data.points || 0,
+                        data.tier || 'Basic',
+                        data.tierAchievedDate || ''
+                    );
+                    if (tierUpdate) {
+                        await updateDoc(docRef, tierUpdate);
                     }
-                }
-
-                const tierUpdate = checkTierUpdate(
-                    cachedUser?.points || 0,
-                    cachedUser?.tier || 'Basic',
-                    cachedUser?.tierAchievedDate || ''
-                );
-                if (tierUpdate) {
-                    const docRef = doc(db, 'users', user.uid);
-                    await updateDoc(docRef, tierUpdate);
                 }
             }
         };

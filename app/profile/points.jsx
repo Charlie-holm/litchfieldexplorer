@@ -73,20 +73,17 @@ export default function PointsDetailScreen() {
         setTierAchievedDate(new Date().toISOString());
       }
 
-      const allOrdersSnap = await getDocs(collection(db, 'orders'));
-      const userOrders = allOrdersSnap.docs.filter(doc => doc.data().userId === user.uid);
-      const orderActivities = userOrders.map(doc => {
-        const data = doc.data();
-        return {
-          points: Math.round((data.total || 0) * 10),
-          label: `Order - ${data.items?.length || 0} item(s)`,
-          date: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : '',
-        };
-      });
-      console.log("Fetched All Orders:", allOrdersSnap.docs.map(doc => doc.data()));
-      console.log("Filtered User Orders:", userOrders.map(doc => doc.data()));
-      console.log("Order Activities:", orderActivities);
-      setActivities(orderActivities);
+      const recentActivity = Array.isArray(data.recentActivity) ? data.recentActivity : [];
+      const formattedActivity = recentActivity.map(entry => ({
+        points: entry.pointsAdded || 0,
+        label: entry.type === 'purchase'
+          ? `Purchase (Order ID: ${entry.orderId})`
+          : `Voucher Redeemed: ${entry.voucherName || ''}`,
+        date: entry.date
+          ? new Date(entry.date.seconds ? entry.date.seconds * 1000 : entry.date).toLocaleDateString()
+          : '',
+      }));
+      setActivities(formattedActivity);
 
       const allRewards = Array.isArray(data.redeemedRewards) ? data.redeemedRewards : [];
       console.log("Setting redeemed rewards with:", allRewards);

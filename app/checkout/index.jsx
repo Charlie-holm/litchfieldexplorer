@@ -190,7 +190,7 @@ export default function CheckoutScreen() {
                                     alert('Please select a pickup location.');
                                     return;
                                 }
-                                triggerApplePay({ items, total, subtotal, gst, discount, selectedPickup, pointsEarned, getCart });
+                                await triggerApplePay({ items, total, subtotal, gst, discount, selectedPickup, pointsEarned, getCart });
                             }}
                         >
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -216,7 +216,7 @@ async function triggerApplePay({ items, total, subtotal, gst, discount, selected
         if (user) {
             const orderRef = collection(getFirestore(), 'orders');
             const orderNumber = 'ORD-' + Date.now().toString(36).toUpperCase();
-            await addDoc(orderRef, {
+            const newOrder = await addDoc(orderRef, {
                 userId: user.uid,
                 items,
                 total: parseFloat(total.toFixed(2)),
@@ -229,12 +229,31 @@ async function triggerApplePay({ items, total, subtotal, gst, discount, selected
                 orderNumber,
                 createdAt: serverTimestamp()
             });
-            await getCart(true); // Clear the cart
-            router.push('/checkout/confirmation');
+            try {
+                const response = await fetch(`http://192.168.202.58:3000/api/process-order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId: newOrder.id }),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Order processed:', result.message);
+                    await getCart(true); // Clear the cart
+                    router.push('/checkout/confirmation');
+                } else {
+                    console.error('Order processing failed:', result.message);
+                    alert(`Order failed: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                alert('Network error: Unable to process order.');
+            }
         } else {
-            console.log('User not authenticated');
+            alert('You must be logged in to place an order.');
+            return;
         }
-    } catch (err) {
-        console.error('Failed to submit order:', err);
+    } catch (error) {
+        console.error('Failed to submit order:', error);
+        alert('An error occurred while submitting your order. Please try again later.');
     }
 }
