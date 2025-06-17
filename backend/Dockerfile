@@ -12,4 +12,4 @@ RUN npm install
 COPY . .
 
 # Run processor
-CMD ["node", "process-order.js"]
+CMD ["node", "server.js"]

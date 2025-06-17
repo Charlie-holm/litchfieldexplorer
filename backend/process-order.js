@@ -1,5 +1,3 @@
-const express = require('express');
-const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 
 admin.initializeApp({
@@ -67,22 +65,19 @@ async function processOrderById(orderId) {
     });
 }
 
-const app = express();
-app.use(bodyParser.json());
+module.exports = (app) => {
+    const bodyParser = require('body-parser');
+    app.use(bodyParser.json());
 
-app.post('/api/process-order', async (req, res) => {
-    const { orderId } = req.body;
-    try {
-        await processOrderById(orderId);
-        console.log(`✅ Processed order ${orderId}`);
-        res.json({ success: true, message: `Order ${orderId} processed successfully.` });
-    } catch (err) {
-        console.error(`❌ Failed to process order ${orderId}`, err);
-        res.status(400).json({ success: false, message: err.message });
-    }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Backend listening on port ${PORT}`);
-});
+    app.post('/api/process-order', async (req, res) => {
+        const { orderId } = req.body;
+        try {
+            await processOrderById(orderId);
+            console.log(`✅ Processed order ${orderId}`);
+            res.json({ success: true, message: `Order ${orderId} processed successfully.` });
+        } catch (err) {
+            console.error(`❌ Failed to process order ${orderId}`, err);
+            res.status(400).json({ success: false, message: err.message });
+        }
+    });
+};

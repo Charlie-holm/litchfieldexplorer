@@ -103,24 +103,27 @@ export default function PointsDetailScreen() {
     const selected = availableRewards.find(r => r.name === rewardName);
     if (!selected || currentPoints < selected.cost) return;
 
-    const newPoints = currentPoints - selected.cost;
-    const newReward = {
-      name: selected.name,
-      cost: selected.cost,
-      date: new Date().toISOString(),
-    };
-
-    const userRef = doc(db, 'users', user.uid);
-    await updateDoc(userRef, {
-      points: newPoints,
-      redeemedRewards: [...redeemedRewards, newReward],
-    });
-
-    setCurrentPoints(newPoints);
-    const updatedDocSnap = await getDoc(userRef);
-    const updatedData = updatedDocSnap.data();
-    setRedeemedRewards(Array.isArray(updatedData.redeemedRewards) ? updatedData.redeemedRewards : []);
-    alert(`Redeemed: ${selected.name}`);
+    try {
+      const response = await fetch('http://192.168.202.58:3000/api/redeem-reward', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          rewardName: selected.name
+        }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        // Optionally update local states to reflect changes
+        fetchData(user);
+        alert(`Redeemed: ${selected.name}`);
+      } else {
+        alert(`Redeem failed: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      alert('Network error: Unable to redeem reward.');
+    }
   };
 
   console.log("RedeemedRewards state before render:", redeemedRewards, Array.isArray(redeemedRewards));
