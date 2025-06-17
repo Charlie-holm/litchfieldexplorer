@@ -1,7 +1,7 @@
 import { View, Pressable, Image, Dimensions, ScrollView } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
