@@ -9,6 +9,7 @@ export function CartProvider({ children }) {
     const auth = getAuth();
     const [user, setUser] = useState(null);
     const [cart, setCart] = useState([]);
+    
     useEffect(() => {
         const fetchCart = async () => {
             if (user) {
@@ -28,11 +29,40 @@ export function CartProvider({ children }) {
         return () => unsubscribe();
     }, []);
 
+    // Generate a unique ID for cart items based on product ID, size and color
+    const getCartItemId = (item) => {
+        return `${item.id}-${item.size}-${item.color}`;
+    };
+
     const addToCart = async (item) => {
         const currentUser = auth.currentUser;
         if (!currentUser) return;
-        const itemRef = doc(db, 'users', currentUser.uid, 'cart', item.id);
-        await setDoc(itemRef, item, { merge: true });
+        
+        if (!item.size || !item.color) {
+            console.error('Missing size or color');
+            return;
+        }
+        
+        // Use the composite ID instead of just item.id
+        const cartItemId = getCartItemId(item);
+        const itemRef = doc(db, 'users', currentUser.uid, 'cart', cartItemId);
+        
+        // Check if item already exists in cart
+        const existingItem = cart.find(cartItem => 
+            cartItem.id === item.id && 
+            cartItem.size === item.size && 
+            cartItem.color === item.color
+        );
+        
+        const newQuantity = existingItem ? existingItem.quantity + item.quantity : item.quantity;
+        
+        await setDoc(itemRef, {
+            ...item,
+            price: item.price || 0, // Ensure price exists
+            cartItemId,
+            createdAt: new Date().toISOString() // Add timestamp for sorting
+        }, { merge: true });
+        
         const updatedCart = await getCart();
         setCart(updatedCart);
     };
@@ -49,31 +79,60 @@ export function CartProvider({ children }) {
             return [];
         }
 
-        const result = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const result = snapshot.docs.map(doc => ({ 
+            id: doc.data().id, // Original product ID
+            cartItemId: doc.id, // Composite ID (productId-size-color)
+            ...doc.data() 
+        }));
         setCart(result);
         return result;
     };
 
-    const removeFromCart = async (productId) => {
-        const currentUser = auth.currentUser;
-        if (!currentUser) return;
-        const itemRef = doc(db, 'users', currentUser.uid, 'cart', productId);
-        await deleteDoc(itemRef);
-        const updatedCart = await getCart();
-        setCart(updatedCart);
-    };
+    const removeFromCart = async (cartItemId) => {
+  const currentUser = auth.currentUser;
+  if (!currentUser) return;
 
-    const updateCartItemQuantity = async (productId, quantity) => {
+  try {
+    // 1. Optimistically update local UI first
+    setCart(prev => prev.filter(item => item.cartItemId !== cartItemId));
+    
+    // 2. Delete from Firestore
+    const itemRef = doc(db, 'users', currentUser.uid, 'cart', cartItemId);
+    await deleteDoc(itemRef);
+    
+    // 3. Optional: Force refresh from server to confirm sync
+    const freshCart = await getCart();
+    setCart(freshCart);
+    
+  } catch (error) {
+    // If error occurs, revert to server state
+    console.error("Failed to remove item:", error);
+    const currentCart = await getCart();
+    setCart(currentCart);
+  }
+};
+
+    const updateCartItemQuantity = async (cartItemId, quantity) => {
         const currentUser = auth.currentUser;
         if (!currentUser) return;
-        const itemRef = doc(db, 'users', currentUser.uid, 'cart', productId);
+  
+        const itemRef = doc(db, 'users', currentUser.uid, 'cart', cartItemId);
         await setDoc(itemRef, { quantity }, { merge: true });
-        const updatedCart = await getCart();
-        setCart(updatedCart);
-    };
+  
+  // Update local state by composite ID
+        setCart(prev => prev.map(item => 
+            item.cartItemId === cartItemId ? {...item, quantity} : item
+        ));
+        };
 
     return (
-        <CartContext.Provider value={{ cart, addToCart, getCart, removeFromCart, updateCartItemQuantity }}>
+        <CartContext.Provider value={{ 
+            cart, 
+            addToCart, 
+            getCart, 
+            removeFromCart, 
+            updateCartItemQuantity 
+        }}>
             {children}
         </CartContext.Provider>
     );

@@ -130,7 +130,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                     ) : (
                         cartItems.map((item) => (
                             <Swipeable
-                                key={item.id}
+                                key={item.cartItemId}
                                 renderRightActions={() => (
                                     <View style={globalStyles.buttonRemove}>
                                         <TouchableOpacity
@@ -143,7 +143,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                                         {
                                                             text: 'Remove',
                                                             style: 'destructive',
-                                                            onPress: () => removeItem(item.id),
+                                                            onPress: () => removeItem(item.cartItemId),
                                                         },
                                                     ]
                                                 );
@@ -193,7 +193,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                                 numberOfLines={0}
                                                 style={{ flexWrap: 'wrap', color: '#f8f8f8' }}
                                             >
-                                                ${item.price.toFixed(2)}
+                                                ${item?.price ? item.price.toFixed(2) : '0.00'}
                                             </ThemedText>
                                         </View>
                                     </View>
@@ -209,14 +209,14 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                                         {
                                                             text: 'Remove',
                                                             style: 'destructive',
-                                                            onPress: () => removeItem(item.id),
+                                                            onPress: () => removeItem(item.cartItemId),
                                                         },
                                                     ]
                                                 );
                                             } else {
-                                                const updated = cartItems.map(i => i.id === item.id ? { ...i, quantity: i.quantity - 1 } : i);
+                                                const updated = cartItems.map(i => i.id === item.cartItemId ? { ...i, quantity: i.quantity - 1 } : i);
                                                 setCartItems(updated);
-                                                updateCartItemQuantity(item.id, item.quantity - 1);
+                                                updateCartItemQuantity(item.cartItemId, item.quantity - 1);
                                             }
                                         }} style={globalStyles.smallButton}>
                                             <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>−</ThemedText>
@@ -225,9 +225,9 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                         <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>{item.quantity}</ThemedText>
 
                                         <TouchableOpacity onPress={() => {
-                                            const updated = cartItems.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+                                            const updated = cartItems.map(i => i.id === item.cartItemId ? { ...i, quantity: i.quantity + 1 } : i);
                                             setCartItems(updated);
-                                            updateCartItemQuantity(item.id, item.quantity + 1);
+                                            updateCartItemQuantity(item.cartItemId, item.quantity + 1);
                                         }} style={globalStyles.smallButton}>
                                             <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>+</ThemedText>
                                         </TouchableOpacity>

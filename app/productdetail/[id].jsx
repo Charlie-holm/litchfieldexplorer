@@ -232,16 +232,17 @@ export default function ProductDetailScreen() {
                   addToCart({
                     id: item.id,
                     name: item.name,
-                    price: item.price,
+                    price: item.price || 0,
                     image: item.imageUrl,
                     quantity,
                     size: selectedSize,
                     color: selectedColor,
-                  });
-                  setAlertTitle('Added to Cart');
-                  setAlertMessage(`${item.name} (Size: ${selectedSize}, Color: ${selectedColor}) has been added to the cart.`);
-                  setShowAlertModal(true);
-                }}
+                  }).then(() => {
+                    setAlertTitle('Added to Cart');
+                    setAlertMessage(`${quantity} ${item.name} (Size: ${selectedSize}, Color: ${selectedColor}) added`);
+                      setShowAlertModal(true);
+                    });
+                  }}
               >
                 <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>
                   Add to Cart | {item.price ? `$${item.price}` : 'Price Unavailable'}
