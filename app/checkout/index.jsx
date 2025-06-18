@@ -230,7 +230,7 @@ async function triggerApplePay({ items, total, subtotal, gst, discount, selected
                 createdAt: serverTimestamp()
             });
             try {
-                const response = await fetch(`http://192.168.202.58:3000/api/process-order`, {
+                const response = await fetch(`http://localhost:3000/api/process-order`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ orderId: newOrder.id }),

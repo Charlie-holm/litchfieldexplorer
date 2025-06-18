@@ -74,7 +74,6 @@ export const downloadAndCacheData = async () => {
         cacheCollection('keywords'),
         cacheCollection('products', 'products'),
         cacheCollection('quickInfo'),
-        cacheCollection('rewards'),
         cacheCollection('users', 'profile_pics'),
     ];
 
@@ -108,11 +107,6 @@ export const getCachedProducts = async () => {
 
 export const getCachedQuickInfo = async () => {
     const json = await AsyncStorage.getItem('quickInfoData');
-    return json ? JSON.parse(json) : [];
-};
-
-export const getCachedRewards = async () => {
-    const json = await AsyncStorage.getItem('rewardsData');
     return json ? JSON.parse(json) : [];
 };
 
@@ -156,7 +150,6 @@ export const logCachedData = async () => {
         'usersData',
         'productsData',
         'keywordsData',
-        'rewardsData',
         'lastUpdate'
     ];
     for (const key of keys) {

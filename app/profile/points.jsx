@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { auth } from '@/firebaseConfig';
-import { getFirestore, doc, getDoc, updateDoc, collection, getDocs, } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { app } from '@/firebaseConfig';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -34,99 +34,113 @@ export default function PointsDetailScreen() {
 
   const progressColor = Colors.tier[tier] || Colors.tier.Basic;
 
+  const fetchUserData = async (uid) => {
+    const docRef = doc(db, 'users', uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      setCurrentPoints(data.points || 0);
+      setTier(data.tier || 'Basic');
+      setTierAchievedDate(data.tierAchievedDate || '');
+      setRedeemedRewards(data.redeemedRewards || []);
+
+      const recentActivity = Array.isArray(data.recentActivity) ? data.recentActivity : [];
+
+      const formattedActivity = recentActivity
+        .slice()
+        .sort((a, b) => {
+          const dateA = a.date?.seconds ? a.date.seconds * 1000 : new Date(a.date).getTime();
+          const dateB = b.date?.seconds ? b.date.seconds * 1000 : new Date(b.date).getTime();
+          return dateB - dateA;
+        })
+        .map(entry => {
+          const dateObj = entry.date?.seconds
+            ? new Date(entry.date.seconds * 1000)
+            : entry.date
+              ? new Date(entry.date)
+              : new Date();
+
+          let label = 'Activity';
+          let points = 0;
+
+          if (entry.type === 'purchase') {
+            label = 'Purchase';
+            points = entry.pointsAdded || 0;
+          } else if (entry.type === 'redeem') {
+            label = `Voucher Redeemed`;
+            points = -(entry.pointsUsed || 0);
+          }
+
+          return {
+            label,
+            points,
+            date: dateObj.toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            }),
+          };
+        });
+
+      setActivities(formattedActivity);
+    }
+  };
+
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
-        fetchData(firebaseUser);
+        await fetchUserData(firebaseUser.uid);
       }
     });
     return () => unsubscribe();
   }, []);
 
-  const fetchData = async (user) => {
-    if (!user?.uid) return;
-    console.log("Current User UID:", user.uid);
-    const docRef = doc(db, 'users', user.uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      console.log("User document data:", docSnap.data());
-      const data = docSnap.data();
-      const oldTier = data.tier || 'Basic';
-      const points = data.points || 0;
-
-      setCurrentPoints(points);
-      setTier(oldTier);
-      setTierAchievedDate(data.tierAchievedDate || '');
-      const achievedDate = new Date(data.tierAchievedDate?.seconds ? data.tierAchievedDate.seconds * 1000 : data.tierAchievedDate);
-      const expiryDate = new Date(achievedDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-
-      const { newTier } = getTierDisplayDetails(oldTier, points, data.tierAchievedDate || '');
-
-      if (newTier !== oldTier) {
-        setShowUpgradeMessage(true);
-        await updateDoc(docRef, {
-          tier: newTier,
-          tierAchievedDate: new Date().toISOString(),
-        });
-        setTier(newTier);
-        setTierAchievedDate(new Date().toISOString());
-      }
-
-      const recentActivity = Array.isArray(data.recentActivity) ? data.recentActivity : [];
-      const formattedActivity = recentActivity.map(entry => ({
-        points: entry.pointsAdded || 0,
-        label: entry.type === 'purchase'
-          ? `Purchase (Order ID: ${entry.orderId})`
-          : `Voucher Redeemed: ${entry.voucherName || ''}`,
-        date: entry.date
-          ? new Date(entry.date.seconds ? entry.date.seconds * 1000 : entry.date).toLocaleDateString()
-          : '',
-      }));
-      setActivities(formattedActivity);
-
-      const allRewards = Array.isArray(data.redeemedRewards) ? data.redeemedRewards : [];
-      console.log("Setting redeemed rewards with:", allRewards);
-      setRedeemedRewards(allRewards);
-
+  // Fetch all available rewards on mount
+  useEffect(() => {
+    const fetchRewards = async () => {
       const rewardsSnap = await getDocs(collection(db, 'rewards'));
-      const fetchedRewards = rewardsSnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const fetchedRewards = rewardsSnap.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
       setAvailableRewards(fetchedRewards);
-      console.log("Fetched rewards:", fetchedRewards);
-    }
-  };
+    };
+    fetchRewards();
+  }, []);
 
-  const handleRedeem = async (rewardName) => {
-    const selected = availableRewards.find(r => r.name === rewardName);
-    if (!selected || currentPoints < selected.cost) return;
+  const handleRedeem = async (rewardId) => {
+    if (!user) return;
+    const selected = availableRewards.find(r => r.id === rewardId);
+    if (!selected || currentPoints < selected.cost) {
+      Alert.alert('Cannot Redeem', 'Insufficient points or invalid reward.');
+      return;
+    }
 
     try {
-      const response = await fetch('http://192.168.202.58:3000/api/redeem-reward', {
+      const response = await fetch('http://localhost:3000/api/redeem-reward', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.uid,
-          rewardName: selected.name
+          rewardId: selected.id,
         }),
       });
       const result = await response.json();
       if (result.success) {
-        // Optionally update local states to reflect changes
-        fetchData(user);
-        alert(`Redeemed: ${selected.name}`);
+        Alert.alert('Success', `Redeemed: ${selected.name}`);
+        // Refetch user data to update points and activity
+        await fetchUserData(user.uid);
       } else {
-        alert(`Redeem failed: ${result.message}`);
+        Alert.alert('Redeem failed', result.error || 'Unknown error');
       }
     } catch (error) {
       console.error('Network error:', error);
-      alert('Network error: Unable to redeem reward.');
+      Alert.alert('Network error', 'Unable to redeem reward.');
     }
   };
-
-  console.log("RedeemedRewards state before render:", redeemedRewards, Array.isArray(redeemedRewards));
 
   return (
     <ThemedView style={globalStyles.container}>
@@ -170,11 +184,9 @@ export default function PointsDetailScreen() {
 
           <View style={[globalStyles.overlayContent, { width: '100%', marginVertical: 10, marginTop: 20 }]}>
             {showUpgradeMessage ? (
-              <>
-                <ThemedText type="title" style={{ textAlign: 'center', color: '#4CAF50' }}>
-                  🎉 Congratulations! You've reached the {tier} Tier!
-                </ThemedText>
-              </>
+              <ThemedText type="title" style={{ textAlign: 'center', color: '#4CAF50' }}>
+                🎉 Congratulations! You've reached the {tier} Tier!
+              </ThemedText>
             ) : (
               <ThemedText type="default" style={{ textAlign: 'center' }}>
                 {pointsToNext > 0
@@ -200,13 +212,24 @@ export default function PointsDetailScreen() {
           <View style={{ marginTop: 20 }}>
             <ThemedText type="title">Rewards</ThemedText>
             <View style={{ marginTop: 10 }}>
+              {availableRewards.length === 0 && (
+                <ThemedText style={{ textAlign: 'left', marginTop: 10 }}>
+                  No rewards available.
+                </ThemedText>
+              )}
               {availableRewards.map((reward, index) => (
-                <View key={index} style={[globalStyles.buttonCard, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+                <View
+                  key={index}
+                  style={[
+                    globalStyles.buttonCard,
+                    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+                  ]}
+                >
                   <ThemedText type="default">
                     🎁 {reward.name} - {reward.cost} pts
                   </ThemedText>
                   <TouchableOpacity
-                    onPress={() => handleRedeem(reward.name)}
+                    onPress={() => handleRedeem(reward.id)}
                     disabled={currentPoints < reward.cost}
                     style={[
                       globalStyles.smallPillButton,
@@ -236,11 +259,6 @@ export default function PointsDetailScreen() {
                   </TouchableOpacity>
                 </View>
               ))}
-              {availableRewards.length === 0 && (
-                <ThemedText style={{ textAlign: 'center', marginTop: 10 }}>
-                  No rewards available. Check Firestore collection.
-                </ThemedText>
-              )}
             </View>
 
             <ThemedText type="title" style={{ marginTop: 30 }}>
@@ -248,25 +266,28 @@ export default function PointsDetailScreen() {
             </ThemedText>
             <View style={{ marginTop: 10 }}>
               {redeemedRewards.map((r, idx) => {
-                console.log("Rendering reward:", r);
-                const redeemedDate = new Date(r.date);
-                const expiryDate = new Date(redeemedDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+                const redeemedDate =
+                  r.redeemedAt?.toDate?.() || new Date(r.redeemedAt);
+                const expiryDate = new Date(
+                  redeemedDate.getTime() + 30 * 24 * 60 * 60 * 1000,
+                );
                 return (
                   <View key={idx} style={globalStyles.buttonCard}>
                     <View>
-                      <ThemedText type="subtitle">
-                        🎁 {r.name}
-                      </ThemedText>
+                      <ThemedText type="subtitle">🎁 {r.rewardName}</ThemedText>
                       <ThemedText type="small" style={{ marginTop: 4 }}>
-                        {r.cost} pts | Redeemed on {redeemedDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })} | Expires on {expiryDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                        {r.pointsUsed || r.cost} pts | Expires on{' '}
+                        {expiryDate.toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
                       </ThemedText>
                     </View>
                   </View>
                 );
               })}
             </View>
-
-
           </View>
 
           {/* Recent Activity */}
@@ -278,10 +299,29 @@ export default function PointsDetailScreen() {
               <ThemedText type="default">No recent activity found.</ThemedText>
             ) : (
               activities.map((act, index) => (
-                <View key={index} style={globalStyles.buttonCard}>
-                  <ThemedText type="subtitle">+{act.points} pts</ThemedText>
-                  <ThemedText type="small" style={{ marginTop: 4 }}>
-                    {act.label} {act.date ? `| ${act.date}` : ''}
+                <View
+                  key={index}
+                  style={[
+                    globalStyles.buttonCard,
+                    {
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    },
+                  ]}
+                >
+                  <View>
+                    <ThemedText type="subtitle">{act.label}</ThemedText>
+                    {act.date ? (
+                      <ThemedText type="small" style={{ marginTop: 4 }}>
+                        {act.date}
+                      </ThemedText>
+                    ) : null}
+                  </View>
+                  <ThemedText
+                    type="subtitle"
+                  >
+                    {act.points < 0 ? `${act.points} pts` : `+${act.points} pts`}
                   </ThemedText>
                 </View>
               ))
