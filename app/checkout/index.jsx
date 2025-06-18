@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { View, ScrollView, TouchableOpacity, Image, Animated } from 'react-native';
 import { useThemeContext } from '@/context/ThemeProvider';
@@ -9,13 +8,11 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { router } from 'expo-router';
-import { useCart } from '@/context/CartContext';
 
 export default function CheckoutScreen() {
     const { theme: colorScheme } = useThemeContext();
     const themeColors = Colors[colorScheme];
     const globalStyles = useGlobalStyles();
-    const { getCart } = useCart();
     const [items, setItems] = useState([]);
     const [pickupExpanded, setPickupExpanded] = useState(false);
     const [pickupHeight] = useState(new Animated.Value(0));
@@ -40,8 +37,16 @@ export default function CheckoutScreen() {
 
     useEffect(() => {
         const fetchCartItems = async () => {
-            const data = await getCart();
-            setItems(data || []);
+            try {
+                const auth = getAuth();
+                const user = auth.currentUser;
+                if (!user) return;
+                const res = await fetch(`http://localhost:3000/api/cart?userId=${user.uid}`);
+                const data = await res.json();
+                setItems(data.items || []);
+            } catch (err) {
+                setItems([]);
+            }
         };
         fetchCartItems();
     }, []);
@@ -190,7 +195,7 @@ export default function CheckoutScreen() {
                                     alert('Please select a pickup location.');
                                     return;
                                 }
-                                await triggerApplePay({ items, total, subtotal, gst, discount, selectedPickup, pointsEarned, getCart });
+                                await placeOrder({ items, selectedPickup });
                             }}
                         >
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -206,54 +211,42 @@ export default function CheckoutScreen() {
         </>
     );
 }
-// Placeholder Apple Pay trigger function
-async function triggerApplePay({ items, total, subtotal, gst, discount, selectedPickup, pointsEarned, getCart }) {
-    alert('Apple Pay payment successful.');
-
+// New placeOrder function replacing triggerApplePay
+async function placeOrder({ items, selectedPickup }) {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+        alert('You must be logged in to place an order.');
+        return;
+    }
     try {
-        const auth = getAuth();
-        const user = auth.currentUser;
-        if (user) {
-            const orderRef = collection(getFirestore(), 'orders');
-            const orderNumber = 'ORD-' + Date.now().toString(36).toUpperCase();
-            const newOrder = await addDoc(orderRef, {
+        const response = await fetch('http://localhost:3000/api/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
                 userId: user.uid,
                 items,
-                total: parseFloat(total.toFixed(2)),
-                subtotal: parseFloat(subtotal.toFixed(2)),
-                gst: parseFloat(gst.toFixed(2)),
-                discount: parseFloat(discount.toFixed(2)),
-                pickupLocation: selectedPickup || null,
-                pointsEarned,
-                paymentMethod: 'Apple Pay',
-                orderNumber,
-                createdAt: serverTimestamp()
+                pickup: selectedPickup,
+            }),
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+            // Clear the cart via backend
+            const clearRes = await fetch('http://localhost:3000/api/cart/clear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.uid }),
             });
-            try {
-                const response = await fetch(`http://localhost:3000/api/process-order`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderId: newOrder.id }),
-                });
-                const result = await response.json();
-                if (result.success) {
-                    console.log('Order processed:', result.message);
-                    await getCart(true); // Clear the cart
-                    router.push('/checkout/confirmation');
-                } else {
-                    console.error('Order processing failed:', result.message);
-                    alert(`Order failed: ${result.message}`);
-                }
-            } catch (error) {
-                console.error('Network error:', error);
-                alert('Network error: Unable to process order.');
+            if (clearRes.ok) {
+                router.push('/checkout/confirmation');
+            } else {
+                alert('Order placed, but failed to clear cart.');
             }
         } else {
-            alert('You must be logged in to place an order.');
-            return;
+            alert(`Order failed: ${result.message || 'Unknown error'}`);
         }
     } catch (error) {
-        console.error('Failed to submit order:', error);
+        console.error('Order submission error:', error);
         alert('An error occurred while submitting your order. Please try again later.');
     }
 }

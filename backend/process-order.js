@@ -85,4 +85,154 @@ module.exports = (app) => {
             res.status(400).json({ success: false, message: err.message });
         }
     });
+
+    // Create a new order
+    app.post('/api/create-order', async (req, res) => {
+        const { userId, items, pickup } = req.body;
+
+        if (!userId || !items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ success: false, message: 'Invalid order data' });
+        }
+
+        try {
+            // Calculate subtotal, tax, total, and points (example logic)
+            let subtotal = 0;
+            for (const item of items) {
+                subtotal += (item.price || 0) * (item.quantity || 1);
+            }
+            const gst = subtotal * 0.1; // 10% GST
+            const total = subtotal + gst;
+            const pointsEarned = Math.floor(total / 10); // 1 point per $10
+
+            const orderRef = db.collection('orders').doc();
+            await orderRef.set({
+                userId,
+                items,
+                pickup,
+                subtotal,
+                gst,
+                total,
+                pointsEarned,
+                rewarded: false,
+                status: 'pending',
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            res.json({ success: true, orderId: orderRef.id, subtotal, gst, total, pointsEarned });
+        } catch (err) {
+            console.error('❌ Failed to create order:', err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    });
+    // Add item to cart
+    app.post('/api/cart/add', async (req, res) => {
+        const { userId, item } = req.body;
+        if (!userId || !item || !item.id || !item.size || !item.color) {
+            return res.status(400).json({ success: false, message: 'Invalid item data' });
+        }
+        try {
+            const cartItemId = `${item.id}-${item.size}-${item.color}`;
+            const itemRef = db.collection('users').doc(userId).collection('cart').doc(cartItemId);
+            await itemRef.set({
+                ...item,
+                cartItemId,
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            res.json({ success: true });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    });
+
+    // Update cart item quantity
+    app.post('/api/cart/update', async (req, res) => {
+        const { userId, cartItemId, quantity } = req.body;
+        if (!userId || !cartItemId || typeof quantity !== 'number') {
+            return res.status(400).json({ success: false, message: 'Invalid data' });
+        }
+        try {
+            const itemRef = db.collection('users').doc(userId).collection('cart').doc(cartItemId);
+            await itemRef.set({ quantity }, { merge: true });
+            res.json({ success: true });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    });
+
+    // Remove cart item
+    app.post('/api/cart/remove', async (req, res) => {
+        const { userId, cartItemId } = req.body;
+        if (!userId || !cartItemId) {
+            return res.status(400).json({ success: false, message: 'Invalid data' });
+        }
+        try {
+            const itemRef = db.collection('users').doc(userId).collection('cart').doc(cartItemId);
+            await itemRef.delete();
+            res.json({ success: true });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    });
+
+    // Get cart items
+    app.get('/api/cart', async (req, res) => {
+        const userId = req.query.userId;
+        if (!userId) {
+            return res.status(400).json({ success: false, message: 'Missing userId' });
+        }
+        try {
+            const snapshot = await db.collection('users').doc(userId).collection('cart').get();
+            const items = snapshot.docs.map(doc => ({ cartItemId: doc.id, ...doc.data() }));
+            res.json({ success: true, items });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    });
+
+    // Clear the entire cart
+    app.post('/api/cart/clear', async (req, res) => {
+        const { userId } = req.body;
+        if (!userId) {
+            return res.status(400).json({ success: false, message: 'Missing userId' });
+        }
+        try {
+            const cartRef = db.collection('users').doc(userId).collection('cart');
+            const snapshot = await cartRef.get();
+            const deletions = snapshot.docs.map(doc => doc.ref.delete());
+            await Promise.all(deletions);
+            res.json({ success: true });
+        } catch (err) {
+            console.error('Failed to clear cart:', err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    });
+
+    // Move item quantity (increment or decrement) by delta (+1 or -1)
+    app.post('/api/cart/change-quantity', async (req, res) => {
+        const { userId, cartItemId, delta } = req.body;
+        if (!userId || !cartItemId || typeof delta !== 'number') {
+            return res.status(400).json({ success: false, message: 'Invalid data' });
+        }
+        try {
+            const itemRef = db.collection('users').doc(userId).collection('cart').doc(cartItemId);
+            const itemDoc = await itemRef.get();
+            if (!itemDoc.exists) {
+                return res.status(404).json({ success: false, message: 'Cart item not found' });
+            }
+            const currentQuantity = itemDoc.data().quantity || 1;
+            const newQuantity = currentQuantity + delta;
+            if (newQuantity < 1) {
+                return res.status(400).json({ success: false, message: 'Quantity must be at least 1' });
+            }
+            await itemRef.set({ quantity: newQuantity }, { merge: true });
+            res.json({ success: true, newQuantity });
+        } catch (err) {
+            console.error('Failed to change cart quantity:', err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    });
 };

@@ -9,7 +9,7 @@ import { useThemeContext } from '@/context/ThemeProvider';
 import { Colors } from '@/constants/Colors';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { getCachedProducts } from '@/context/dataCache';
-import { useCart } from '@/context/CartContext';
+import { auth } from '@/firebaseConfig';
 
 const sizes = ['S', 'M', 'L', 'XL'];
 
@@ -78,7 +78,7 @@ export default function ProductDetailScreen() {
   }, [selectedSize, selectedColor, item])
 
   const themeColors = Colors[colorScheme];
-  const { addToCart } = useCart();
+  // Removed useCart and addToCart usage
 
   if (!item) {
     return (
@@ -228,8 +228,14 @@ export default function ProductDetailScreen() {
                     : globalStyles.pillButton,
                   { marginTop: 20, width: '100%' }]}
 
-                onPress={() => {
-                  addToCart({
+                onPress={async () => {
+                  const user = auth.currentUser;
+                  if (!user) {
+                    alert('You must be logged in to add items to the cart.');
+                    return;
+                  }
+                  const userId = user.uid;
+                  const itemToAdd = {
                     id: item.id,
                     name: item.name,
                     price: item.price || 0,
@@ -237,12 +243,29 @@ export default function ProductDetailScreen() {
                     quantity,
                     size: selectedSize,
                     color: selectedColor,
-                  }).then(() => {
-                    setAlertTitle('Added to Cart');
-                    setAlertMessage(`${quantity} ${item.name} (Size: ${selectedSize}, Color: ${selectedColor}) added`);
-                      setShowAlertModal(true);
+                  };
+                  try {
+                    const response = await fetch('http://localhost:3000/api/cart/add', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ userId, item: itemToAdd }),
                     });
-                  }}
+                    if (response.ok) {
+                      setAlertTitle('Added to Cart');
+                      setAlertMessage(`${quantity} ${item.name} (Size: ${selectedSize}, Color: ${selectedColor}) added`);
+                      setShowAlertModal(true);
+                    } else {
+                      const errorData = await response.json();
+                      console.error('Failed to add to cart:', errorData);
+                      alert('Failed to add item to cart.');
+                    }
+                  } catch (error) {
+                    console.error('Error adding to cart:', error);
+                    alert('An error occurred while adding to cart.');
+                  }
+                }}
               >
                 <ThemedText type="subtitle" style={{ color: Colors[colorScheme].pri }}>
                   Add to Cart | {item.price ? `$${item.price}` : 'Price Unavailable'}
@@ -270,7 +293,7 @@ export default function ProductDetailScreen() {
                 </ThemedText>
                 <TouchableOpacity
                   onPress={() => setShowAlertModal(false)}
-                  style={[globalStyles.smallPillButton, { marginTop: 20, alignSelf: 'center' }]}
+                  style={[globalStyles.smallPillButton, { marginTop: 20, alignSelf: 'center', backgroundColor: Colors[colorScheme].sec }]}
                 >
                   <ThemedText style={{ color: '#f8f8f8' }}>OK</ThemedText>
                 </TouchableOpacity>

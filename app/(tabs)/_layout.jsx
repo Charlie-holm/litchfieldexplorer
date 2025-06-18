@@ -1,10 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Tabs, usePathname, useRouter } from 'expo-router';
 import { View, Pressable, Image } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
-import { useCart } from '@/context/CartContext';
 import { SearchModal } from '@/components/search';
 import { SearchProvider } from '@/context/SearchContext';
 import { auth } from '@/firebaseConfig';
@@ -33,8 +32,16 @@ export default function TabLayout() {
   };
   const pageTitle = titleMap[currentScreen] || 'Litchfield Explorer';
 
-  const { cart, setCart, getCart, user } = useCart();
+  const [cart, setCart] = useState([]);
+  const [refreshCartFlag, setRefreshCartFlag] = useState(false);
+  // Expose refreshCart for external usage (e.g., after add/remove API calls)
+  const refreshCart = useCallback(() => {
+    setRefreshCartFlag(flag => !flag);
+  }, []);
+  // Expose refreshCart globally if needed (attach to window for debugging/demo)
+  // window.refreshCart = refreshCart;
 
+  // Fetch profile image
   useEffect(() => {
     const fetchProfileImage = async () => {
       try {
@@ -57,23 +64,48 @@ export default function TabLayout() {
     fetchProfileImage();
   }, []);
 
+  // Fetch cart from Firestore subcollection users/{uid}/cart when auth or refreshCartFlag changes
   useEffect(() => {
-    const unsubscribeAuth = auth.onAuthStateChanged((firebaseUser) => {
-      if (firebaseUser) {
-        const db = getFirestore();
-        const cartRef = collection(db, 'users', firebaseUser.uid, 'cart');
-
-        const unsubscribeCart = onSnapshot(cartRef, async () => {
-          const updatedCart = await getCart();
-          setCart(updatedCart);
-        });
-
-        return () => unsubscribeCart();
+    let unsubscribeCart = null;
+    let isMounted = true;
+    const fetchCart = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        setCart([]);
+        return;
       }
-    });
+      try {
+        const db = getFirestore(app);
+        // Listen to the cart subcollection for real-time updates
+        const cartColRef = collection(db, 'users', user.uid, 'cart');
+        unsubscribeCart = onSnapshot(cartColRef, (snapshot) => {
+          if (!isMounted) return;
+          const cartItems = [];
+          snapshot.forEach(docSnap => {
+            cartItems.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          setCart(cartItems);
+        }, (error) => {
+          if (isMounted) setCart([]);
+        });
+      } catch (error) {
+        if (isMounted) setCart([]);
+      }
+    };
+    fetchCart();
+    return () => {
+      isMounted = false;
+      if (unsubscribeCart) unsubscribeCart();
+    };
+  }, [refreshCartFlag]);
 
+  // Re-fetch cart on auth change
+  useEffect(() => {
+    const unsubscribeAuth = auth.onAuthStateChanged(() => {
+      refreshCart();
+    });
     return () => unsubscribeAuth();
-  }, []);
+  }, [refreshCart]);
 
   useFocusEffect(
     useCallback(() => {
@@ -172,7 +204,11 @@ export default function TabLayout() {
       <Cart
         cartVisible={showCart}
         setCartVisible={setShowCart}
+        refreshCart={refreshCart}
+        cart={cart}
       />
     </SearchProvider>
   );
 }
+// Optionally export refreshCart if you want to import/use it elsewhere:
+// export { refreshCart };

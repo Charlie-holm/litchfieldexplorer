@@ -3,10 +3,10 @@ import { useRouter } from 'expo-router';
 import { Animated, Dimensions, PanResponder, ScrollView, TouchableOpacity, View, Image, StyleSheet, TouchableWithoutFeedback, Text, Alert } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { ThemedText } from '@/components/ThemedText';
-import { useCart } from '@/context/CartContext';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { useGlobalStyles } from '@/constants/globalStyles';
+import { auth } from '@/firebaseConfig';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -17,23 +17,38 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
     const translateY = useRef(new Animated.Value(screenHeight)).current;
     const translateYOffset = useRef(screenHeight);
     const overlayOpacity = useRef(new Animated.Value(0)).current;
-    const { getCart, updateCartItemQuantity, removeFromCart } = useCart();
+    const { theme } = useThemeContext();
+    const globalStyles = useGlobalStyles();
+    const user = auth.currentUser;
     const [cartItems, setCartItems] = useState([]);
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const gst = totalPrice * 0.05;
     const points = Math.round(totalPrice * 5);
-    const { theme } = useThemeContext();
-    const globalStyles = useGlobalStyles();
 
     const fetchCartItems = async () => {
-        const items = await getCart();
-        setCartItems(items || []);
+        const res = await fetch(`http://localhost:3000/api/cart?userId=${user.uid}`);
+        const data = await res.json();
+        setCartItems(data.items || []);
     };
 
     const removeItem = async (id) => {
-        const updated = cartItems.filter(i => i.id !== id);
+        const updated = cartItems.filter(i => i.cartItemId !== id);
         setCartItems(updated);
-        await removeFromCart(id); // sync with database
+        await fetch('http://localhost:3000/api/cart/remove', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.uid, cartItemId: id })
+        });
+    };
+
+    const updateItemQuantity = async (cartItemId, quantity) => {
+        const updated = cartItems.map(i => i.cartItemId === cartItemId ? { ...i, quantity } : i);
+        setCartItems(updated);
+        await fetch('http://localhost:3000/api/cart/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.uid, cartItemId, quantity })
+        });
     };
 
     const resetPosition = (toValue) => {
@@ -214,9 +229,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                                     ]
                                                 );
                                             } else {
-                                                const updated = cartItems.map(i => i.id === item.cartItemId ? { ...i, quantity: i.quantity - 1 } : i);
-                                                setCartItems(updated);
-                                                updateCartItemQuantity(item.cartItemId, item.quantity - 1);
+                                                updateItemQuantity(item.cartItemId, item.quantity - 1);
                                             }
                                         }} style={globalStyles.smallButton}>
                                             <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>−</ThemedText>
@@ -225,9 +238,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                         <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>{item.quantity}</ThemedText>
 
                                         <TouchableOpacity onPress={() => {
-                                            const updated = cartItems.map(i => i.id === item.cartItemId ? { ...i, quantity: i.quantity + 1 } : i);
-                                            setCartItems(updated);
-                                            updateCartItemQuantity(item.cartItemId, item.quantity + 1);
+                                            updateItemQuantity(item.cartItemId, item.quantity + 1);
                                         }} style={globalStyles.smallButton}>
                                             <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>+</ThemedText>
                                         </TouchableOpacity>
