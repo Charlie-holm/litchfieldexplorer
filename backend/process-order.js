@@ -5,6 +5,7 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
+const { checkAndUpdateTiers } = require('./point-system');
 
 // Process a single order by ID
 async function processOrderById(orderId) {
@@ -45,6 +46,7 @@ async function processOrderById(orderId) {
         }
 
         const currentPoints = userDoc.data().points || 0;
+        const newPoints = currentPoints + points;
         const now = new Date();
         const recentActivityEntry = {
             type: 'purchase',
@@ -54,9 +56,12 @@ async function processOrderById(orderId) {
         };
 
         t.update(userRef, {
-            points: currentPoints + points,
+            points: newPoints,
             recentActivity: admin.firestore.FieldValue.arrayUnion(recentActivityEntry),
         });
+
+        // Call the tier checking and update function here
+        await checkAndUpdateTiers(t, userRef, newPoints, userDoc.data());
 
         t.update(doc.ref, { rewarded: true });
 
