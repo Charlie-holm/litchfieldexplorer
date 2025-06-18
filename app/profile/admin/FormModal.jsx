@@ -370,6 +370,7 @@ export default function FormModal({
                                                     style={{ height: '100%', width: '100%' }}
                                                 >
                                                     <Picker.Item label="Category..." value="" />
+                                                    <Picker.Item label="Souvenirs" value="souvenirs" />
                                                     <Picker.Item label="Dress" value="dress" />
                                                     <Picker.Item label="T-Shirts" value="t-shirts" />
                                                     <Picker.Item label="Pants" value="pants" />

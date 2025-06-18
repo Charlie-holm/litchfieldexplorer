@@ -45,7 +45,10 @@ export default function ConfirmationScreen() {
                     Total: ${latestOrder?.total?.toFixed(2) ?? 'Loading...'} ({latestOrder?.items?.length || 0} {latestOrder?.items?.length === 1 ? 'item' : 'items'})
                 </ThemedText>
                 <ThemedText type="defaultSemiBold">Points Earned: {latestOrder?.pointsEarned ?? 'Loading...'}</ThemedText>
-                <ThemedText type="defaultSemiBold">Pickup Location: {latestOrder?.pickupLocation ?? 'Loading...'}</ThemedText>
+                <ThemedText type="defaultSemiBold">Pickup Location: {latestOrder?.pickup ?? 'Loading...'}</ThemedText>
+                {latestOrder?.voucherId && (
+                    <ThemedText type="defaultSemiBold">Rewards: {latestOrder.voucherId}</ThemedText>
+                )}
                 <ThemedText type="defaultSemiBold">Payment: {latestOrder?.paymentMethod ?? 'Loading...'}</ThemedText>
             </View>
 

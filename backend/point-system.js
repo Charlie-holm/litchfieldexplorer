@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 module.exports = (app) => {
     app.post('/api/redeem-reward', async (req, res) => {
         const { userId, rewardId } = req.body;
+        const voucherId = `VOUCHER-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
         if (!userId || !rewardId) {
             return res.status(400).json({
@@ -57,6 +58,7 @@ module.exports = (app) => {
                     rewardName,
                     pointsUsed: pointsRequired,
                     redeemedAt: now,
+                    voucherId,
                 };
 
                 const activity = {
@@ -65,6 +67,7 @@ module.exports = (app) => {
                     rewardName,
                     pointsUsed: pointsRequired,
                     date: now,
+                    voucherId,
                 };
 
                 t.update(userRef, {
@@ -83,6 +86,7 @@ module.exports = (app) => {
                     rewardId,
                     rewardName,
                     pointsUsed: pointsRequired,
+                    voucherId,
                 },
             });
         } catch (err) {

@@ -29,7 +29,7 @@ export default function PointsDetailScreen() {
   const textColor = Colors[colorScheme].tri;
   const borderColor = Colors[colorScheme].for;
 
-  const { nextTier, pointsToNext, formattedExpiryDate, newTier } =
+  const { nextTier, pointsToNext, formattedExpiryDate } =
     getTierDisplayDetails(tier, currentPoints, tierAchievedDate);
 
   const progressColor = Colors.tier[tier] || Colors.tier.Basic;
@@ -265,28 +265,36 @@ export default function PointsDetailScreen() {
               Redeemed Rewards
             </ThemedText>
             <View style={{ marginTop: 10 }}>
-              {redeemedRewards.map((r, idx) => {
-                const redeemedDate =
-                  r.redeemedAt?.toDate?.() || new Date(r.redeemedAt);
-                const expiryDate = new Date(
-                  redeemedDate.getTime() + 30 * 24 * 60 * 60 * 1000,
-                );
-                return (
-                  <View key={idx} style={globalStyles.buttonCard}>
-                    <View>
-                      <ThemedText type="subtitle">🎁 {r.rewardName}</ThemedText>
-                      <ThemedText type="small" style={{ marginTop: 4 }}>
-                        {r.pointsUsed || r.cost} pts | Expires on{' '}
-                        {expiryDate.toLocaleDateString(undefined, {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </ThemedText>
-                    </View>
-                  </View>
-                );
-              })}
+              {redeemedRewards.length === 0 ? (
+                <ThemedText style={{ textAlign: 'left', marginTop: 10 }}>
+                  No redeemed rewards found.
+                </ThemedText>
+              ) : (
+                redeemedRewards
+                  .filter(r => !r.used)
+                  .map((r, idx) => {
+                    const redeemedDate =
+                      r.redeemedAt?.toDate?.() || new Date(r.redeemedAt);
+                    const expiryDate = new Date(
+                      redeemedDate.getTime() + 30 * 24 * 60 * 60 * 1000,
+                    );
+                    return (
+                      <View key={idx} style={globalStyles.buttonCard}>
+                        <View>
+                          <ThemedText type="subtitle">🎁 {r.rewardName}</ThemedText>
+                          <ThemedText type="small" style={{ marginTop: 4 }}>
+                            {r.pointsUsed || r.cost} pts | Expires on{' '}
+                            {expiryDate.toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </ThemedText>
+                        </View>
+                      </View>
+                    );
+                  })
+              )}
             </View>
           </View>
 

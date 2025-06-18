@@ -13,6 +13,7 @@ import { router } from 'expo-router';
 
 const categories = [
     { key: 'all', label: 'All Items', icon: 'square.grid.2x2' },
+    { key: 'souvenirs', label: 'Souvenirs', icon: 'gift' },
     { key: 'dress', label: 'Dress', icon: 'figure.dress.line.vertical.figure' },
     { key: 't-shirts', label: 'T-Shirts', icon: 'tshirt' },
     { key: 'pants', label: 'Pants', icon: 'figure.walk' },

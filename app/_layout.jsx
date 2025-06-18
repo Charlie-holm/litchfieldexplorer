@@ -1,5 +1,5 @@
 import { useFonts } from 'expo-font';
-import { useRouter, Slot } from 'expo-router';
+import { useRouter, Slot, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useState, useEffect } from 'react';
 import 'react-native-reanimated';
@@ -34,7 +34,9 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <CartProvider>
         <ThemeProvider>
-          <Slot />
+          <Stack screenOptions={{ animation: 'slide_from_right', headerShown: false }}>
+            <Slot />
+          </Stack>
         </ThemeProvider>
       </CartProvider>
     </GestureHandlerRootView>

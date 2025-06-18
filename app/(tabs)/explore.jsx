@@ -29,7 +29,10 @@ export default function TabTwoScreen() {
         {attractions[0] && (
           <TouchableOpacity onPress={() => {
             const { id, ...rest } = attractions[0];
-            router.push({ pathname: `/attractiondetail/${id}`, params: rest });
+            router.push({
+              pathname: `/attractiondetail/${id}`,
+              params: { ...rest, animation: 'slide_from_right' },
+            });
           }}>
             <ThemedView style={[globalStyles.heroImage, { width: Dimensions.get('window').width * 0.9 }]}>
               <Image
@@ -55,7 +58,10 @@ export default function TabTwoScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => {
             const { id, ...rest } = item;
-            router.push({ pathname: `/attractiondetail/${id}`, params: rest });
+            router.push({
+              pathname: `/attractiondetail/${id}`,
+              params: { ...rest, animation: 'slide_from_right' },
+            });
           }}>
             <ThemedView style={[globalStyles.heroImage, { width: Dimensions.get('window').width * 0.45 }]}>
               <Image

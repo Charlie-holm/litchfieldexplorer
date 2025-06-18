@@ -67,17 +67,17 @@ export default function ProductDetailScreen() {
   }, [id]);
   // Reset quantity when size or color changes to valid stock or 0
   useEffect(() => {
-  if (!item || !selectedColor) return;
+    if (!item || !selectedColor) return;
 
-  const availableSizesForColor = item.inventory
-    .filter(inv => inv.color === selectedColor && inv.quantity > 0)
-    .map(inv => inv.size);
+    const availableSizesForColor = item.inventory
+      .filter(inv => inv.color === selectedColor && inv.quantity > 0)
+      .map(inv => inv.size);
 
-  if (!availableSizesForColor.includes(selectedSize)) {
-    setSelectedSize(undefined); // Reset the size if it's not available
-    setQuantity(1); // Reset quantity as well
-  }
-}, [selectedColor, item]);
+    if (!availableSizesForColor.includes(selectedSize)) {
+      setSelectedSize(undefined); // Reset the size if it's not available
+      setQuantity(1); // Reset quantity as well
+    }
+  }, [selectedColor, item]);
 
 
   const themeColors = Colors[colorScheme];
@@ -108,7 +108,7 @@ export default function ProductDetailScreen() {
         />
         <TouchableOpacity
           onPress={() => {
-            router.push('/shop');
+            router.back();
           }}
           style={globalStyles.backIcon}
         >

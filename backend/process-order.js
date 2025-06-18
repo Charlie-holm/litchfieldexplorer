@@ -88,7 +88,7 @@ module.exports = (app) => {
 
     // Create a new order
     app.post('/api/create-order', async (req, res) => {
-        const { userId, items, pickup } = req.body;
+        const { userId, items, pickup, voucherId } = req.body;
 
         if (!userId || !items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({ success: false, message: 'Invalid order data' });
@@ -100,11 +100,12 @@ module.exports = (app) => {
             for (const item of items) {
                 subtotal += (item.price || 0) * (item.quantity || 1);
             }
-            const gst = subtotal * 0.1; // 10% GST
+            const gst = Math.round(subtotal * 0.1); // 10% GST rounded
             const total = subtotal + gst;
-            const pointsEarned = Math.floor(total / 10); // 1 point per $10
+            const pointsEarned = Math.floor(subtotal * 5); // total * 5 points
 
             const orderRef = db.collection('orders').doc();
+            const orderNumber = `ORD-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
             await orderRef.set({
                 userId,
                 items,
@@ -115,10 +116,40 @@ module.exports = (app) => {
                 pointsEarned,
                 rewarded: false,
                 status: 'pending',
+                voucherId: voucherId || null,
+                orderNumber,
+                paymentMethod: 'ApplePay',
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
             });
 
-            res.json({ success: true, orderId: orderRef.id, subtotal, gst, total, pointsEarned });
+            await processOrderById(orderRef.id);
+
+            // Mark voucher as used if voucherId is provided
+            if (voucherId) {
+                const userRef = db.collection('users').doc(userId);
+                const userDoc = await userRef.get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    const redeemedRewards = userData.redeemedRewards || [];
+                    const updatedRedeemedRewards = redeemedRewards.map(r => {
+                        if (r.voucherId === voucherId) {
+                            return { ...r, used: true };
+                        }
+                        return r;
+                    });
+                    await userRef.update({ redeemedRewards: updatedRedeemedRewards });
+                }
+            }
+
+            res.json({
+                success: true,
+                orderId: orderRef.id,
+                orderNumber,
+                subtotal,
+                gst,
+                total,
+                pointsEarned
+            });
         } catch (err) {
             console.error('❌ Failed to create order:', err);
             res.status(500).json({ success: false, message: err.message });

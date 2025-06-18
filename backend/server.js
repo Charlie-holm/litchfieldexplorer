@@ -8,6 +8,9 @@ app.use(express.json());
 require('./point-system')(app);
 require('./process-order')(app);
 
+const setupRewardRoutes = require('./process-reward').default;
+setupRewardRoutes(app);
+
 app.listen(PORT, () => {
     console.log(`🟢 Server listening on port ${PORT}`);
 });
