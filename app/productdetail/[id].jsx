@@ -67,15 +67,18 @@ export default function ProductDetailScreen() {
   }, [id]);
   // Reset quantity when size or color changes to valid stock or 0
   useEffect(() => {
-    if (!item) return;
-    const currentStock = item.inventory?.find(
-      inv => inv.size === selectedSize && inv.color === selectedColor
-    )?.quantity || 1;
+  if (!item || !selectedColor) return;
 
-    if (quantity > currentStock) {
-      setQuantity(currentStock > 0 ? currentStock : 0);
-    }
-  }, [selectedSize, selectedColor, item])
+  const availableSizesForColor = item.inventory
+    .filter(inv => inv.color === selectedColor && inv.quantity > 0)
+    .map(inv => inv.size);
+
+  if (!availableSizesForColor.includes(selectedSize)) {
+    setSelectedSize(undefined); // Reset the size if it's not available
+    setQuantity(1); // Reset quantity as well
+  }
+}, [selectedColor, item]);
+
 
   const themeColors = Colors[colorScheme];
   // Removed useCart and addToCart usage
