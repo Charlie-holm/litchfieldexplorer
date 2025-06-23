@@ -223,9 +223,15 @@ export function SearchModal({ visible, onClose }) {
                                         >
                                             <Pressable
                                                 onPress={() => {
-                                                    if (item.type === 'attraction') router.push({ pathname: `/attractiondetail/${item.id}` });
-                                                    else if (item.type === 'product') router.push({ pathname: `/productdetail/${item.id}` });
-                                                    else if (item.type === 'tab') {
+                                                    if (item.type === 'attraction') {
+                                                        router.push({ pathname: `/attractiondetail/${item.id}` });
+                                                        onClose();
+                                                        setSearchText('');
+                                                    } else if (item.type === 'product') {
+                                                        router.push({ pathname: `/productdetail/${item.id}` });
+                                                        onClose();
+                                                        setSearchText('');
+                                                    } else if (item.type === 'tab') {
                                                         router.push(item.route);
                                                         onClose();
                                                         setSearchText('');

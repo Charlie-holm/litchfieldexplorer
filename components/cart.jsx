@@ -189,13 +189,15 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
                                             >
                                                 {item.name}
                                             </ThemedText>
-                                            <ThemedText
-                                                type="small"
-                                                numberOfLines={0}
-                                                style={{ flexWrap: 'wrap', color: '#f8f8f8' }}
-                                            >
-                                                Size: {item.size}
-                                            </ThemedText>
+                                            {item.size ? (
+                                                <ThemedText
+                                                    type="small"
+                                                    numberOfLines={0}
+                                                    style={{ flexWrap: 'wrap', color: '#f8f8f8' }}
+                                                >
+                                                    Size: {item.size}
+                                                </ThemedText>
+                                            ) : null}
                                             <ThemedText
                                                 type="small"
                                                 numberOfLines={0}

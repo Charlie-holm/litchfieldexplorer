@@ -28,27 +28,39 @@ async function processOrderById(orderId) {
         return db.collection('products').doc(item.id);
     });
 
+    // ✅ Pre-check inventory before starting transaction
+    const productDocs = await Promise.all(productRefs.map(ref => ref.get()));
+    for (let i = 0; i < order.items.length; i++) {
+        const item = order.items[i];
+        const productDoc = productDocs[i];
+        if (!productDoc.exists) throw new Error(`Product ${item.id} not found`);
+        const currentInventory = productDoc.data().inventory || [];
+        const valid = currentInventory.some(invItem =>
+            (!item.size || invItem.size === item.size) &&
+            (!item.color || invItem.color === item.color) &&
+            (invItem.quantity || 0) >= (item.quantity || 1)
+        );
+        if (!valid) throw new Error(`Not enough inventory for product ${item.id}`);
+    }
+
+    // ✅ If check passes, run transaction for updates and points
     await db.runTransaction(async (t) => {
         const userDoc = await t.get(userRef);
         if (!userDoc.exists) throw new Error('User not found');
 
-        const productDocs = await Promise.all(
+        const productDocsTx = await Promise.all(
             productRefs.map(ref => t.get(ref))
         );
 
         for (let i = 0; i < order.items.length; i++) {
             const item = order.items[i];
-            const productDoc = productDocs[i];
-            if (!productDoc.exists) throw new Error(`Product ${item.id} not found`);
+            const productDoc = productDocsTx[i];
             const currentInventory = productDoc.data().inventory || [];
             const updatedInventory = currentInventory.map(invItem => {
                 if (
-                    (item.size && invItem.size === item.size) &&
-                    (item.color ? invItem.color === item.color : true)
+                    (!item.size || invItem.size === item.size) &&
+                    (!item.color || invItem.color === item.color)
                 ) {
-                    if ((invItem.quantity || 0) < (item.quantity || 1)) {
-                        throw new Error(`Not enough inventory for product ${item.id}`);
-                    }
                     return { ...invItem, quantity: invItem.quantity - item.quantity };
                 }
                 return invItem;
@@ -112,7 +124,29 @@ module.exports = (app) => {
             }
             const gst = Math.round(subtotal * 0.1); // 10% GST rounded
             const total = subtotal + gst;
-            const pointsEarned = Math.floor(subtotal * 5); // total * 5 points
+            const pointsEarned = Math.round(subtotal * 5); // total * 5 points
+
+            // Pre-check inventory before creating order
+            const productRefs = items.map(item => {
+                if (!item.id) {
+                    throw new Error(`Invalid item: missing product id`);
+                }
+                return db.collection('products').doc(item.id);
+            });
+
+            const productDocs = await Promise.all(productRefs.map(ref => ref.get()));
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const productDoc = productDocs[i];
+                if (!productDoc.exists) throw new Error(`Product ${item.id} not found`);
+                const currentInventory = productDoc.data().inventory || [];
+                const valid = currentInventory.some(invItem =>
+                    (!item.size || invItem.size === item.size) &&
+                    (!item.color || invItem.color === item.color) &&
+                    (invItem.quantity || 0) >= (item.quantity || 1)
+                );
+                if (!valid) throw new Error(`Not enough inventory for product ${item.id}`);
+            }
 
             const orderRef = db.collection('orders').doc();
             const orderNumber = `ORD-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import { View, ScrollView, TouchableOpacity, Image, Animated } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { useThemeContext } from '@/context/ThemeProvider';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -24,6 +25,7 @@ export default function CheckoutIndex() {
     const [redeemedRewards, setRedeemedRewards] = useState([]);
     // Discount value state
     const [discountValue, setDiscountValue] = useState(0);
+    const [isProcessing, setIsProcessing] = useState(false);
     // Apply reward to cart (accepts voucherId)
     async function applyReward(voucherId) {
         console.log('Applying voucherId:', voucherId);
@@ -286,11 +288,16 @@ export default function CheckoutIndex() {
                                     alert('Please select a pickup location.');
                                     return;
                                 }
-                                await placeOrder({
-                                    items,
-                                    selectedPickup,
-                                    voucherId: selectedReward?.voucherId || null
-                                });
+                                setIsProcessing(true);
+                                try {
+                                    await placeOrder({
+                                        items,
+                                        selectedPickup,
+                                        voucherId: selectedReward?.voucherId || null,
+                                    });
+                                } finally {
+                                    setIsProcessing(false);
+                                }
                             }}
                         >
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -364,6 +371,20 @@ export default function CheckoutIndex() {
                             <ThemedText type="subtitle" style={{ color: '#f8f8f8' }}>Close</ThemedText>
                         </TouchableOpacity>
                     </View>
+                </View>
+            )}
+            {isProcessing && (
+                <View style={{
+                    ...StyleSheet.absoluteFillObject,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999,
+                }}>
+                    <ActivityIndicator size="large" color="#fff" />
+                    <ThemedText type="subtitle" style={{ marginTop: 12, color: '#fff' }}>
+                        Processing your order...
+                    </ThemedText>
                 </View>
             )}
         </>
