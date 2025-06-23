@@ -91,13 +91,18 @@ export default function ProductDetailScreen() {
     );
   }
 
-  const imageSource = { uri: item.imageUrl };
+  const imageSource = item.imageUrl
+  ? { uri: item.imageUrl }
+  : require('@/assets/images/home1.jpg');
 
   const currentStock = item.inventory?.find(
     inv => inv.size === selectedSize && inv.color === selectedColor
   )?.quantity || 1;
 
-  const isAddDisabled = !selectedSize || !selectedColor;
+  const isAddDisabled = item.category !== 'souvenirs'
+  ? (!selectedSize || !selectedColor)
+  : !selectedColor;
+
 
   return (
     <ThemedView style={{ flex: 1, backgroundColor: themeColors.pri }}>
@@ -158,6 +163,7 @@ export default function ProductDetailScreen() {
 
               <View style={{ marginBottom: 16 }}>
                 {/* SIZE SELECTOR */}
+                {item.category !== 'souvenirs' && (
                 <View style={globalStyles.selectorGroup}>
                   <ThemedText type={'subtitle'} style={{ marginBottom: 10 }}>Size</ThemedText>
                   <View style={globalStyles.sizeRow}>
@@ -199,6 +205,7 @@ export default function ProductDetailScreen() {
                     })}
                   </View>
                 </View>
+              )}
 
                 <View style={[globalStyles.selectorGroup, { marginTop: 16 }]}>
                   <ThemedText type={'subtitle'} style={{ marginBottom: 10 }}>Color</ThemedText>
@@ -246,7 +253,23 @@ export default function ProductDetailScreen() {
                     quantity,
                     size: selectedSize,
                     color: selectedColor,
+                    category: item.category,
                   };
+                  if (
+                      !itemToAdd.id ||
+                      !itemToAdd.name ||
+                      !itemToAdd.color ||
+                      quantity <= 0 ||
+                      (item.category !== 'souvenirs' && !selectedSize)
+                    ) {
+                      alert('Please select all required fields before adding to cart.');
+                      return;
+                    }
+                    console.log('Sending to backend:', {
+                      userId,
+                      item: itemToAdd
+                    });
+
                   try {
                     const response = await fetch('http://localhost:3000/api/cart/add', {
                       method: 'POST',

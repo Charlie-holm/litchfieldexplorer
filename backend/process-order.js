@@ -158,9 +158,20 @@ module.exports = (app) => {
     // Add item to cart
     app.post('/api/cart/add', async (req, res) => {
         const { userId, item } = req.body;
-        if (!userId || !item || !item.id || !item.size || !item.color) {
-            return res.status(400).json({ success: false, message: 'Invalid item data' });
-        }
+
+    if (!userId || !item || !item.id || !item.color || !item.category) {
+        return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    const category = (item.category || '').toString().trim().toLowerCase();
+    const isSouvenir = category === 'souvenirs';
+
+    console.log('🛒 Incoming item:', item);
+    console.log('🧪 Category:', category, '| isSouvenir:', isSouvenir);
+
+    if (!isSouvenir && (!item.size || item.size === '')) {
+        return res.status(400).json({ success: false, message: 'Size is required for non-souvenir items' });
+    }
         try {
             const cartItemId = `${item.id}-${item.size}-${item.color}`;
             const itemRef = db.collection('users').doc(userId).collection('cart').doc(cartItemId);

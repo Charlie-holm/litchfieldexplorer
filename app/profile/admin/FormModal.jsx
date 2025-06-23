@@ -283,6 +283,7 @@ export default function FormModal({
 
                                     {(form.inventory || []).map((entry, idx) => (
                                         <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                                            {form.category !== 'souvenirs' && (
                                             <TextInput
                                                 placeholder="Size"
                                                 placeholderTextColor={Colors[colorScheme].tri}
@@ -294,6 +295,7 @@ export default function FormModal({
                                                 }}
                                                 style={{ flex: 1, marginRight: 4, color: Colors[colorScheme].highlight, }}
                                             />
+                                            )}
                                             <TextInput
                                                 placeholder="Color"
                                                 placeholderTextColor={Colors[colorScheme].tri}
@@ -325,7 +327,7 @@ export default function FormModal({
                                                 <IconSymbol name="xmark" size={20} />
                                             </Pressable>
                                         </View>
-                                    ))}
+                                        ))}
 
                                     <Pressable
                                         onPress={() => {
