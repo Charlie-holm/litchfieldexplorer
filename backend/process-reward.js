@@ -123,10 +123,10 @@ export default function setupRewardRoutes(app) {
                     return res.status(400).json({ error: 'Free reward product not found' });
                 }
                 const productInfo = productDoc.data();
-                const freeItemInCart = updatedCartItems.find(item => item.productId === freeProductId);
+                const freeItemInCart = updatedCartItems.find(item => (item.id || item.productId) === freeProductId);
                 if (!freeItemInCart) {
                     updatedCartItems.push({
-                        productId: freeProductId,
+                        id: freeProductId, // use 'id' instead of 'productId'
                         quantity: 1,
                         price: 0,
                         freeRewardAdded: true,

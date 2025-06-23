@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, TextInput, Pressable, Alert } from 'react-native';
+import { View, TextInput, Pressable, Alert, ActivityIndicator, StyleSheet } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -16,6 +16,7 @@ export default function AuthIndex() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const globalStyles = useGlobalStyles();
 
@@ -34,11 +35,14 @@ export default function AuthIndex() {
 
     const handleLogin = async () => {
         try {
+            setIsLoading(true);
             await signInWithEmailAndPassword(auth, email, password);
             console.log('Logged in!');
             router.replace('/(tabs)');
         } catch (error) {
             setErrorMessage('Login failed. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -115,6 +119,17 @@ export default function AuthIndex() {
                     </Pressable>
                 </View>
             </ThemedView>
+            {isLoading && (
+                <View style={{
+                    ...StyleSheet.absoluteFillObject,
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999,
+                }}>
+                    <ActivityIndicator size="large" color="#fff" />
+                </View>
+            )}
         </ThemedView>
 
     );

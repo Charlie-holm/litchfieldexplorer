@@ -22,10 +22,11 @@ async function processOrderById(orderId) {
         throw new Error('Order has no items');
     }
     const productRefs = order.items.map(item => {
-        if (!item.id) {
+        const prodId = item.id || item.productId;
+        if (!prodId) {
             throw new Error(`Invalid item: missing product id`);
         }
-        return db.collection('products').doc(item.id);
+        return db.collection('products').doc(prodId);
     });
 
     // ✅ Pre-check inventory before starting transaction
@@ -128,10 +129,11 @@ module.exports = (app) => {
 
             // Pre-check inventory before creating order
             const productRefs = items.map(item => {
-                if (!item.id) {
+                const prodId = item.id || item.productId;
+                if (!prodId) {
                     throw new Error(`Invalid item: missing product id`);
                 }
-                return db.collection('products').doc(item.id);
+                return db.collection('products').doc(prodId);
             });
 
             const productDocs = await Promise.all(productRefs.map(ref => ref.get()));
@@ -219,8 +221,11 @@ module.exports = (app) => {
         try {
             const cartItemId = `${item.id}-${item.size}-${item.color}`;
             const itemRef = db.collection('users').doc(userId).collection('cart').doc(cartItemId);
+            const existingDoc = await itemRef.get();
+            const existingQuantity = existingDoc.exists ? (existingDoc.data().quantity || 0) : 0;
             await itemRef.set({
                 ...item,
+                quantity: existingQuantity + (item.quantity || 1),
                 cartItemId,
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
