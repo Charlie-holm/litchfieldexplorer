@@ -240,7 +240,8 @@ export default function ProductDetailScreen() {
                   (isAddDisabled || currentStock === 0)
                     ? globalStyles.pillButtonDisabled
                     : globalStyles.pillButton,
-                  { marginTop: 20, width: '100%' }]}
+                  { marginTop: item.category?.toLowerCase() === 'souvenirs' ? 40 : 20,
+                    width: '100%'},]}
 
                 onPress={async () => {
                   const user = auth.currentUser;
@@ -255,9 +256,9 @@ export default function ProductDetailScreen() {
                     price: item.price || 0,
                     image: item.imageUrl,
                     quantity,
-                    size: selectedSize,
-                    color: selectedColor,
+                    color: selectedColor.trim(),
                     category: item.category,
+                    ...(item.category.toLowerCase() !== 'souvenirs' && selectedSize ? { size: selectedSize } : {}),
                   };
                   if (
                       !itemToAdd.id ||
@@ -269,11 +270,6 @@ export default function ProductDetailScreen() {
                       alert('Please select all required fields before adding to cart.');
                       return;
                     }
-                    console.log('Sending to backend:', {
-                      userId,
-                      item: itemToAdd
-                    });
-
                   try {
                     const response = await fetch('http://localhost:3000/api/cart/add', {
                       method: 'POST',
