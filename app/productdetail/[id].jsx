@@ -144,8 +144,12 @@ export default function ProductDetailScreen() {
                     setQuantity(prev => {
                       if (prev < currentStock) return prev + 1;
                       else {
+                        const isSouvenir = item.category.toLowerCase() === 'souvenirs';
+                        const sizePart = isSouvenir ? '' : ` (Size: ${selectedSize},`;
+                        const colorPart = `(Color: ${selectedColor})`;
+
                         setAlertTitle('Stock Alert');
-                        setAlertMessage(`Only ${currentStock} ${item.name} (Size: ${selectedSize}, Color: ${selectedColor}) available in stock.`);
+                        setAlertMessage(`Only ${currentStock} ${item.name} ${sizePart}${colorPart} available in stock.`);
                         setShowAlertModal(true);
                         return prev;
                       }
@@ -279,8 +283,10 @@ export default function ProductDetailScreen() {
                       body: JSON.stringify({ userId, item: itemToAdd }),
                     });
                     if (response.ok) {
+                      const isSouvenir = item.category.toLowerCase() === 'souvenirs';
+                      const sizePart = isSouvenir ? '' : `Size: ${selectedSize}, `;
                       setAlertTitle('Added to Cart');
-                      setAlertMessage(`${quantity} ${item.name} (Size: ${selectedSize}, Color: ${selectedColor}) added`);
+                      setAlertMessage(`${quantity} ${item.name} (${sizePart}Color: ${selectedColor}) added`);
                       setShowAlertModal(true);
                     } else {
                       const errorData = await response.json();
