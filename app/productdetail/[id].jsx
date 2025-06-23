@@ -13,7 +13,7 @@ import { auth } from '@/firebaseConfig';
 
 const sizes = ['S', 'M', 'L', 'XL'];
 
-export default function ProductDetailScreen() {
+export default function ProductDetail() {
   const { theme: colorScheme } = useThemeContext();
   const globalStyles = useGlobalStyles();
   const route = useRoute();

@@ -8,7 +8,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { getFirestore, collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
-export default function ConfirmationScreen() {
+export default function CheckoutConfirmation() {
     const router = useRouter();
     const globalStyles = useGlobalStyles();
     const theme = useColorScheme();

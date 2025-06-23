@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/firebaseConfig';
 
-export default function ForgetPasswordScreen() {
+export default function ForgetPassword() {
     const { theme: colorScheme } = useThemeContext();
     const globalStyles = useGlobalStyles();
     const [email, setEmail] = useState('');

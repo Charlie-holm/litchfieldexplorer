@@ -7,7 +7,7 @@ import { useThemeContext } from '@/context/ThemeProvider';
 import { router } from 'expo-router';
 import { getCachedAttractions } from '@/context/dataCache';
 
-export default function TabTwoScreen() {
+export default function Explore() {
   const { theme: colorScheme } = useThemeContext();
   const globalStyles = useGlobalStyles();
   const [attractions, setAttractions] = useState([]);

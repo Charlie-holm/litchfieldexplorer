@@ -1,12 +1,7 @@
 import NetInfo from '@react-native-community/netinfo';
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import {
-    getAuth,
-    initializeAuth,
-    getReactNativePersistence,
-} from 'firebase/auth';
-import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
     apiKey: "AIzaSyD2q5IkfWKU5-5k6tAU_RV5_ab5IHI2IzI",
@@ -18,13 +13,11 @@ const firebaseConfig = {
     measurementId: "G-QVMEDFWTPS"
 };
 
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 console.log('Firebase app initialized:', app.name);
 
-const auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage),
-});
+const auth = getAuth(app);
 
 const db = getFirestore(app);
 

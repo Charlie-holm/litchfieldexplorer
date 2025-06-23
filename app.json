@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Litchfield-app",
-    "slug": "Litchfield-app",
+    "name": "Litchfield-Explorer",
+    "slug": "Litchfield-Explorer",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -14,7 +14,7 @@
         "NSCameraUsageDescription": "This app needs access to your camera to scan QR codes.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "bundleIdentifier": "com.charlielmho.Litchfieldapp"
+      "bundleIdentifier": "com.charlielmho.LitchfieldExplorer"
     },
     "android": {
       "adaptiveIcon": {

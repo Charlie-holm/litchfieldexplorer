@@ -10,7 +10,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { getCachedQuickInfo } from '@/context/dataCache';
 
-export default function HomeScreen() {
+export default function TabsIndex() {
   const [showModal, setShowModal] = useState(false);
   const [quickInfos, setQuickInfos] = useState([]);
   const { theme: colorScheme } = useThemeContext();

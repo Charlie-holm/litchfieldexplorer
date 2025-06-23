@@ -12,7 +12,7 @@ import { useFonts } from 'expo-font';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function SignupScreen() {
+export default function Signup() {
     const { theme: colorScheme } = useThemeContext();
     const [firstname, setFirstName] = useState('');
     const [lastname, setLastName] = useState('');

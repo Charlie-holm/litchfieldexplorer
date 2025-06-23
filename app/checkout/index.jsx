@@ -9,7 +9,7 @@ import { Colors } from '@/constants/Colors';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { router } from 'expo-router';
 
-export default function CheckoutScreen() {
+export default function CheckoutIndex() {
     const { theme: colorScheme } = useThemeContext();
     const themeColors = Colors[colorScheme];
     const globalStyles = useGlobalStyles();

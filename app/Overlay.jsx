@@ -4,7 +4,7 @@ import { Dimensions, StyleSheet, View } from "react-native";
 const { width, height } = Dimensions.get("window");
 const innerDimension = 300;
 
-export const Overlay = () => {
+export default function Overlay() {
     return (
         <View style={styles.container}>
             <View style={styles.topOverlay} />
@@ -16,7 +16,7 @@ export const Overlay = () => {
             <View style={styles.bottomOverlay} />
         </View>
     );
-};
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -57,5 +57,3 @@ const styles = StyleSheet.create({
         borderColor: 'white',
     },
 });
-
-export default Overlay;

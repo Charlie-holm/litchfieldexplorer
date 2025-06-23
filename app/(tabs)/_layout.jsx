@@ -15,7 +15,7 @@ import Cart from '@/components/cart';
 import { useFocusEffect } from '@react-navigation/native';
 import { getCachedAttractions, getCachedProducts, getCachedKeywords } from '@/context/dataCache';
 
-export default function TabLayout() {
+export default function Layout() {
   const globalStyles = useGlobalStyles();
   const { theme: colorScheme } = useThemeContext();
   const pathname = usePathname();

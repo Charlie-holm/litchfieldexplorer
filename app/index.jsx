@@ -1,14 +1,19 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Camera, CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useRef, useEffect } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
-import { Overlay } from "./Overlay";
+import Overlay from "./Overlay";
 import { auth, isFirebaseReady, db } from '@/firebaseConfig';
 import { downloadAndCacheData } from '@/context/dataCache';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 
-export default function App() {
+// Debugging logs for imported modules
+console.log('Overlay:', Overlay);
+console.log('Camera:', Camera);
+console.log('useCameraPermissions:', useCameraPermissions);
+
+export default function Index() {
     const qrLock = useRef(false);
     const [permission, requestPermission] = useCameraPermissions();
     const [needsDownload, setNeedsDownload] = useState(true);

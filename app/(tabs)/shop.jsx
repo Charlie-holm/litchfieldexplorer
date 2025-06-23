@@ -19,7 +19,7 @@ const categories = [
     { key: 'pants', label: 'Pants', icon: 'figure.walk' },
 ];
 
-export default function ShopScreen() {
+export default function Shop() {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [items, setItems] = useState([]);
     const { theme: colorScheme } = useThemeContext();

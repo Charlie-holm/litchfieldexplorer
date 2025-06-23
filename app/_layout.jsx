@@ -10,7 +10,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 SplashScreen.preventAutoHideAsync();
 
 
-export default function RootLayout() {
+export default function Layout() {
 
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -34,9 +34,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <CartProvider>
         <ThemeProvider>
-          <Stack screenOptions={{ animation: 'slide_from_right', headerShown: false }}>
-            <Slot />
-          </Stack>
+          <Stack screenOptions={{ animation: 'slide_from_right', headerShown: false }} />
         </ThemeProvider>
       </CartProvider>
     </GestureHandlerRootView>
