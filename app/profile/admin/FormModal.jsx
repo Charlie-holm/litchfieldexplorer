@@ -275,27 +275,29 @@ export default function FormModal({
                                     <ThemedText type="defaultSemiBold">Size & Color Inventory</ThemedText>
 
                                     <View style={{ flexDirection: 'row', paddingVertical: 4, borderBottomWidth: 1, borderColor: '#ccc', marginBottom: 6 }}>
+                                        {form.category !== 'souvenirs' && (
                                         <ThemedText type="default" style={{ flex: 1 }}>Size</ThemedText>
+                                        )}
                                         <ThemedText type="default" style={{ flex: 1 }}>Color</ThemedText>
                                         <ThemedText type="default" style={{ flex: 1 }}>Qty</ThemedText>
                                         <Text style={{ width: 30 }} />
                                     </View>
 
-                                    {(form.inventory || []).map((entry, idx) => (
+                                   {(form.inventory || []).map((entry, idx) => (
                                         <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-                                            {form.category !== 'souvenirs' && (
-                                            <TextInput
-                                                placeholder="Size"
-                                                placeholderTextColor={Colors[colorScheme].tri}
-                                                value={entry.size}
-                                                onChangeText={(text) => {
-                                                    const updated = [...form.inventory];
-                                                    updated[idx].size = text;
-                                                    setForm(prev => ({ ...prev, inventory: updated }));
-                                                }}
-                                                style={{ flex: 1, marginRight: 4, color: Colors[colorScheme].highlight, }}
-                                            />
-                                            )}
+                                            {form.category !== 'souvenirs' ? (
+                                                <TextInput
+                                                    placeholder="Size"
+                                                    placeholderTextColor={Colors[colorScheme].tri}
+                                                    value={entry.size}
+                                                    onChangeText={(text) => {
+                                                        const updated = [...form.inventory];
+                                                        updated[idx].size = text;
+                                                        setForm(prev => ({ ...prev, inventory: updated }));
+                                                    }}
+                                                     style={{ flex: 1, marginRight: 4, color: Colors[colorScheme].highlight }}
+                                                />
+                                            ) : null}
                                             <TextInput
                                                 placeholder="Color"
                                                 placeholderTextColor={Colors[colorScheme].tri}
