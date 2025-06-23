@@ -1,5 +1,5 @@
-import { Modal, Pressable, View, Image, ScrollView, Dimensions } from 'react-native';
-import { useEffect, useState } from 'react';
+import { Modal, Pressable, View, Image, FlatList, Dimensions, ScrollView } from 'react-native';
+import { useEffect, useState, useRef } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { useGlobalStyles } from '@/constants/globalStyles';
@@ -16,6 +16,18 @@ export default function TabsIndex() {
   const { theme: colorScheme } = useThemeContext();
   const globalStyles = useGlobalStyles();
 
+  const images = [
+    require('@/assets/images/home1.jpg'),
+    require('@/assets/images/home2.jpg'),
+    require('@/assets/images/home3.jpg'),
+  ];
+
+  const repeatCount = 100;
+  const imageList = Array.from({ length: repeatCount }, () => images).flat();
+
+  const flatListRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(images.length * repeatCount / 2);
+
   useEffect(() => {
     const loadQuickInfo = async () => {
       const cached = await getCachedQuickInfo();
@@ -24,32 +36,54 @@ export default function TabsIndex() {
     loadQuickInfo();
   }, []);
 
+  useEffect(() => {
+    // Jump to middle copy on mount
+    flatListRef.current?.scrollToIndex({ index: currentIndex, animated: false });
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      let nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
+      flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [currentIndex]);
+
   return (
     <ThemedView style={globalStyles.container}>
       <ThemedView style={globalStyles.itemContainer}>
         <View style={globalStyles.heroImage}>
-          <ScrollView
+          <FlatList
+            ref={flatListRef}
+            data={imageList}
             horizontal
             pagingEnabled
-            showsHorizontalScrollIndicator={true}
-            style={{ flex: 1 }}
-          >
-            <Image
-              source={require('@/assets/images/home1.jpg')}
-              resizeMode="cover"
-              style={[globalStyles.image, { width: Dimensions.get('window').width * 0.9 }]}
-            />
-            <Image
-              source={require('@/assets/images/home2.jpg')}
-              resizeMode="cover"
-              style={[globalStyles.image, { width: Dimensions.get('window').width * 0.9 }]}
-            />
-            <Image
-              source={require('@/assets/images/home3.jpg')}
-              resizeMode="cover"
-              style={[globalStyles.image, { width: Dimensions.get('window').width * 0.9 }]}
-            />
-          </ScrollView>
+            showsHorizontalScrollIndicator={false}
+            getItemLayout={(_, index) => ({
+              length: Dimensions.get('window').width * 0.9,
+              offset: (Dimensions.get('window').width * 0.9) * index,
+              index,
+            })}
+            onMomentumScrollEnd={(e) => {
+              const index = Math.round(e.nativeEvent.contentOffset.x / (Dimensions.get('window').width * 0.9));
+              setCurrentIndex(index);
+              // If near start or end, reset to middle copy to keep illusion infinite
+              if (index < images.length || index > imageList.length - images.length) {
+                const middleIndex = images.length * repeatCount / 2;
+                setCurrentIndex(middleIndex);
+                flatListRef.current?.scrollToIndex({ index: middleIndex, animated: false });
+              }
+            }}
+            renderItem={({ item }) => (
+              <Image
+                source={item}
+                resizeMode="cover"
+                style={[globalStyles.image, { width: Dimensions.get('window').width * 0.9 }]}
+              />
+            )}
+            keyExtractor={(_, index) => index.toString()}
+          />
         </View>
         <ThemedText type="title" style={{ paddingBottom: 20 }}>Welcome to Litchfield!</ThemedText>
         <Pressable onPress={() => setShowModal(true)}>
