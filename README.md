@@ -1,50 +1,70 @@
-# Welcome to your Expo app 👋
+🌿 Litchfield Explorer
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+📍 Description
 
-## Get started
+Litchfield Explorer is a mobile app designed to help tourists and locals discover and navigate Litchfield National Park and nearby attractions. It offers easy access to information about waterfalls, trails, swimming spots, and local shops, all while supporting the local community. With offline access and in-app admin tools, the app ensures visitors have reliable information, even in remote areas.
 
-1. Install dependencies
+⸻
 
-   ```bash
-   npm install
-   ```
+🧭 Approach
 
-2. Start the app
+The app is developed with a mobile-first, user-friendly approach using modern technologies. Key principles include:
+	•	A clean, themed user interface with light/dark modes.
+	•	Secure user authentication and session management.
+	•	Offline capability to handle poor connectivity common in remote parks.
+	•	An in-app admin dashboard for easy content management by authorized users.
+	•	Organized, modular code for maintainability and scalability.
 
-   ```bash
-    npx expo start
-   ```
+⸻
 
-In the output, you'll find options to open the app in a
+⚙️ Tech Stack
+	•	Framework: React Native (with Expo)
+	•	Backend: Firebase Authentication & Firestore
+	•	Routing: expo-router for navigation
+	•	Offline Support: Local caching for attractions and shop data
+	•	Admin Dashboard: Built into the app for managing attractions and shops
+	•	Theming: Custom global styles and dynamic light/dark themes
+	•	State Management: React hooks and Context API
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+⸻
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+✨ Key Features (Implemented)
 
-## Get a fresh project
+✅ User Authentication:
+	•	Email/password sign-up and secure login
+	•	Password recovery option
 
-When you're ready, run:
+✅ Explore & Discover:
+	•	Browse detailed attractions and local shops with images and descriptions
+	•	Search functionality for easy discovery
 
-```bash
-npm run reset-project
-```
+✅ Local Shops & Vendors:
+	•	Information on local businesses and their products
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+✅ Offline Mode:
+	•	Cached attraction and shop data for use without internet
 
-## Learn more
+✅ In-App Admin Dashboard:
+	•	Manage attractions and shop listings directly from the app
+	•	Add, update, or remove content easily
 
-To learn more about developing your project with Expo, look at the following resources:
+✅ Responsive Theming:
+	•	Supports light and dark mode for comfortable viewing
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+✅ Smooth Feedback:
+	•	Loading indicators and clear error messages for a seamless experience
 
-## Join the community
+⸻
 
-Join our community of developers creating universal apps.
+🚀 Future Expectations
+	•	Attraction & Product Reviews: Allow users to submit and read ratings and feedback
+	•	Interactive Map: Show attractions and shops on a map with navigation support
+	•	Saved Favourites: Let users bookmark places and plan trips
+	•	Push Notifications: Keep users informed about events, alerts, or promotions
+	•	Verified Badges: Build trust by verifying user actions and reviews
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+⸻
+
+🎯 Goal
+
+To provide an all-in-one, reliable guide for exploring Litchfield National Park, enriching visitor experiences and boosting support for local businesses and communities.
