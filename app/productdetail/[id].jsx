@@ -92,16 +92,16 @@ export default function ProductDetail() {
   }
 
   const imageSource = item.imageUrl
-  ? { uri: item.imageUrl }
-  : require('@/assets/images/home1.jpg');
+    ? { uri: item.imageUrl }
+    : require('@/assets/images/home1.jpg');
 
   const currentStock = item.inventory?.find(
     inv => inv.size === selectedSize && inv.color === selectedColor
   )?.quantity || 1;
 
   const isAddDisabled = item.category !== 'souvenirs'
-  ? (!selectedSize || !selectedColor)
-  : !selectedColor;
+    ? (!selectedSize || !selectedColor)
+    : !selectedColor;
 
 
   return (
@@ -168,48 +168,48 @@ export default function ProductDetail() {
               <View style={{ marginBottom: 16 }}>
                 {/* SIZE SELECTOR */}
                 {item.category !== 'souvenirs' && (
-                <View style={globalStyles.selectorGroup}>
-                  <ThemedText type={'subtitle'} style={{ marginBottom: 10 }}>Size</ThemedText>
-                  <View style={globalStyles.sizeRow}>
-                    {sizes.map(size => {
-                      const match = item.inventory?.find(i => i.size === size && i.color === selectedColor);
-                      const isAvailable = match ? match.quantity > 0 : false;
-                      const isSelected = selectedSize === size;
+                  <View style={globalStyles.selectorGroup}>
+                    <ThemedText type={'subtitle'} style={{ marginBottom: 10 }}>Size</ThemedText>
+                    <View style={globalStyles.sizeRow}>
+                      {sizes.map(size => {
+                        const match = item.inventory?.find(i => i.size === size && i.color === selectedColor);
+                        const isAvailable = match ? match.quantity > 0 : false;
+                        const isSelected = selectedSize === size;
 
-                      return (
-                        <TouchableOpacity
-                          key={size}
-                          disabled={!isAvailable}
-                          onPress={() => isAvailable && setSelectedSize(size)}
-                          style={[
-                            globalStyles.smallButton,
-                            {
-                              backgroundColor: isSelected ? themeColors.for : themeColors.sec,
-                              borderColor: isAvailable ? themeColors.highlight : 'black',
-                              opacity: isAvailable ? 1 : 0.4,
-                              width: isSelected ? 44 : 36,
-                              height: isSelected ? 44 : 36,
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              borderRadius: 22,
-                            },
-                          ]}
-                        >
-                          <ThemedText
-                            style={{
-                              fontSize: isSelected ? 16 : 14,
-                              fontWeight: '600',
-                              color: isSelected ? themeColors.sec : '#f8f8f8',
-                            }}
+                        return (
+                          <TouchableOpacity
+                            key={size}
+                            disabled={!isAvailable}
+                            onPress={() => isAvailable && setSelectedSize(size)}
+                            style={[
+                              globalStyles.smallButton,
+                              {
+                                backgroundColor: isSelected ? themeColors.for : themeColors.sec,
+                                borderColor: isAvailable ? themeColors.highlight : 'black',
+                                opacity: isAvailable ? 1 : 0.4,
+                                width: isSelected ? 44 : 36,
+                                height: isSelected ? 44 : 36,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 22,
+                              },
+                            ]}
                           >
-                            {size}
-                          </ThemedText>
-                        </TouchableOpacity>
-                      );
-                    })}
+                            <ThemedText
+                              style={{
+                                fontSize: isSelected ? 16 : 14,
+                                fontWeight: '600',
+                                color: isSelected ? themeColors.sec : '#f8f8f8',
+                              }}
+                            >
+                              {size}
+                            </ThemedText>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
                   </View>
-                </View>
-              )}
+                )}
 
                 <View style={[globalStyles.selectorGroup, { marginTop: 16 }]}>
                   <ThemedText type={'subtitle'} style={{ marginBottom: 10 }}>Color</ThemedText>
@@ -240,8 +240,10 @@ export default function ProductDetail() {
                   (isAddDisabled || currentStock === 0)
                     ? globalStyles.pillButtonDisabled
                     : globalStyles.pillButton,
-                  { marginTop: item.category?.toLowerCase() === 'souvenirs' ? 40 : 20,
-                    width: '100%'},]}
+                  {
+                    marginTop: item.category?.toLowerCase() === 'souvenirs' ? 40 : 20,
+                    width: '100%'
+                  },]}
 
                 onPress={async () => {
                   const user = auth.currentUser;
@@ -261,17 +263,17 @@ export default function ProductDetail() {
                     ...(item.category.toLowerCase() !== 'souvenirs' && selectedSize ? { size: selectedSize } : {}),
                   };
                   if (
-                      !itemToAdd.id ||
-                      !itemToAdd.name ||
-                      !itemToAdd.color ||
-                      quantity <= 0 ||
-                      (item.category !== 'souvenirs' && !selectedSize)
-                    ) {
-                      alert('Please select all required fields before adding to cart.');
-                      return;
-                    }
+                    !itemToAdd.id ||
+                    !itemToAdd.name ||
+                    !itemToAdd.color ||
+                    quantity <= 0 ||
+                    (item.category !== 'souvenirs' && !selectedSize)
+                  ) {
+                    alert('Please select all required fields before adding to cart.');
+                    return;
+                  }
                   try {
-                    const response = await fetch('http://localhost:3000/api/cart/add', {
+                    const response = await fetch('http://192.168.202.66:3000/api/cart/add', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',

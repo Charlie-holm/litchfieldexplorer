@@ -120,7 +120,7 @@ export default function PointsDetailScreen() {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/redeem-reward', {
+      const response = await fetch('http://192.168.202.66:3000/api/redeem-reward', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

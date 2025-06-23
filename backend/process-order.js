@@ -12,23 +12,35 @@ async function processOrderById(orderId) {
     const doc = await db.collection('orders').doc(orderId).get();
     if (!doc.exists) throw new Error('Order not found');
     const order = doc.data();
-
-    if (order.rewarded) return; // already processed
+    if (order.rewarded) return;
 
     const userId = order.userId;
     const points = order.pointsEarned || 0;
     const userRef = db.collection('users').doc(userId);
+    // Validate order.items
+    if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
+        throw new Error('Order has no items');
+    }
+    const productRefs = order.items.map(item => {
+        if (!item.id) {
+            throw new Error(`Invalid item: missing product id`);
+        }
+        return db.collection('products').doc(item.id);
+    });
 
     await db.runTransaction(async (t) => {
         const userDoc = await t.get(userRef);
         if (!userDoc.exists) throw new Error('User not found');
 
-        for (const item of order.items || []) {
-            const productRef = db.collection('products').doc(item.id);
-            const productDoc = await t.get(productRef);
+        const productDocs = await Promise.all(
+            productRefs.map(ref => t.get(ref))
+        );
+
+        for (let i = 0; i < order.items.length; i++) {
+            const item = order.items[i];
+            const productDoc = productDocs[i];
             if (!productDoc.exists) throw new Error(`Product ${item.id} not found`);
             const currentInventory = productDoc.data().inventory || [];
-
             const updatedInventory = currentInventory.map(invItem => {
                 if (
                     (item.size && invItem.size === item.size) &&
@@ -41,8 +53,7 @@ async function processOrderById(orderId) {
                 }
                 return invItem;
             });
-
-            t.update(productRef, { inventory: updatedInventory });
+            t.update(productRefs[i], { inventory: updatedInventory });
         }
 
         const currentPoints = userDoc.data().points || 0;
@@ -60,11 +71,10 @@ async function processOrderById(orderId) {
             recentActivity: admin.firestore.FieldValue.arrayUnion(recentActivityEntry),
         });
 
-        // Call the tier checking and update function here
+        // Pass already fetched user data to avoid extra reads
         await checkAndUpdateTiers(t, userRef, newPoints, userDoc.data());
 
         t.update(doc.ref, { rewarded: true });
-
         const lastUpdateRef = db.collection('lastupdate').doc('lastupdate');
         t.set(lastUpdateRef, { updatedAt: admin.firestore.FieldValue.serverTimestamp() });
     });
@@ -159,19 +169,19 @@ module.exports = (app) => {
     app.post('/api/cart/add', async (req, res) => {
         const { userId, item } = req.body;
 
-    if (!userId || !item || !item.id || !item.color || !item.category) {
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
-    }
+        if (!userId || !item || !item.id || !item.color || !item.category) {
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
+        }
 
-    const category = (item.category || '').toString().trim().toLowerCase();
-    const isSouvenir = category === 'souvenirs';
+        const category = (item.category || '').toString().trim().toLowerCase();
+        const isSouvenir = category === 'souvenirs';
 
-    console.log('🛒 Incoming item:', item);
-    console.log('🧪 Category:', category, '| isSouvenir:', isSouvenir);
+        console.log('🛒 Incoming item:', item);
+        console.log('🧪 Category:', category, '| isSouvenir:', isSouvenir);
 
-    if (!isSouvenir && (!item.size || item.size === '')) {
-        return res.status(400).json({ success: false, message: 'Size is required for non-souvenir items' });
-    }
+        if (!isSouvenir && (!item.size || item.size === '')) {
+            return res.status(400).json({ success: false, message: 'Size is required for non-souvenir items' });
+        }
         try {
             const cartItemId = `${item.id}-${item.size}-${item.color}`;
             const itemRef = db.collection('users').doc(userId).collection('cart').doc(cartItemId);

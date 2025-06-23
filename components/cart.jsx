@@ -26,7 +26,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
     const points = Math.round(totalPrice * 5);
 
     const fetchCartItems = async () => {
-        const res = await fetch(`http://localhost:3000/api/cart?userId=${user.uid}`);
+        const res = await fetch(`http://192.168.202.66:3000/api/cart?userId=${user.uid}`);
         const data = await res.json();
         setCartItems(data.items || []);
     };
@@ -34,7 +34,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
     const removeItem = async (id) => {
         const updated = cartItems.filter(i => i.cartItemId !== id);
         setCartItems(updated);
-        await fetch('http://localhost:3000/api/cart/remove', {
+        await fetch('http://192.168.202.66:3000/api/cart/remove', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.uid, cartItemId: id })
@@ -44,7 +44,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
     const updateItemQuantity = async (cartItemId, quantity) => {
         const updated = cartItems.map(i => i.cartItemId === cartItemId ? { ...i, quantity } : i);
         setCartItems(updated);
-        await fetch('http://localhost:3000/api/cart/update', {
+        await fetch('http://192.168.202.66:3000/api/cart/update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.uid, cartItemId, quantity })
