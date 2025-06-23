@@ -1,5 +1,33 @@
 🌿 Litchfield Explorer
 
+⸻
+
+🚀 App Running Command
+Frontend
+1️⃣ Clone the repository
+git clone https://github.com/YourUsername/litchfieldexplorer.git
+cd litchfieldexplorer
+2️⃣ Install dependencies
+npm install
+3️⃣ Start the Expo development server
+npx expo start
+4️⃣ Run on your device or emulator
+	•	Scan the QR code in Expo Dev Tools using the Expo Go app (Android/iOS).
+	•	Or press:
+	•	i to run on an iOS simulator
+
+5️⃣ (Optional) Clear cache if needed
+npx expo start -c
+
+Backend
+1️⃣ Build the Docker image
+cd backend
+docker build -t server .
+2️⃣ Run the Docker container
+docker run -p 3000:3000 server
+
+⸻
+
 📍 Description
 
 Litchfield Explorer is a mobile app designed to help tourists and locals discover and navigate Litchfield National Park and nearby attractions. It offers easy access to information about waterfalls, trails, swimming spots, and local shops, all while supporting the local community. With offline access and in-app admin tools, the app ensures visitors have reliable information, even in remote areas.
