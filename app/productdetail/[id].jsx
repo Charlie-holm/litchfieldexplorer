@@ -61,6 +61,14 @@ export default function ProductDetail() {
 
         if (colorsArray.length > 0) {
           setSelectedColor(colorsArray[0]);
+          if (product.category?.toLowerCase() !== 'souvenirs') {
+            const availableSizes = product.inventory
+              .filter(inv => inv.color === colorsArray[0] && inv.quantity > 0)
+              .map(inv => inv.size);
+            if (availableSizes.length > 0) {
+              setSelectedSize(availableSizes[0]);
+            }
+          }
         }
       }
     };
@@ -96,9 +104,18 @@ export default function ProductDetail() {
     ? { uri: item.imageUrl }
     : require('@/assets/images/home1.jpg');
 
-  const currentStock = item.inventory?.find(
-    inv => inv.size === selectedSize && inv.color === selectedColor
-  )?.quantity || 1;
+    const isSouvenir = item.category?.toLowerCase() === 'souvenirs';
+
+    const currentStock = item.inventory?.find(inv => {
+      if (isSouvenir) {
+        return inv.color?.trim().toLowerCase() === selectedColor?.trim().toLowerCase();
+      } else {
+        return (
+          inv.color?.trim().toLowerCase() === selectedColor?.trim().toLowerCase() &&
+          inv.size?.trim().toLowerCase() === selectedSize?.trim().toLowerCase()
+        );
+      }
+    })?.quantity || 0;
 
   const isAddDisabled = item.category !== 'souvenirs'
     ? (!selectedSize || !selectedColor)
@@ -137,28 +154,37 @@ export default function ProductDetail() {
 
                   <ThemedText type={'defaultSemiBold'}>{quantity}</ThemedText>
 
-                  <TouchableOpacity onPress={() => {
-                    const currentStock = item.inventory?.find(
-                      inv => inv.size === selectedSize && inv.color === selectedColor
-                    )?.quantity || 0;
+                  <TouchableOpacity
+                    onPress={() => {
+                      const isSouvenir = item.category?.toLowerCase() === 'souvenirs';
+                      const currentStock = item.inventory?.find(inv => {
+                        if (isSouvenir) {
+                          return inv.color?.trim().toLowerCase() === selectedColor?.trim().toLowerCase();
+                        } else {
+                          return (
+                            inv.color?.trim().toLowerCase() === selectedColor?.trim().toLowerCase() &&
+                            inv.size?.trim().toLowerCase() === selectedSize?.trim().toLowerCase()
+                          );
+                        }
+                      })?.quantity || 0;
 
-                    setQuantity(prev => {
-                      if (prev < currentStock) return prev + 1;
-                      else {
-                        const isSouvenir = item.category.toLowerCase() === 'souvenirs';
-                        const sizePart = isSouvenir ? '' : ` (Size: ${selectedSize},`;
-                        const colorPart = `(Color: ${selectedColor})`;
-
-                        setAlertTitle('Stock Alert');
-                        setAlertMessage(`Only ${currentStock} ${item.name} ${sizePart}${colorPart} available in stock.`);
-                        setShowAlertModal(true);
-                        return prev;
-                      }
-                    });
-                  }}
-                    style={globalStyles.smallButton}>
+                      setQuantity(prev => {
+                        if (prev < currentStock) return prev + 1;
+                        else {
+                          const sizePart = isSouvenir ? '' : ` (Size: ${selectedSize},`;
+                          const colorPart = `(Color: ${selectedColor})`;
+                          setAlertTitle('Stock Alert');
+                          setAlertMessage(`Only ${currentStock} ${item.name} ${sizePart}${colorPart} available in stock.`);
+                          setShowAlertModal(true);
+                          return prev;
+                        }
+                      });
+                    }}
+                    style={globalStyles.smallButton}
+                  >
                     <ThemedText type={'defaultSemiBold'} style={{ color: '#f8f8f8' }}>+</ThemedText>
                   </TouchableOpacity>
+
                 </View>
               </View>
 
