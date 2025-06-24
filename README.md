@@ -69,6 +69,7 @@ The app is developed with a mobile-first, user-friendly approach using modern te
 
 ✅ Local Shops & Vendors:
 	•	Information on local businesses and their products
+	•	Users can place orders directly within the app
 
 ✅ Offline Mode:
 	•	Cached attraction and shop data for use without internet
@@ -82,6 +83,9 @@ The app is developed with a mobile-first, user-friendly approach using modern te
 
 ✅ Smooth Feedback:
 	•	Loading indicators and clear error messages for a seamless experience
+
+✅ Point and Rewards System:
+    • Earn points for activities and redeem rewards
 
 ⸻
 
