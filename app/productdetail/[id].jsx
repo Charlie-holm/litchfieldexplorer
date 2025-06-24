@@ -274,7 +274,7 @@ export default function ProductDetail() {
                     return;
                   }
                   try {
-                    const response = await fetch('http://${ENV.API_BASE_URL}:3000/api/cart/add', {
+                    const response = await fetch(`http://${ENV.API_BASE_URL}:3000/api/cart/add`, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',

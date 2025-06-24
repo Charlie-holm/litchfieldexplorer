@@ -41,7 +41,7 @@ export default function CheckoutIndex() {
                 const token = await user.getIdToken();
                 headers['Authorization'] = `Bearer ${token}`;
             }
-            const res = await fetch('http://${ENV.API_BASE_URL}:3000/api/rewards/apply', {
+            const res = await fetch(`http://${ENV.API_BASE_URL}:3000/api/rewards/apply`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({
@@ -112,7 +112,7 @@ export default function CheckoutIndex() {
                 const token = await user.getIdToken();
                 headers['Authorization'] = `Bearer ${token}`;
             }
-            const res = await fetch('http://${ENV.API_BASE_URL}:3000/api/rewards/valid', {
+            const res = await fetch(`http://${ENV.API_BASE_URL}:3000/api/rewards/valid`, {
                 headers,
             });
             if (!res.ok) {
@@ -400,7 +400,7 @@ async function placeOrder({ items, selectedPickup, voucherId = null }) {
         return;
     }
     try {
-        const response = await fetch('http://${ENV.API_BASE_URL}:3000/api/create-order', {
+        const response = await fetch(`http://${ENV.API_BASE_URL}:3000/api/create-order`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -413,7 +413,7 @@ async function placeOrder({ items, selectedPickup, voucherId = null }) {
         const result = await response.json();
         if (response.ok && result.success) {
             // Clear the cart via backend
-            const clearRes = await fetch('http://${ENV.API_BASE_URL}:3000/api/cart/clear', {
+            const clearRes = await fetch(`http://${ENV.API_BASE_URL}:3000/api/cart/clear`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: user.uid }),

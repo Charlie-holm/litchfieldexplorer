@@ -37,7 +37,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
     const removeItem = async (id) => {
         const updated = cartItems.filter(i => i.cartItemId !== id);
         setCartItems(updated);
-        await fetch('http://${ENV.API_BASE_URL}:3000/api/cart/remove', {
+        await fetch(`http://${ENV.API_BASE_URL}:3000/api/cart/remove`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.uid, cartItemId: id })
@@ -47,7 +47,7 @@ const Cart = ({ cartVisible, setCartVisible, /* other props */ }) => {
     const updateItemQuantity = async (cartItemId, quantity) => {
         const updated = cartItems.map(i => i.cartItemId === cartItemId ? { ...i, quantity } : i);
         setCartItems(updated);
-        await fetch('http://${ENV.API_BASE_URL}:3000/api/cart/update', {
+        await fetch(`http://${ENV.API_BASE_URL}:3000/api/cart/update`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.uid, cartItemId, quantity })
