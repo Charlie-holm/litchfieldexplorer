@@ -20,10 +20,11 @@ npx expo start
 npx expo start -c
 
 Backend
-1️⃣ Build the Docker image
+1️⃣ Put the serviceAccountKey.json in /backend
+2️⃣ Build the Docker image
 cd backend
 docker build -t server .
-2️⃣ Run the Docker container
+3️⃣ Run the Docker container
 docker run -p 3000:3000 server
 
 ⸻
