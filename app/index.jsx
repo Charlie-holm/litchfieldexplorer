@@ -7,6 +7,7 @@ import { downloadAndCacheData } from '@/context/dataCache';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import NetInfo from '@react-native-community/netinfo';
 
 // Debugging logs for imported modules
 console.log('Overlay:', Overlay);
@@ -20,7 +21,21 @@ export default function Index() {
     const [loading, setLoading] = useState(false);
     const [loadingText, setLoadingText] = useState('');
     const [firebaseAvailable, setFirebaseAvailable] = useState(false);
+    const [isConnected, setIsConnected] = useState(true);
     const isLoggedIn = auth.currentUser !== null;
+
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsConnected(state.isConnected && state.isInternetReachable);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        if (!isConnected && !needsDownload) {
+            router.replace('/(tabs)');
+        }
+    }, [isConnected, needsDownload]);
 
     // 🔑 Fetch lastUpdate from Firestore 'lastupdate/lastupdate'
     const getServerLastUpdate = async () => {
@@ -77,6 +92,21 @@ export default function Index() {
         qrLock.current = true;
 
         if (data === 'Litchfield') {
+            if (!isConnected) {
+                if (needsDownload) {
+                    Alert.alert(
+                        'No Internet',
+                        'You need an internet connection to download initial data the first time you scan.',
+                        [{ text: 'OK', onPress: () => { qrLock.current = false; } }]
+                    );
+                    return;
+                } else {
+                    Alert.alert('No Internet', 'You are currently offline. Using cached data.');
+                    qrLock.current = false;
+                    router.replace('/(tabs)');
+                    return;
+                }
+            }
             if (needsDownload) {
                 Alert.alert(
                     "Download Litchfield Explorer?",
@@ -185,7 +215,7 @@ export default function Index() {
                 <Text style={{ color: 'white', fontWeight: 'bold' }}>Skip</Text>
             </TouchableOpacity>
 
-            {!firebaseAvailable && (
+            {!isConnected && (
                 <Text style={{ position: 'absolute', bottom: 10, alignSelf: 'center', color: 'gray' }}>
                     Offline mode
                 </Text>

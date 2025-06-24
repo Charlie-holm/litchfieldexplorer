@@ -10,6 +10,7 @@ import { Colors } from '@/constants/Colors';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { getCachedProducts } from '@/context/dataCache';
 import { auth } from '@/firebaseConfig';
+import ENV from '@/env';
 
 const sizes = ['S', 'M', 'L', 'XL'];
 
@@ -273,7 +274,7 @@ export default function ProductDetail() {
                     return;
                   }
                   try {
-                    const response = await fetch('http://192.168.202.66:3000/api/cart/add', {
+                    const response = await fetch('http://${ENV.API_BASE_URL}:3000/api/cart/add', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',

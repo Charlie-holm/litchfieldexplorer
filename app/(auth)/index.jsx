@@ -36,11 +36,13 @@ export default function AuthIndex() {
     const handleLogin = async () => {
         try {
             setIsLoading(true);
+            console.log('Logging in with:', email);
             await signInWithEmailAndPassword(auth, email, password);
             console.log('Logged in!');
             router.replace('/(tabs)');
         } catch (error) {
-            setErrorMessage('Login failed. Please try again.');
+            console.error('Login error:', error);
+            setErrorMessage(error.message || 'Login failed. Please try again.');
         } finally {
             setIsLoading(false);
         }

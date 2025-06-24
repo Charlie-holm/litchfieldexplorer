@@ -10,6 +10,7 @@ import { useThemeContext } from '@/context/ThemeProvider';
 import { useGlobalStyles } from '@/constants/globalStyles';
 import { getTierDisplayDetails } from '@/scripts/pointsSystem';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import ENV from '@/env';
 
 export default function PointsDetailScreen() {
   const globalStyles = useGlobalStyles();
@@ -119,8 +120,10 @@ export default function PointsDetailScreen() {
       return;
     }
 
+    const requestUrl = `http://${ENV.API_BASE_URL}:3000/api/redeem-reward`;
+    console.log('Redeem reward API URL:', requestUrl);
     try {
-      const response = await fetch('http://192.168.202.66:3000/api/redeem-reward', {
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -128,6 +131,7 @@ export default function PointsDetailScreen() {
           rewardId: selected.id,
         }),
       });
+      console.log('Redeem reward API response status:', response.status);
       const result = await response.json();
       if (result.success) {
         Alert.alert('Success', `Redeemed: ${selected.name}`);
