@@ -25,7 +25,9 @@ export default function RewardPanel() {
     const [rewards, setRewards] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingReward, setEditingReward] = useState(null);
-    const [form, setForm] = useState({ name: '', type: 'free', cost: 0 });
+    const [form, setForm] = useState({ name: '', type: 'free', cost: 0, productId: '' });
+    const [showProductPicker, setShowProductPicker] = useState(false);
+    const [products, setProducts] = useState([]);
     const animatedValues = useRef([]).current;
 
     useEffect(() => {
@@ -50,10 +52,17 @@ export default function RewardPanel() {
         });
         return unsubscribe;
     }, []);
-
+    useEffect(() => {
+    const q = query(collection(db, 'products'), orderBy('name'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setProducts(items);
+    });
+    return unsubscribe;
+  }, []);
     useEffect(() => {
         const listener = DeviceEventEmitter.addListener('triggerAddOverlay', () => {
-            setForm({ name: '', type: 'free', cost: 0 });
+            setForm({ name: '', type: 'free', cost: 0, productId: '' });
             setEditingReward(null);
             setModalVisible(true);
         });
@@ -66,7 +75,9 @@ export default function RewardPanel() {
         });
         return () => refreshListener.remove();
     }, []);
-
+    const openProductPicker = () => {
+        setShowProductPicker(true);
+    };
     const handleSave = async () => {
         const payload = {
             name: form.name.trim(),
@@ -103,7 +114,7 @@ export default function RewardPanel() {
             await logLastUpdate("lastupdate");
             setModalVisible(false);
             setEditingReward(null);
-            setForm({ name: '', type: 'free', cost: '' });
+            setForm({ name: '', type: 'free', cost: '', productId: '' });
             DeviceEventEmitter.emit('triggerRefreshRewardList');
         } catch (error) {
             console.error("Failed to save reward:", error);
@@ -216,13 +227,15 @@ export default function RewardPanel() {
                 onDelete={handleDelete}
                 form={form}
                 setForm={setForm}
+                products={products}
             />
-            <FlatList
-                data={rewards}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-                contentContainerStyle={{ marginVertical: 10, paddingHorizontal: 20 }}
-            />
-        </ThemedView>
+
+      <FlatList
+        data={rewards}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={{ marginVertical: 10, paddingHorizontal: 20 }}
+      />
+    </ThemedView>
     );
 }
