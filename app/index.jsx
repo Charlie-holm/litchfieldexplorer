@@ -22,7 +22,15 @@ export default function Index() {
     const [loadingText, setLoadingText] = useState('');
     const [firebaseAvailable, setFirebaseAvailable] = useState(false);
     const [isConnected, setIsConnected] = useState(true);
-    const isLoggedIn = auth.currentUser !== null;
+    const [isLoggedIn, setIsLoggedIn] = useState(auth.currentUser !== null);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            console.log('Auth state changed:', user);
+            setIsLoggedIn(user != null);
+        });
+        return unsubscribe;
+    }, []);
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
