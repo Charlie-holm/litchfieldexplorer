@@ -107,6 +107,7 @@ const createGlobalStyles = (colorScheme) =>
             marginBottom: 20,
             alignSelf: 'center',
             overflow: 'hidden',
+            width: '100%'
         },
         imageShawdow: {
             position: 'absolute',

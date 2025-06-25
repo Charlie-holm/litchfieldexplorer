@@ -44,7 +44,7 @@ export default function FormModal({
                         </Pressable>
                         <View style={globalStyles.overlayContent}>
                             <ScrollView>
-                                {['name', 'description', 'review', 'location'].map((field) => (
+                                {['name', 'description', 'review'].map((field) => (
                                     <TextInput
                                         key={field}
                                         placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
@@ -57,6 +57,16 @@ export default function FormModal({
                                         style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
                                     />
                                 ))}
+                                <TextInput
+                                    placeholder="Latitude, Longitude"
+                                    placeholderTextColor={Colors[colorScheme].tri}
+                                    value={form.location || ''}
+                                    onChangeText={(text) => {
+                                        setForm(prev => ({ ...prev, location: text }));
+                                    }}
+                                    keyboardType="default" // decimal-pad doesn't allow comma
+                                    style={[globalStyles.thinInputTextBox, { marginBottom: 10 }]}
+                                />
                                 <ThemedText type="defaultSemiBold" style={{ marginBottom: 5 }}>Status</ThemedText>
                                 {(form.statusEntries || []).map((entry, index) => (
                                     <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
@@ -277,14 +287,14 @@ export default function FormModal({
 
                                     <View style={{ flexDirection: 'row', paddingVertical: 4, borderBottomWidth: 1, borderColor: '#ccc', marginBottom: 6 }}>
                                         {form.category !== 'souvenirs' && (
-                                        <ThemedText type="default" style={{ flex: 1 }}>Size</ThemedText>
+                                            <ThemedText type="default" style={{ flex: 1 }}>Size</ThemedText>
                                         )}
                                         <ThemedText type="default" style={{ flex: 1 }}>Color</ThemedText>
                                         <ThemedText type="default" style={{ flex: 1 }}>Qty</ThemedText>
                                         <Text style={{ width: 30 }} />
                                     </View>
 
-                                   {(form.inventory || []).map((entry, idx) => (
+                                    {(form.inventory || []).map((entry, idx) => (
                                         <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
                                             {form.category !== 'souvenirs' ? (
                                                 <TextInput
@@ -296,7 +306,7 @@ export default function FormModal({
                                                         updated[idx].size = text;
                                                         setForm(prev => ({ ...prev, inventory: updated }));
                                                     }}
-                                                     style={{ flex: 1, marginRight: 4, color: Colors[colorScheme].highlight }}
+                                                    style={{ flex: 1, marginRight: 4, color: Colors[colorScheme].highlight }}
                                                 />
                                             ) : null}
                                             <TextInput
@@ -330,7 +340,7 @@ export default function FormModal({
                                                 <IconSymbol name="xmark" size={20} />
                                             </Pressable>
                                         </View>
-                                        ))}
+                                    ))}
 
                                     <Pressable
                                         onPress={() => {
@@ -641,17 +651,17 @@ export default function FormModal({
                                 )}
 
                                 {form.type === 'free' && (
-                                <Pressable
-                                    onPress={() => setShowProductPicker(true)}
-                                    style={[
-                                        globalStyles.thinInputTextBox,
-                                        { marginBottom: 10, justifyContent: 'center', backgroundColor: Colors[colorScheme].backgroundAlt }
-                                    ]}
-                                >
-                                <ThemedText type="default" style={{ color: form.productId ? Colors[colorScheme].highlight : Colors[colorScheme].tri }}>
-                                    {form.productId ? `Selected: ${products.find(p => p.id === form.productId)?.name || 'Unknown'}` : 'Select Product'}
-                                </ThemedText>
-                                </Pressable>
+                                    <Pressable
+                                        onPress={() => setShowProductPicker(true)}
+                                        style={[
+                                            globalStyles.thinInputTextBox,
+                                            { marginBottom: 10, justifyContent: 'center', backgroundColor: Colors[colorScheme].backgroundAlt }
+                                        ]}
+                                    >
+                                        <ThemedText type="default" style={{ color: form.productId ? Colors[colorScheme].highlight : Colors[colorScheme].tri }}>
+                                            {form.productId ? `Selected: ${products.find(p => p.id === form.productId)?.name || 'Unknown'}` : 'Select Product'}
+                                        </ThemedText>
+                                    </Pressable>
                                 )}
 
                                 {/* Save/Delete Buttons */}
@@ -671,7 +681,7 @@ export default function FormModal({
 
                                         if (missingFields.length > 0) {
                                             Alert.alert("Missing Information", `Please fill in: ${missingFields.join(', ')}`);
-                                        return;
+                                            return;
                                         }
 
                                         onSave();
@@ -683,12 +693,12 @@ export default function FormModal({
                                             marginTop: 12,
                                             width: '100%',
                                             opacity:
-                                            !form.name || !form.cost || !form.type ||
-                                                (form.type === 'discount' && (!form.discount || isNaN(form.discount))) ||
-                                                (form.type === 'free' && !form.productId)
-                                                ? 0.6
-                                                : 1,
-                                            },
+                                                !form.name || !form.cost || !form.type ||
+                                                    (form.type === 'discount' && (!form.discount || isNaN(form.discount))) ||
+                                                    (form.type === 'free' && !form.productId)
+                                                    ? 0.6
+                                                    : 1,
+                                        },
                                     ]}
                                 >
                                     <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Save</ThemedText>
@@ -702,96 +712,96 @@ export default function FormModal({
                                             { backgroundColor: '#e74c3c', marginTop: 8, width: '100%' },
                                         ]}
                                     >
-                                    <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Delete</ThemedText>
+                                        <ThemedText type="defaultSemiBold" style={{ color: 'white' }}>Delete</ThemedText>
                                     </Pressable>
-                                    )}
+                                )}
                             </ScrollView>
                         </View>
 
                         {showProductPicker && (
-                        <View style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            backgroundColor: 'rgba(0,0,0,0.5)',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            padding: 20,
-                            zIndex: 1000,
-                        }}>
-                        <View style={{
-                            backgroundColor: Colors[colorScheme].background,
-                            borderRadius: 12,
-                            padding: 20,
-                            width: '100%',
-                            maxHeight: '80%',
-                        }}>
-                        <ScrollView style={{ paddingBottom: 20 }}>
-                            {products.length === 0 ? (
-                            <ThemedText type="default" style={{ textAlign: 'center', color: Colors[colorScheme].text }}>
-                                No products available
-                            </ThemedText>
-                            ) : (
-                            products.map((item) => (
-                                <Pressable
-                                key={item.id}
-                                style={[
-                                    globalStyles.buttonCard, 
-                                    {
-                                    marginBottom: 12,
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    }
-                                ]}
-                                onPress={() => {
-                                    setForm(prev => ({
-                                    ...prev,
-                                    productId: item.id,
-                                    name: `Free ${item.name}`,
-                                    }));
-                                    setShowProductPicker(false);
-                                }}
-                                >
-                                {item.image && (
-                                    <Image
-                                    source={{ uri: item.image }}
-                                    style={{
-                                        width: 80,
-                                        height: 80,
-                                        borderRadius: 8,
-                                        marginRight: 12,
-                                        backgroundColor: '#ccc',
-                                    }}
-                                    />
-                                )}
-                                <View style={{ flex: 1 }}>
-                                    <ThemedText type="subtitle" style={{ color: Colors[colorScheme].highlight }}>
-                                    {item.name}
-                                    </ThemedText>
-                                    {/* Optional: Add more info below if needed */}
+                            <View style={{
+                                position: 'absolute',
+                                top: 0, left: 0, right: 0, bottom: 0,
+                                backgroundColor: 'rgba(0,0,0,0.5)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                padding: 20,
+                                zIndex: 1000,
+                            }}>
+                                <View style={{
+                                    backgroundColor: Colors[colorScheme].background,
+                                    borderRadius: 12,
+                                    padding: 20,
+                                    width: '100%',
+                                    maxHeight: '80%',
+                                }}>
+                                    <ScrollView style={{ paddingBottom: 20 }}>
+                                        {products.length === 0 ? (
+                                            <ThemedText type="default" style={{ textAlign: 'center', color: Colors[colorScheme].text }}>
+                                                No products available
+                                            </ThemedText>
+                                        ) : (
+                                            products.map((item) => (
+                                                <Pressable
+                                                    key={item.id}
+                                                    style={[
+                                                        globalStyles.buttonCard,
+                                                        {
+                                                            marginBottom: 12,
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                        }
+                                                    ]}
+                                                    onPress={() => {
+                                                        setForm(prev => ({
+                                                            ...prev,
+                                                            productId: item.id,
+                                                            name: `Free ${item.name}`,
+                                                        }));
+                                                        setShowProductPicker(false);
+                                                    }}
+                                                >
+                                                    {item.image && (
+                                                        <Image
+                                                            source={{ uri: item.image }}
+                                                            style={{
+                                                                width: 80,
+                                                                height: 80,
+                                                                borderRadius: 8,
+                                                                marginRight: 12,
+                                                                backgroundColor: '#ccc',
+                                                            }}
+                                                        />
+                                                    )}
+                                                    <View style={{ flex: 1 }}>
+                                                        <ThemedText type="subtitle" style={{ color: Colors[colorScheme].highlight }}>
+                                                            {item.name}
+                                                        </ThemedText>
+                                                        {/* Optional: Add more info below if needed */}
+                                                    </View>
+                                                </Pressable>
+                                            ))
+                                        )}
+                                    </ScrollView>
+
+                                    <Pressable
+                                        onPress={() => setShowProductPicker(false)}
+                                        style={{
+                                            backgroundColor: Colors[colorScheme].sec,
+                                            marginTop: 10,
+                                            paddingVertical: 12,
+                                            borderRadius: 8,
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <ThemedText type="subtitle" style={{ color: '#f8f8f8' }}>
+                                            Close
+                                        </ThemedText>
+                                    </Pressable>
+
                                 </View>
-                                </Pressable>
-                            ))
-                            )}
-                        </ScrollView>
-
-                        <Pressable
-                            onPress={() => setShowProductPicker(false)}
-                            style={{
-                            backgroundColor: Colors[colorScheme].sec,
-                            marginTop: 10,
-                            paddingVertical: 12,
-                            borderRadius: 8,
-                            alignItems: 'center',
-                            }}
-                        >
-                            <ThemedText type="subtitle" style={{ color: '#f8f8f8' }}>
-                            Close
-                            </ThemedText>
-                        </Pressable>
-
-                        </View>
-                    </View>
-                    )}
+                            </View>
+                        )}
 
                     </View>
                 </Modal>

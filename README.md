@@ -87,14 +87,16 @@ The app is developed with a mobile-first, user-friendly approach using modern te
 ✅ Point and Rewards System:
     • Earn points for activities and redeem rewards
 
+✅ Interactive Map: 
+    • Show attractions and shops on a map with navigation support
 ⸻
 
 🚀 Future Expectations
 	•	Attraction & Product Reviews: Allow users to submit and read ratings and feedback
-	•	Interactive Map: Show attractions and shops on a map with navigation support
 	•	Saved Favourites: Let users bookmark places and plan trips
 	•	Push Notifications: Keep users informed about events, alerts, or promotions
 	•	Verified Badges: Build trust by verifying user actions and reviews
+	•	Cooprate with other attraction: Add all national park in Australia in this app
 
 ⸻
 

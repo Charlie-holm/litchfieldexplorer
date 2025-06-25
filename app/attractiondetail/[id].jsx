@@ -1,3 +1,7 @@
+const partsAreValid = (loc) => {
+    const parts = loc.split(',').map(s => parseFloat(s.trim()));
+    return parts.length === 2 && parts.every(n => !isNaN(n));
+};
 import { View, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
@@ -9,6 +13,7 @@ import { useThemeContext } from '@/context/ThemeProvider';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useGlobalStyles } from '@/constants/globalStyles';
+import MapView, { Marker } from 'react-native-maps';
 
 
 export default function AttractionDetail() {
@@ -95,6 +100,31 @@ export default function AttractionDetail() {
                                         {attraction.activities?.map((a, idx) => renderFacility(a, 'checkbox-marked', idx, colorScheme))}
                                     </View>
                                 </View>
+                                {attraction?.location && partsAreValid(attraction.location) && (
+                                    <View style={{ marginTop: 20, height: 300 }}>
+                                        <ThemedText type="subtitle" style={{ marginBottom: 10 }}>Map</ThemedText>
+                                        <View style={globalStyles.heroImage}>
+                                            <MapView
+                                                style={{ flex: 1 }}
+                                                initialRegion={{
+                                                    latitude: parseFloat(attraction.location.split(',')[0]),
+                                                    longitude: parseFloat(attraction.location.split(',')[1]),
+                                                    latitudeDelta: 0.01,
+                                                    longitudeDelta: 0.01,
+                                                }}
+                                            >
+                                                <Marker
+                                                    coordinate={{
+                                                        latitude: parseFloat(attraction.location.split(',')[0]),
+                                                        longitude: parseFloat(attraction.location.split(',')[1]),
+                                                    }}
+                                                    title={attraction.name}
+                                                    description={attraction.description}
+                                                />
+                                            </MapView>
+                                        </View>
+                                    </View>
+                                )}
                             </View>
                         </>
                     )}
