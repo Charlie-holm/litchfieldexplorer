@@ -177,7 +177,9 @@ export default function PointsDetailScreen() {
               {(fill) => (
                 <View style={{ alignItems: 'center' }}>
                   <ThemedText type="subtitle">
-                    {currentPoints} / {pointsToNext + currentPoints} pts
+                    {currentPoints > 1500
+                      ? `${currentPoints} pts`
+                      : `${currentPoints} / ${pointsToNext + currentPoints} pts`}
                   </ThemedText>
                   <View style={{ height: 10 }} />
                   <ThemedText type="title">{tier} Tier</ThemedText>
@@ -188,11 +190,11 @@ export default function PointsDetailScreen() {
 
           <View style={[globalStyles.overlayContent, { width: '100%', marginVertical: 10, marginTop: 20 }]}>
             {showUpgradeMessage ? (
-              <ThemedText type="title" style={{ textAlign: 'center', color: '#4CAF50' }}>
+              <ThemedText type="subtitle" style={{ textAlign: 'center', color: '#4CAF50' }}>
                 🎉 Congratulations! You've reached the {tier} Tier!
               </ThemedText>
             ) : (
-              <ThemedText type="default" style={{ textAlign: 'center' }}>
+              <ThemedText type="subtitle" style={{ textAlign: 'center' }}>
                 {pointsToNext > 0
                   ? `Earn ${pointsToNext} more points to reach ${nextTier} Tier!`
                   : `You've reached the highest tier! 🎉`}
@@ -200,14 +202,21 @@ export default function PointsDetailScreen() {
             )}
           </View>
           <View style={[globalStyles.overlayContent, { width: '100%', marginVertical: 10 }]}>
-            <ThemedText type="default" style={{ textAlign: 'center' }}>
-              Next Tier: {nextTier}
-            </ThemedText>
-            <ThemedText type="small" style={{ textAlign: 'center', marginTop: 4 }}>
-              {pointsToNext} pts needed to reach {nextTier} Tier
-            </ThemedText>
+            {pointsToNext > 0 && (
+              <>
+                <ThemedText type="default" style={{ textAlign: 'center' }}>
+                  Next Tier: {nextTier}
+                </ThemedText>
+                <ThemedText type="small" style={{ textAlign: 'center', marginTop: 4 }}>
+                  {pointsToNext} pts needed to reach {nextTier} Tier
+                </ThemedText>
+              </>
+            )}
             {formattedExpiryDate && (
-              <ThemedText type="small" style={{ textAlign: 'center', marginTop: 4 }}>
+              <ThemedText
+                type={pointsToNext > 0 ? 'small' : 'defaultSemiBold'}
+                style={{ textAlign: 'center', marginTop: 4 }}
+              >
                 Tier valid until {formattedExpiryDate}
               </ThemedText>
             )}
@@ -304,7 +313,7 @@ export default function PointsDetailScreen() {
 
           {/* Recent Activity */}
           <ThemedText type="title" style={{ marginTop: 30 }}>
-            Recent Activity
+            Recent Activities
           </ThemedText>
           <View style={{ marginTop: 10 }}>
             {activities.length === 0 ? (
