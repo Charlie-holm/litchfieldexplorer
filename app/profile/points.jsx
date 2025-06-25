@@ -310,33 +310,41 @@ export default function PointsDetailScreen() {
             {activities.length === 0 ? (
               <ThemedText type="default">No recent activity found.</ThemedText>
             ) : (
-              activities.map((act, index) => (
-                <View
-                  key={index}
-                  style={[
-                    globalStyles.buttonCard,
-                    {
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    },
-                  ]}
-                >
-                  <View>
-                    <ThemedText type="subtitle">{act.label}</ThemedText>
-                    {act.date ? (
-                      <ThemedText type="small" style={{ marginTop: 4 }}>
-                        {act.date}
-                      </ThemedText>
-                    ) : null}
+              <>
+                {activities.slice(0, 5).map((act, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      globalStyles.buttonCard,
+                      {
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      },
+                    ]}
+                  >
+                    <View>
+                      <ThemedText type="subtitle">{act.label}</ThemedText>
+                      {act.date ? (
+                        <ThemedText type="small" style={{ marginTop: 4 }}>
+                          {act.date}
+                        </ThemedText>
+                      ) : null}
+                    </View>
+                    <ThemedText type="subtitle">
+                      {act.points < 0 ? `${act.points} pts` : `+${act.points} pts`}
+                    </ThemedText>
                   </View>
+                ))}
+                {activities.length > 5 && (
                   <ThemedText
                     type="subtitle"
+                    style={{ textAlign: 'center', marginTop: 10, fontSize: 40, fontWeight: 'bold' }}
                   >
-                    {act.points < 0 ? `${act.points} pts` : `+${act.points} pts`}
+                    ⋮
                   </ThemedText>
-                </View>
-              ))
+                )}
+              </>
             )}
           </View>
         </ThemedView>
